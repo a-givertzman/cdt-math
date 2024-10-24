@@ -3,7 +3,7 @@ use std::path::{Path, PathBuf};
 use crate::kernel::run::Run;
 
 pub struct App {
-    path: PathBuf,
+    _path: PathBuf,
 }
 //
 //
@@ -13,7 +13,7 @@ impl App {
     /// - path - relative path to the config (yaml)
     pub fn new(path: impl AsRef<Path>) -> Self {
         Self {
-            path: path.as_ref().into(),
+            _path: path.as_ref().into(),
         }
     }
 }
