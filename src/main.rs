@@ -7,7 +7,7 @@ use kernel::run::Run;
 use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
 ///
 /// Application entry point
-use kernel::crane_constructor::hook_chooser;
+use kernel::crane_constructor::hook_chooser::middle_din_coeff::MiddDinCoeff;
 use kernel::crane_constructor::user::user_select::UserSelect;
 
 fn main() {
@@ -19,6 +19,9 @@ fn main() {
     };
 
     //Запрос пользователя
-    let user: UserSelect = UserSelect::new();
+    //let user: UserSelect = UserSelect::new();
+
+    // Промежуточные коэфф для дин расчета
+    let mid_din_c: MiddDinCoeff = MiddDinCoeff::new(UserSelect::new());
 
 }
