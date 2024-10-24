@@ -1,6 +1,6 @@
 #[cfg(test)]
 
-mod tests {
+mod din_coeff {
     use std::{sync::Once, time::{Duration, Instant}};
     use testing::stuff::max_test_duration::TestDuration;
     use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
@@ -22,7 +22,7 @@ mod tests {
     ///
     /// Testing such functionality / behavior
     #[test]
-    fn test_task_cycle() {
+    fn test_dincoeff() {
         DebugSession::init(LogLevel::Info, Backtrace::Short);
         init_once();
         init_each();
@@ -31,7 +31,19 @@ mod tests {
         log::debug!("\n{}", self_id);
         let test_duration = TestDuration::new(self_id, Duration::from_secs(1));
         test_duration.run().unwrap();
-        assert!(result == target, "step {} \nresult: {:?}\ntarget: {:?}", step, result, target);
+        let test_data =[
+            ((20.0,20.0,20.0), 420.0),
+            ((10.0,10.0,10.0), 110.0),
+            ((11.0,11.0,11.0), 132.0),
+            
+        ];
+           
+        for (value,target) in test_data.into_iter(){
+            let result = DinCoeff::dincoeff(value.0, value.1, value.2);
+            assert!(result == target, "result: {:?}\ntarget: {:?}", result, target);
+        }
+
+        
         test_duration.exit();
     }
 }
