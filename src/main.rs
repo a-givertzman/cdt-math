@@ -9,6 +9,7 @@ use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
 /// Application entry point
 use kernel::crane_constructor::hook_chooser::middle_din_coeff::MiddDinCoeff;
 use kernel::crane_constructor::user::user_select::UserSelect;
+use kernel::crane_constructor::hook_chooser::din_coeff::DinCoeff;
 
 fn main() {
     DebugSession::init(LogLevel::Debug, Backtrace::Short);
@@ -22,6 +23,9 @@ fn main() {
     //let user: UserSelect = UserSelect::new();
 
     // Промежуточные коэфф для дин расчета
-    let mid_din_c: MiddDinCoeff = MiddDinCoeff::new(UserSelect::new());
+    //let mid_din_c: MiddDinCoeff = MiddDinCoeff::new(UserSelect::new());
+
+    // Расчет динамического коэффициента
+    let din_coeff: DinCoeff = DinCoeff::new(MiddDinCoeff::new(UserSelect::new()));
 
 }
