@@ -3,6 +3,7 @@ mod app;
 #[cfg(test)]
 mod tests;
 use app::app::App;
+use kernel::crane_constructor::hook_chooser::hook::Hook;
 use kernel::run::Run;
 use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
 ///
@@ -47,5 +48,10 @@ fn main() {
     storage.set("конструкции/подшипники/название/8100Н/наружный диаметр/", 11.0);
     storage.set("конструкции/подшипники/название/8101Н/наружный диаметр/", 11.0);
 
+
+    // Выбор крюка
+    let hook = Hook::new(ParamComp::new(DinCoeff::new(MiddDinCoeff::new(UserSelect::new()))), &mut storage);
+
+    print!("{:?}", hook.hooks);
 
 }
