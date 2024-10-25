@@ -23,7 +23,7 @@ fn main() {
     };
 
     //Запрос пользователя
-    //let user: UserSelect = UserSelect::new();
+    let user: UserSelect = UserSelect::new();
 
     // Промежуточные коэфф для дин расчета
     //let mid_din_c: MiddDinCoeff = MiddDinCoeff::new(UserSelect::new());
@@ -48,10 +48,13 @@ fn main() {
     storage.set("конструкции/подшипники/название/8100Н/наружный диаметр/", 11.0);
     storage.set("конструкции/подшипники/название/8101Н/наружный диаметр/", 11.0);
 
+    if(user.cargo_name.eq("")){
+        // Выбор крюка
+        let hook = Hook::new(ParamComp::new(DinCoeff::new(MiddDinCoeff::new(user))), &mut storage);
+    }
+    else{
+        //Выбор другого грузозахватного органа 
+    }
 
-    // Выбор крюка
-    let hook = Hook::new(ParamComp::new(DinCoeff::new(MiddDinCoeff::new(UserSelect::new()))), &mut storage);
-
-    print!("{:?}", hook.hooks);
 
 }
