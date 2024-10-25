@@ -10,6 +10,7 @@ use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
 use kernel::crane_constructor::hook_chooser::middle_din_coeff::MiddDinCoeff;
 use kernel::crane_constructor::user::user_select::UserSelect;
 use kernel::crane_constructor::hook_chooser::din_coeff::DinCoeff;
+use kernel::crane_constructor::hook_chooser::param_comp::ParamComp;
 
 fn main() {
     DebugSession::init(LogLevel::Debug, Backtrace::Short);
@@ -26,6 +27,9 @@ fn main() {
     //let mid_din_c: MiddDinCoeff = MiddDinCoeff::new(UserSelect::new());
 
     // Расчет динамического коэффициента
-    let din_coeff: DinCoeff = DinCoeff::new(MiddDinCoeff::new(UserSelect::new()));
+    //let din_coeff: DinCoeff = DinCoeff::new(MiddDinCoeff::new(UserSelect::new()));
+
+    // Готовые значения для выбора крюка
+    let comp_param: ParamComp = ParamComp::new(DinCoeff::new(MiddDinCoeff::new(UserSelect::new())));
 
 }
