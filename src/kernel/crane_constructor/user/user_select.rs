@@ -110,14 +110,22 @@ impl UserSelect {
                     Err(e) => println!("Input error! {}",e)
                 }
 
-                println!("Enter weight of cargo!");
+                println!("Enter weight of cargo! (if you dont know enter 0");
                 let mut weight_cargo = String::new();
                 match io::stdin().read_line(&mut weight_cargo) {
                     Ok(_) => {},
                     Err(e) => println!("Input error! {}",e)
                 }
 
-                Self { m_to_lift: String::from(""), 
+
+                println!("Enter load capacity:");
+                let mut m_str = String::new();
+                match io::stdin().read_line(&mut m_str) {
+                    Ok(_) => {},
+                    Err(e) => println!("Input error! {}",e)
+                }
+
+                Self { m_to_lift: m_str, 
                     lift_class: String::from(""), 
                     load_comb: String::from(""), 
                     drive_type: String::from(""), 

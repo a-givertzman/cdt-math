@@ -3,6 +3,7 @@ mod app;
 #[cfg(test)]
 mod tests;
 use app::app::App;
+use kernel::crane_constructor::hook_chooser::cargo::Cargo;
 use kernel::crane_constructor::hook_chooser::hook::Hook;
 use kernel::run::Run;
 use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
@@ -55,7 +56,7 @@ fn main() {
     }
     else{
         //Выбор другого грузозахватного органа 
-        
+        let cargo = Cargo::new(user);
     }
 
 
