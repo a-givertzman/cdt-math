@@ -29,7 +29,7 @@ impl hoisting_tackle{
         }
     }
 
-    fn cable_count(s: f64, m_to_lift: &String, w_hook: &String) -> f64{
+    pub fn cable_count(s: f64, m_to_lift: &String, w_hook: &String) -> f64{
         let mut M: f64 = 0.0;
         match m_to_lift.trim().parse::<f64>() {
             Ok(value) => M = value,
