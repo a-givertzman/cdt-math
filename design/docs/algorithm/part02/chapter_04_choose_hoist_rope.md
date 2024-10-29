@@ -100,12 +100,11 @@ $m_п$ - [кратность полиспаста](/design/docs/algorithm/part02
             <td colspan=2 align="center">Обычная рабочая среда</td>
             <td rowspan=2 align="center">Агрессивная рабочая среда</td>
             <td rowspan=2 align="center">Сильно агрессивная рабочая среда</td>
-            <td rowspan=2></td>
+            <td></td>
         </tr>
         <tr>
             <td align="center">Без ветра</td>
             <td align="center">Ветровой район I, II и т.д.</td>
-            <td rowspan=2></td>
         </tr>
         <tr>
             <td align="center">Для канатов ГОСТ, СТО и т.д.</td>
