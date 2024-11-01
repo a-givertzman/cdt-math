@@ -5,7 +5,6 @@ mod tests;
 
 
 use app::app::App;
-use kernel::crane_constructor::hook_chooser::cargo::Cargo;
 use kernel::crane_constructor::hook_chooser::hook::Hook;
 use kernel::crane_constructor::hook_chooser::param_comp::Param_to_compare;
 use kernel::crane_constructor::user::user_select::UserSelect;

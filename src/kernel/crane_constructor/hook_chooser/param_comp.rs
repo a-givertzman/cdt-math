@@ -18,6 +18,8 @@ pub struct Param_to_compare{
 
 impl Param_to_compare{
     pub fn new(user_select: UserSelect) -> Self {
+
+
        let fmg = Self::get_fmg(user_select.m_to_lift,&user_select.lift_class,&user_select.load_comb,&user_select.drive_type,user_select.vhmax,user_select.vhcs);
         Self {
             _m_to_lift: user_select.m_to_lift,

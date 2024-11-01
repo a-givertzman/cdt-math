@@ -1,6 +1,6 @@
 #[cfg(test)]
 
-mod tests {
+mod param_to_compare {
     use std::{sync::Once, time::{Duration, Instant}};
     use testing::stuff::max_test_duration::TestDuration;
     use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
