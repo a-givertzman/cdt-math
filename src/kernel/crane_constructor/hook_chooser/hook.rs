@@ -4,7 +4,9 @@ use crate::Param_to_compare;
 use std::io;
 pub struct Hook{
     // Vec<Vec<String> Крюки<Характеристики>
-
+    pub cargo_name: String,
+    pub summary_weight: f64,
+    pub good_weight: f64,
     pub hook: Vec<String>,
     pub bearing: String
 }
@@ -18,18 +20,43 @@ impl Hook{
         println!("{}",_param_comp._hook_type);
         //Выбор крюка
         let res_hook = Self::hook_select(Self::weight_check(&_param_comp, hooks_storage));
-
-
+    
+    
         //Выбор подшипника
         let res_bearing: String = Self::bearing_select(Self::bearing_check(&_param_comp, hooks_storage, &res_hook));
         
+        // Расчет массы грузозахватного органа
+        let mut hook_weight = 0.0;
+        match res_hook[4].parse::<f64>() {
+            Ok(value) => {
+                hook_weight = value;
+            }
+            Err(e) => {
+                println!("Failed to parse string: {}", e);
+            }
+        }
+        let  (mut tmp_summary_weight,mut tmp_good_weight) = (hook_weight,0.0);
+        
+        if !_param_comp.cargo_name.is_empty(){
+            (tmp_summary_weight, tmp_good_weight) = Self::cargo_weights(_param_comp._m_to_lift,_param_comp.cargo_weight, hook_weight);
+        }
 
         Self {
+            cargo_name: _param_comp.cargo_name,
+            summary_weight: tmp_summary_weight,
+            good_weight: tmp_good_weight,
             hook: res_hook,
             bearing: res_bearing,
         }
     }
     
+    pub fn cargo_weights(m_to_lift: f64, cargo_weight: f64,hook_weight: f64) -> (f64,f64){
+        let summary_weight = hook_weight + cargo_weight;
+        let good_weight = m_to_lift - cargo_weight;
+    
+        (summary_weight,good_weight)
+    }
+
     fn hook_select(hooks: Vec<Vec<String>>) -> Vec<String> {
         println!("Which one do you choose?");
         let mut counter: usize = 0;

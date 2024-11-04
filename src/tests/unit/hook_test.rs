@@ -71,7 +71,9 @@ mod hook {
                 _m_to_lift: value.0,
                 _hook_type: value.1.to_string(),
                 _m_work_type: value.2.to_string(),
-                _fmg: Param_to_compare::get_fmg(3.0, value.2, "A1","HD1",1.0,1.0)
+                _fmg: Param_to_compare::get_fmg(3.0, value.2, "A1","HD1",1.0,1.0),
+                cargo_name: String::new(),
+                cargo_weight: 0.0
             }, &mut storage);
             let mut i:usize = 0;
             assert!(result.len()==target.len());
@@ -152,7 +154,9 @@ mod hook {
                 _m_to_lift: value.0,
                 _hook_type: value.1.to_string(),
                 _m_work_type: value.2.to_string(),
-                _fmg: Param_to_compare::get_fmg(3.0, "M1", "A1","HD1",1.0,1.0)
+                _fmg: Param_to_compare::get_fmg(3.0, "M1", "A1","HD1",1.0,1.0),
+                cargo_name: String::new(),
+                cargo_weight: 0.0
             }, &mut storage,&vec![value.3.to_string()]);
             assert!(result == target, "result: {:?}\ntarget: {:?}", result, target);
         }
@@ -160,5 +164,32 @@ mod hook {
         test_duration.exit();
     }
 
+    #[test]
+    fn test_cargo_weights(){
+        DebugSession::init(LogLevel::Info, Backtrace::Short);
+        init_once();
+        init_each();
+        log::debug!("");
+        let self_id = "test";
+        log::debug!("\n{}", self_id);
+        let test_duration = TestDuration::new(self_id, Duration::from_secs(1));
+        test_duration.run().unwrap();
+    
+        let test_data =[
+            ((22.4,5.4,0.4), (5.800000000000001,17.0)),
+            ((2.4,0.4,3.4), (3.8,2.0)),
+            ((3.4,11.4,13.4), (24.8,-8.0)),
+            ((12.4,0.4,4.4), (4.800000000000001,12.0)),
+    
+        ];
+           
+        for (value,target) in test_data.into_iter(){
+        
+            let result = Hook::cargo_weights(value.0, value.1, value.2);
+            assert!(result == target, "result: {:?}\ntarget: {:?}", result, target);
+        }
+        
+        test_duration.exit();
+    }
 
 }

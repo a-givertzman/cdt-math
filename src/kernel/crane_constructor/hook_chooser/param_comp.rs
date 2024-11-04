@@ -10,6 +10,8 @@ struct Phi {
 }
 
 pub struct Param_to_compare{
+    pub cargo_name: String,
+    pub cargo_weight: f64,
     pub _m_to_lift: f64,
     pub _m_work_type: String,
     pub _hook_type: String,
@@ -22,6 +24,8 @@ impl Param_to_compare{
 
        let fmg = Self::get_fmg(user_select.m_to_lift,&user_select.lift_class,&user_select.load_comb,&user_select.drive_type,user_select.vhmax,user_select.vhcs);
         Self {
+            cargo_name: user_select.cargo_name,
+            cargo_weight: user_select.cargo_weight,
             _m_to_lift: user_select.m_to_lift,
             _m_work_type: user_select.m_work_type,
             _fmg: fmg, // Передача веса как параметра
