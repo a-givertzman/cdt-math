@@ -5,11 +5,11 @@ mod tests;
 
 
 use app::app::App;
-use kernel::crane_constructor::hook_chooser::hook::Hook;
+use kernel::crane_constructor::hoisting_tackle::hoisting_tackle::HoistingTackle;
+use kernel::crane_constructor::{hoisting_tackle, hook_chooser::hook::Hook};
 use kernel::crane_constructor::hook_chooser::param_comp::Param_to_compare;
 use kernel::crane_constructor::user::user_select::UserSelect;
 use kernel::storage::storage::Storage;
-//use kernel::crane_constructor::hoisting_tackle::hoisting_tackle::hoisting_tackle;
 use kernel::run::Run;
 use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
 
@@ -85,7 +85,8 @@ fn main() {
 
 
     // Выбор крюка
-    let hook = Hook::new(Param_to_compare::new(user), &mut storage);
+    let hook = Hook::new(Param_to_compare::new(&user), &mut storage);
 
+    let hoisting_tackle = HoistingTackle::new(user.m_to_lift, &hook);
 
 }
