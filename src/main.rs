@@ -84,9 +84,16 @@ fn main() {
 
 
 
-    // Выбор крюка
-    let hook = Hook::new(Param_to_compare::new(&user), &mut storage);
+    // Создание экземпляра класса Hook
+    let mut hook = Hook::new(Param_to_compare::new(&user));
 
-    let hoisting_tackle = HoistingTackle::new(user.m_to_lift, &hook);
+    // Вычисление крюка и подшипника
+    hook.eval(&mut storage);
+
+    // Создание экземпляра класса HoistingTackle
+    let mut hoisting_tackle = HoistingTackle::new(&hook);
+
+    // Вычисление кол-ва канатов и полиспаста
+    hoisting_tackle.eval();
 
 }

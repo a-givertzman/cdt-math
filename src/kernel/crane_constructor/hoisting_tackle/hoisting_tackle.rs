@@ -4,21 +4,31 @@ use crate::kernel::crane_constructor::hook_chooser::hook::Hook;
 pub struct HoistingTackle {
     pub hoisting_tackle: i8,
     pub cable_count: f64,
-    pub multiplicity_of_polispast: f64
+    pub multiplicity_of_polispast: f64,
+    hook_summary_weight: f64,
+    m_to_lift: f64,
 }
 
 impl HoistingTackle {
-    pub fn new(m_to_lift: f64, hook: &Hook) -> Self {
-        let s = Self::s_select(m_to_lift);
-        let cable_count = Self::cable_count(s, m_to_lift, hook.summary_weight);
-        let hoisting_tackle = Self::a_select(cable_count);
-        let multi = cable_count/(hoisting_tackle as f64);
-
+    pub fn new(hook: &Hook) -> Self {
         Self {
-            cable_count,
-            hoisting_tackle,
-            multiplicity_of_polispast: multi
+            m_to_lift: hook.m_to_lift,
+            hook_summary_weight: hook.summary_weight,
+            cable_count: 0.0,
+            hoisting_tackle: 0,
+            multiplicity_of_polispast: 0.0
         }
+    }
+
+    pub fn eval(&mut self){
+        let s = Self::s_select(self.m_to_lift);
+        let tmp_cable_count = Self::cable_count(s, self.m_to_lift, self.hook_summary_weight);
+        let tmp_hoisting_tackle = Self::a_select(tmp_cable_count);
+        let multi = tmp_cable_count/(tmp_hoisting_tackle as f64);
+
+        self.cable_count = tmp_cable_count;
+        self.hoisting_tackle = tmp_hoisting_tackle;
+        self.multiplicity_of_polispast = multi;
     }
 
     pub fn a_select(n: f64) -> i8 {
