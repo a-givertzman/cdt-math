@@ -5,10 +5,11 @@ mod tests;
 
 
 use app::app::App;
-use kernel::crane_constructor::hook_chooser::hook::Hook;
+use kernel::crane_constructor::hook_chooser::{all_hooks::AllHooks, hook::Hook};
 use kernel::crane_constructor::hook_chooser::param_comp::Param_to_compare;
 use kernel::crane_constructor::user::user_select::UserSelect;
 use kernel::storage::storage::Storage;
+//use kernel::crane_constructor::hoisting_tackle::hoisting_tackle::hoisting_tackle;
 use kernel::run::Run;
 use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
 
@@ -83,12 +84,16 @@ fn main() {
 
 
 
-    // Выбор крюка
-    let mut hook = Hook::new(Param_to_compare::new(user));
+    // Выбор всех подходящих крюков
+    let mut all_hooks = AllHooks::new(Param_to_compare::new(user));
+
+
+    all_hooks.eval(&mut storage);
+
+    // Выбор нужного крюка из списка подходящих
+    let mut hook = Hook::new(all_hooks);
 
     hook.eval(&mut storage);
-
-
 
 
 }
