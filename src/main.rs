@@ -85,7 +85,11 @@ fn main() {
 
 
     // Выбор крюка
-    let hook = Hook::new(Param_to_compare::new(user), &mut storage);
+    let mut hook = Hook::new(Param_to_compare::new(user));
+
+    hook.eval(&mut storage);
+
+    
 
 
 }
