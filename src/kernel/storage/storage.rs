@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 ///
 /// Перечеслиние, для работы с хранилищем
-/// 
+///
 pub enum Value {
     Data(f64),
     String(String),
@@ -13,7 +13,7 @@ pub enum Value {
 impl Value {
     ///
     /// Метод, которой проверяет на вложенность таблицы
-    /// 
+    ///
     pub fn as_nested(&self) -> Option<&HashMap<String, Value>> {
         if let Value::NextMap(map) = self {
             Some(map)
@@ -23,7 +23,7 @@ impl Value {
     }
     ///
     /// Метод, которой проверяет на вложенность таблицы
-    /// 
+    ///
     pub fn as_nested_mut(&mut self) -> Option<&mut HashMap<String, Value>> {
         if let Value::NextMap(map) = self {
             Some(map)
@@ -44,7 +44,7 @@ pub struct Storage {
 impl Storage {
     ///
     /// Метод создание нового экземпляра класса Storage
-    /// 
+    ///
     pub fn new() -> Self {
         Storage {
             storage: HashMap::new(),
@@ -54,10 +54,11 @@ impl Storage {
     /// Метод для установки ключа, в определенный путь
     /// key_path - путь для нахождения нужной ячейки таблицы
     /// value - значение которое присвоится ячейке
-    /// 
-    pub fn set(&mut self, key_path: &str, value: Result<f64,String>) {
+    ///
+    pub fn set(&mut self, key_path: &str, value: Result<f64, String>) {
         let parts: Vec<&str> = key_path.split('/').collect();
-        let mut current_map = self.storage
+        let mut current_map = self
+            .storage
             .entry(parts[0].to_string())
             .or_insert_with(|| Value::NextMap(HashMap::new()))
             .as_nested_mut()
@@ -73,19 +74,18 @@ impl Storage {
 
         // Вставляем значение в последний ключ
         match value {
-            Ok(data) =>{
+            Ok(data) => {
                 current_map.insert(parts.last().unwrap().to_string(), Value::Data(data));
             }
             Err(str) => {
                 current_map.insert(parts.last().unwrap().to_string(), Value::String(str));
             }
         }
-        
     }
     ///
     /// Метод для получения либо значения ячейки либо таблицы
     /// key_path - путь для нахождения нунжого результата
-    /// 
+    ///
     pub fn get(&self, key_path: &str) -> Option<&Value> {
         let parts: Vec<&str> = key_path.split('/').collect();
         let mut current_value = self.storage.get(parts[0])?;
@@ -103,4 +103,3 @@ impl Storage {
         Some(current_value)
     }
 }
-

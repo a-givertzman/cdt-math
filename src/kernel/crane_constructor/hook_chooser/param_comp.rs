@@ -5,22 +5,29 @@ use crate::UserSelect;
 /// _m_work_type - тип работы механизма
 /// _hook_type - тип крюка
 /// _fmg - сила тяжести, действующая на крюк
-/// 
-pub struct Param_to_compare{
+///
+pub struct Param_to_compare {
     pub _m_to_lift: f64,
     pub _m_work_type: String,
     pub _hook_type: String,
-    pub _fmg : f64,
+    pub _fmg: f64,
 }
 //
 //
-impl Param_to_compare{
+impl Param_to_compare {
     ///
     /// Метод создание нового экземпляра класса Param_to_compare
     /// user_select - экземпляр класса-хранилища UserSelect, в котором хранятся все пользовательские значения
-    /// 
+    ///
     pub fn new(user_select: UserSelect) -> Self {
-       let fmg = Self::get_fmg(user_select.m_to_lift,&user_select.lift_class,&user_select.load_comb,&user_select.drive_type,user_select.vhmax,user_select.vhcs);
+        let fmg = Self::get_fmg(
+            user_select.m_to_lift,
+            &user_select.lift_class,
+            &user_select.load_comb,
+            &user_select.drive_type,
+            user_select.vhmax,
+            user_select.vhcs,
+        );
         Self {
             _m_to_lift: user_select.m_to_lift,
             _m_work_type: user_select.m_work_type,
@@ -28,10 +35,10 @@ impl Param_to_compare{
             _hook_type: user_select.hook_type,
         }
     }
-    /// 
+    ///
     /// Метод, в котором происходит выбор коэффициентов для дальнейшего расчёта динамического коэффициента
     /// lift_class - переменная, в которой хранится тип класса подъема
-    /// 
+    ///
     pub fn bet_phi_chooser(lift_class: &str) -> (f64, f64) {
         match lift_class {
             "HC1" => (0.17, 1.05),
@@ -41,13 +48,13 @@ impl Param_to_compare{
             _ => (0.0, 0.0),
         }
     }
-    /// 
+    ///
     /// Метод, в котором происходит выбор коэффициентов для дальнейшего расчёта динамического коэффициента
     /// load_comb - переменная, в которой хранится вид комбинации нагрузок
     /// drive_type - переменная, в которой хранится тип привода мех. под.
     /// vhmax  - переменная, в которой хранится номинальная скорость подъёма механизма
     /// vhcs - переменная, в которой хранится замедленная скорость подъёма механизма
-    /// 
+    ///
     pub fn vh_chooser(load_comb: &str, drive_type: &str, vhmax: f64, vhcs: f64) -> f64 {
         match load_comb {
             "A1" | "B1" => match drive_type {
@@ -70,7 +77,7 @@ impl Param_to_compare{
     /// phi - |
     /// bet - | => коэффициенты для вычисления
     /// vh -  |
-    pub fn get_din_coeff((phi, bet): (f64,f64),vh: f64) -> f64 {
+    pub fn get_din_coeff((phi, bet): (f64, f64), vh: f64) -> f64 {
         phi + bet * vh
     }
     ///
@@ -81,9 +88,19 @@ impl Param_to_compare{
     /// drive_type - переменная, в которой хранится тип привода мех. под.
     /// vhmax  - переменная, в которой хранится номинальная скорость подъёма механизма
     /// vhcs - переменная, в которой хранится замедленная скорость подъёма механизма
-    /// 
-    pub fn get_fmg(m_to_lift: f64,lift_class: &str,load_comb: &str, drive_type: &str, vhmax: f64, vhcs: f64) -> f64 {
-        Self::get_din_coeff(Self::bet_phi_chooser(lift_class),Self::vh_chooser(load_comb, drive_type, vhmax, vhcs)) * m_to_lift * 9.81
+    ///
+    pub fn get_fmg(
+        m_to_lift: f64,
+        lift_class: &str,
+        load_comb: &str,
+        drive_type: &str,
+        vhmax: f64,
+        vhcs: f64,
+    ) -> f64 {
+        Self::get_din_coeff(
+            Self::bet_phi_chooser(lift_class),
+            Self::vh_chooser(load_comb, drive_type, vhmax, vhcs),
+        ) * m_to_lift
+            * 9.81
     }
-    
 }
