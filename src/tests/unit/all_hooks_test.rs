@@ -4,7 +4,7 @@ mod hook {
     use std::{sync::Once, time::{Duration, Instant}};
     use testing::stuff::max_test_duration::TestDuration;
     use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
-    use crate::kernel::crane_constructor::hook_chooser::hook::Hook;
+    use crate::kernel::crane_constructor::hook_chooser::all_hooks::AllHooks;
     use crate::kernel::crane_constructor::hook_chooser::param_comp::Param_to_compare;
     use crate::kernel::storage::storage::Storage;
     ///
@@ -66,7 +66,7 @@ mod hook {
            
         for (value,target) in test_data.into_iter(){
 
-            let result = Hook::weight_check(&value.2.to_string(),value.0, &value.1.to_string(),
+            let result = AllHooks::weight_check(&value.2.to_string(),value.0, &value.1.to_string(),
                 &mut storage);
             let mut i:usize = 0;
             assert!(result.len()==target.len());
@@ -143,7 +143,7 @@ mod hook {
            
         for (value,target) in test_data.into_iter(){
 
-            let result = Hook::bearing_check(Param_to_compare::get_fmg(3.0, "M1", "A1","HD1",1.0,1.0), &value.1.to_string(), 
+            let result = AllHooks::bearing_check(Param_to_compare::get_fmg(3.0, "M1", "A1","HD1",1.0,1.0), &value.1.to_string(), 
             &mut storage,&vec![value.3.to_string()]);
             assert!(result == target, "result: {:?}\ntarget: {:?}", result, target);
         }

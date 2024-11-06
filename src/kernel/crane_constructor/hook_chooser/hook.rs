@@ -1,13 +1,9 @@
 use crate::kernel::storage::storage::Storage;
 use crate::kernel::storage::storage::Value;
-use crate::Param_to_compare;
+use super::all_hooks::{self, AllHooks};
 use std::io;
-///
-/// Класс, реализующий выбор крюков, относительно характеристик пользователя
-///  hook - вектор в котором хранится, подходящий крюк
-///  bearing - имя подходящего подшипника для крюка (hook)
-/// 
 pub struct Hook{
+    pub all_hooks: Vec<Vec<String>>,
     pub hook: Vec<String>,
     pub bearing: String,
     hook_type: String,
@@ -21,32 +17,26 @@ pub struct Hook{
 impl Hook{
     ///
     /// Метод создание нового экземпляра класса Hook
-    /// _param_comp - экземпляр класса Param_to_compare, в котором хранятся готовые характеристики для выбора крюка
+    /// all_hooks - экземпляр класса AllHooks, в котором хранятся готовые крюки для выбора нужного
     /// 
-    pub fn new(_param_comp: Param_to_compare) -> Self {
+    pub fn new(all_hooks: AllHooks) -> Self{
         Self {
-            hook: Vec::new(),
-            bearing: String::new(),
-            hook_type: _param_comp._hook_type,
-            m_to_lift: _param_comp._m_to_lift,
-            work_type: _param_comp._m_work_type,
-            fmg: _param_comp._fmg,
+            all_hooks: all_hooks.hooks, 
+            hook: Vec::new(), 
+            bearing: String::new(), 
+            hook_type: all_hooks.hook_type, 
+            m_to_lift: all_hooks.m_to_lift, 
+            work_type: all_hooks.work_type, 
+            fmg: all_hooks.fmg 
         }
     }
     ///
-    /// Метод для нахождения крюков и подшинпиков
+    /// Метод для нахождения крюка и подшипника из списка подходящих
     /// hooks_storage - экземпляр класса-хранилища Storage, в котором хранятся все крюки
     /// 
-    pub fn eval(&mut self,hooks_storage: &mut Storage){
-        //Выбор крюка
-        let res_hook = Self::hook_select(Self::weight_check(&self.work_type, self.m_to_lift,&self.hook_type,hooks_storage));
-
-        //Выбор подшипника
-        let res_bearing: String = Self::bearing_select(Self::bearing_check(self.fmg, &self.hook_type, hooks_storage, &res_hook));
-
-        self.hook = res_hook;
-        self.bearing = res_bearing;
-
+    pub fn eval(&mut self,hook_storage: &mut Storage){
+        self.hook = Self::hook_select(self.all_hooks.clone());
+        self.bearing = Self::bearing_select(Self::bearing_check(self.fmg, &self.hook_type,hook_storage , &self.hook));
     }
     ///
     /// Метод выбора крюков из предложенных
@@ -116,49 +106,6 @@ impl Hook{
             println!("There is no right bearing for your hook");
             String::new()
         }
-    }
-    ///
-    /// Метод выбора крюков, где всевозможные варианты фильтруются по условию грузоподъемности 
-    /// bearings - вектор в котором лежат все подходящие подшипники
-    /// work_type - тип работы механизма подъема
-    /// m_to_lift - масса на крюке
-    /// hook_type - тип крюка
-    /// hooks_storage - экземпляр класса-хранилища Storage, в котором хранятся все крюки
-    ///  
-    pub fn weight_check(work_type: &String, m_to_lift: f64, hook_type: &String, hooks_storage: &mut Storage) -> Vec<Vec<String>> {
-        let mut res_hooks: Vec<Vec<String>> = Vec::new();
-        if let Some(value) = hooks_storage.get(&format!("конструкции/крюки/тип крюка/{}/ИСО", hook_type.trim())) {
-            if let Value::NextMap(map) = value {
-                for (key_iso, _) in map {
-                    let mut tmp_hooks: Vec<String> = Vec::new();
-                    if let Some(vall) = hooks_storage.get(&format!("конструкции/крюки/тип крюка/{}/ИСО/{}/грузоподъемность/{}/", hook_type.trim(), key_iso, work_type.trim())) {
-                        if let Value::Data(datt) = vall {
-                            if m_to_lift <= *datt {
-                                tmp_hooks.push(key_iso.to_string());
-                                tmp_hooks.push(hook_type.to_string());
-                                tmp_hooks.push(work_type.to_string());
-                                tmp_hooks.push(format!("{}",*datt));
-                                if let Some(v) = hooks_storage.get(&format!("конструкции/крюки/тип крюка/{}/ИСО/{}/масса заготовки/", hook_type.trim(), key_iso)){
-                                    if let Value::Data(da) = v {
-                                        tmp_hooks.push(format!("{}",*da));
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    if !tmp_hooks.is_empty() {
-                        res_hooks.push(tmp_hooks);
-                    }
-                }
-            }
-        } else {
-            println!("Path not found for hook selection.");
-        }
-        // Сортируем `res_hooks` по первому элементу каждого вектора, преобразованному в число.
-        res_hooks.sort_by(|a, b| {
-            a[0].parse::<i32>().unwrap_or(0).cmp(&b[0].parse::<i32>().unwrap_or(0))
-        });
-        res_hooks
     }
     ///
     /// Метод выбора подшипников, где всевозможные варианты фильтруются по условию совпдания диаметров 
