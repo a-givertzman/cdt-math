@@ -2,6 +2,16 @@ use crate::kernel::storage::storage::Storage;
 use crate::kernel::storage::storage::Value;
 use crate::Param_to_compare;
 use std::io;
+///
+/// Класс, реализующий выбор крюков, относительно характеристик пользователя
+///  hook - вектор в котором хранится, подходящий крюк
+///  bearing - имя подходящего подшипника для крюка (hook)
+///  cargo_name - имя доп грузозахватного органа
+///  cargo_weight - масса доп грузозахватного органа
+///  summary_weight - суммарная масса грузозахватного механизма
+///  good_weight - полезная масса грузозахватного механизма
+///  fmg - сила тяжести, действующая на крюк
+/// 
 pub struct Hook{
     // Vec<Vec<String> Крюки<Характеристики>
     pub cargo_name: String,
