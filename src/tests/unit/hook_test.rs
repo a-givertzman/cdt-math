@@ -61,18 +61,13 @@ mod hook {
             ((0.1,"крюк однорогий","M1"), vec!["1","2","3","4"]),
             ((0.41,"крюк однорогий","M1"), vec!["2","3","4"]),
             ((0.51,"крюк однорогий","M1"), vec!["3","4"]),
-            ((0.64,"крюк однорогий","M1"), vec!["4"]),
-            
+            ((0.64,"крюк однорогий","M1"), vec!["4"]),            
         ];
            
         for (value,target) in test_data.into_iter(){
 
-            let result = Hook::weight_check(&Param_to_compare{
-                _m_to_lift: value.0,
-                _hook_type: value.1.to_string(),
-                _m_work_type: value.2.to_string(),
-                _fmg: Param_to_compare::get_fmg(3.0, value.2, "A1","HD1",1.0,1.0)
-            }, &mut storage);
+            let result = Hook::weight_check(&value.2.to_string(),value.0, &value.1.to_string(),
+                &mut storage);
             let mut i:usize = 0;
             assert!(result.len()==target.len());
             for value in result.iter()  {
@@ -148,12 +143,8 @@ mod hook {
            
         for (value,target) in test_data.into_iter(){
 
-            let result = Hook::bearing_check(&Param_to_compare{
-                _m_to_lift: value.0,
-                _hook_type: value.1.to_string(),
-                _m_work_type: value.2.to_string(),
-                _fmg: Param_to_compare::get_fmg(3.0, "M1", "A1","HD1",1.0,1.0)
-            }, &mut storage,&vec![value.3.to_string()]);
+            let result = Hook::bearing_check(Param_to_compare::get_fmg(3.0, "M1", "A1","HD1",1.0,1.0), &value.1.to_string(), 
+            &mut storage,&vec![value.3.to_string()]);
             assert!(result == target, "result: {:?}\ntarget: {:?}", result, target);
         }
         

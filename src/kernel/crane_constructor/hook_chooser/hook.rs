@@ -2,34 +2,56 @@ use crate::kernel::storage::storage::Storage;
 use crate::kernel::storage::storage::Value;
 use crate::Param_to_compare;
 use std::io;
+///
+/// Класс, реализующий выбор крюков, относительно характеристик пользователя
+///  hook - вектор в котором хранится, подходящий крюк
+///  bearing - имя подходящего подшипника для крюка (hook)
+/// 
 pub struct Hook{
-    // Vec<Vec<String> Крюки<Характеристики>
-
     pub hook: Vec<String>,
-    pub bearing: String
+    pub bearing: String,
+    hook_type: String,
+    m_to_lift: f64,
+    work_type: String,
+    fmg: f64,
 }
-
-
-
+//
+//
+//
 impl Hook{
-
-    pub fn new(_param_comp: Param_to_compare, hooks_storage: &mut Storage) -> Self {
-
-        println!("{}",_param_comp._hook_type);
-        //Выбор крюка
-        let res_hook = Self::hook_select(Self::weight_check(&_param_comp, hooks_storage));
-
-
-        //Выбор подшипника
-        let res_bearing: String = Self::bearing_select(Self::bearing_check(&_param_comp, hooks_storage, &res_hook));
-        
-
+    ///
+    /// Метод создание нового экземпляра класса Hook
+    /// _param_comp - экземпляр класса Param_to_compare, в котором хранятся готовые характеристики для выбора крюка
+    /// 
+    pub fn new(_param_comp: Param_to_compare) -> Self {
         Self {
-            hook: res_hook,
-            bearing: res_bearing,
+            hook: Vec::new(),
+            bearing: String::new(),
+            hook_type: _param_comp._hook_type,
+            m_to_lift: _param_comp._m_to_lift,
+            work_type: _param_comp._m_work_type,
+            fmg: _param_comp._fmg,
         }
     }
-    
+    ///
+    /// Метод для нахождения крюков и подшинпиков
+    /// hooks_storage - экземпляр класса-хранилища Storage, в котором хранятся все крюки
+    /// 
+    pub fn eval(&mut self,hooks_storage: &mut Storage){
+        //Выбор крюка
+        let res_hook = Self::hook_select(Self::weight_check(&self.work_type, self.m_to_lift,&self.hook_type,hooks_storage));
+
+        //Выбор подшипника
+        let res_bearing: String = Self::bearing_select(Self::bearing_check(self.fmg, &self.hook_type, hooks_storage, &res_hook));
+
+        self.hook = res_hook;
+        self.bearing = res_bearing;
+
+    }
+    ///
+    /// Метод выбора крюков из предложенных
+    /// hooks - вектор векторов в котором лежат все подходящие крюки
+    /// 
     fn hook_select(hooks: Vec<Vec<String>>) -> Vec<String> {
         println!("Which one do you choose?");
         let mut counter: usize = 0;
@@ -60,7 +82,10 @@ impl Hook{
             }
         }
     }
-
+    ///
+    /// Метод выбора подшипников из предложенных
+    /// bearings - вектор в котором лежат все подходящие подшипники
+    /// 
     fn bearing_select(bearings: Vec<String>) -> String{
         println!("{:?}",bearings);
 
@@ -92,21 +117,28 @@ impl Hook{
             String::new()
         }
     }
-
-    pub fn weight_check(_param_comp: &Param_to_compare, hooks_storage: &mut Storage) -> Vec<Vec<String>> {
+    ///
+    /// Метод выбора крюков, где всевозможные варианты фильтруются по условию грузоподъемности 
+    /// bearings - вектор в котором лежат все подходящие подшипники
+    /// work_type - тип работы механизма подъема
+    /// m_to_lift - масса на крюке
+    /// hook_type - тип крюка
+    /// hooks_storage - экземпляр класса-хранилища Storage, в котором хранятся все крюки
+    ///  
+    pub fn weight_check(work_type: &String, m_to_lift: f64, hook_type: &String, hooks_storage: &mut Storage) -> Vec<Vec<String>> {
         let mut res_hooks: Vec<Vec<String>> = Vec::new();
-        if let Some(value) = hooks_storage.get(&format!("конструкции/крюки/тип крюка/{}/ИСО", _param_comp._hook_type.trim())) {
+        if let Some(value) = hooks_storage.get(&format!("конструкции/крюки/тип крюка/{}/ИСО", hook_type.trim())) {
             if let Value::NextMap(map) = value {
                 for (key_iso, _) in map {
                     let mut tmp_hooks: Vec<String> = Vec::new();
-                    if let Some(vall) = hooks_storage.get(&format!("конструкции/крюки/тип крюка/{}/ИСО/{}/грузоподъемность/{}/", _param_comp._hook_type.trim(), key_iso, _param_comp._m_work_type.trim())) {
+                    if let Some(vall) = hooks_storage.get(&format!("конструкции/крюки/тип крюка/{}/ИСО/{}/грузоподъемность/{}/", hook_type.trim(), key_iso, work_type.trim())) {
                         if let Value::Data(datt) = vall {
-                            if _param_comp._m_to_lift <= *datt {
+                            if m_to_lift <= *datt {
                                 tmp_hooks.push(key_iso.to_string());
-                                tmp_hooks.push(_param_comp._hook_type.to_string());
-                                tmp_hooks.push(_param_comp._m_work_type.to_string());
+                                tmp_hooks.push(hook_type.to_string());
+                                tmp_hooks.push(work_type.to_string());
                                 tmp_hooks.push(format!("{}",*datt));
-                                if let Some(v) = hooks_storage.get(&format!("конструкции/крюки/тип крюка/{}/ИСО/{}/масса заготовки/",_param_comp._hook_type.trim(), key_iso)){
+                                if let Some(v) = hooks_storage.get(&format!("конструкции/крюки/тип крюка/{}/ИСО/{}/масса заготовки/", hook_type.trim(), key_iso)){
                                     if let Value::Data(da) = v {
                                         tmp_hooks.push(format!("{}",*da));
                                     }
@@ -128,8 +160,14 @@ impl Hook{
         });
         res_hooks
     }
-    
-    pub fn bearing_check(_param_comp: &Param_to_compare,hooks_storage: &mut Storage,res_hooks: &Vec<String>) -> Vec<String> {
+    ///
+    /// Метод выбора подшипников, где всевозможные варианты фильтруются по условию совпдания диаметров 
+    /// hook_type - тип крюка
+    /// fmg - сила тяжести, действующая на крюк
+    /// hooks_storage - экземпляр класса-хранилища Storage, в котором хранятся все крюки
+    /// res_hooks - вектор, в котором хранятся все подходящие крюки
+    /// 
+    pub fn bearing_check(fmg: f64, hook_type: &String,hooks_storage: &mut Storage,res_hooks: &Vec<String>) -> Vec<String> {
         let mut tmp_bearings: Vec<String> = Vec::new();
     
         if let Some(value) = hooks_storage.get("конструкции/подшипники/название") {
@@ -138,12 +176,12 @@ impl Hook{
                     if let Some(Value::Data(static_load)) = hooks_storage.get(
                         &format!("конструкции/подшипники/название/{}/статическая грузоподъемность/", bearing_name),
                     ) {
-                        if _param_comp._fmg <= *static_load {
+                        if fmg <= *static_load {
                             for res_hook in res_hooks {
                                 if let Some(Value::Data(hook_diameter)) = hooks_storage.get(
                                     &format!(
                                         "конструкции/крюки/тип крюка/{}/ИСО/{}/диаметр хвостовика/",
-                                        _param_comp._hook_type.trim(),
+                                        hook_type.trim(),
                                         res_hook
                                     ),
                                 ) {
@@ -174,6 +212,4 @@ impl Hook{
         tmp_bearings
     }
     
-    
-
 }
