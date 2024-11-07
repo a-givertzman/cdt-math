@@ -6,6 +6,7 @@ mod tests;
 
 use app::app::App;
 use kernel::crane_constructor::hoisting_tackle::hoisting_tackle::HoistingTackle;
+use kernel::crane_constructor::hook_chooser::all_hooks::AllHooks;
 use kernel::crane_constructor::{hoisting_tackle, hook_chooser::hook::Hook};
 use kernel::crane_constructor::hook_chooser::param_comp::Param_to_compare;
 use kernel::crane_constructor::user::user_select::UserSelect;
@@ -79,13 +80,20 @@ fn main() {
     user_select_storage.set("тип грузозахватного органа механизма подъёма/",Err("съёмный электрогидравлический грейфер".to_string()));
     user_select_storage.set("грузоподъемность грузозахватного органа механизма подъёма/",Ok(0.3));
 
+
     //Запрос пользователя
     let user: UserSelect = UserSelect::new(user_select_storage);
 
 
 
-    // Создание экземпляра класса Hook
-    let mut hook = Hook::new(Param_to_compare::new(&user));
+    // Выбор всех подходящих крюков
+    let mut all_hooks = AllHooks::new(Param_to_compare::new(user));
+
+
+    all_hooks.eval(&mut storage);
+
+    // Выбор нужного крюка из списка подходящих
+    let mut hook = Hook::new(all_hooks);
 
     // Вычисление крюка и подшипника
     hook.eval(&mut storage);
