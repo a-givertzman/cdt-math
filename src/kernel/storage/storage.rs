@@ -1,23 +1,63 @@
 use std::collections::HashMap;
-
+///
+/// Перечеслиние, для работы с хранилищем
+///
 pub enum Value {
     Data(f64),
     String(String),
     NextMap(HashMap<String, Value>),
 }
-
-
+//
+//
+//
+impl Value {
+    ///
+    /// Метод, которой проверяет на вложенность таблицы
+    ///
+    pub fn as_nested(&self) -> Option<&HashMap<String, Value>> {
+        if let Value::NextMap(map) = self {
+            Some(map)
+        } else {
+            None
+        }
+    }
+    ///
+    /// Метод, которой проверяет на вложенность таблицы
+    ///
+    pub fn as_nested_mut(&mut self) -> Option<&mut HashMap<String, Value>> {
+        if let Value::NextMap(map) = self {
+            Some(map)
+        } else {
+            None
+        }
+    }
+}
+///
+/// Класс, для хранение данных
+/// - storage - "база данных", в которой будут хранится таблицы
+/// 
 pub struct Storage {
+    pub dbgid: String,
     storage: HashMap<String, Value>,
 }
-
+//
+//
+//
 impl Storage {
+    ///
+    /// Метод создание нового экземпляра класса Storage
+    ///
     pub fn new() -> Self {
         Storage {
+            dbgid: String::from("Storage"),
             storage: HashMap::new(),
         }
     }
-
+    ///
+    /// Метод для установки ключа, в определенный путь
+    /// key_path - путь для нахождения нужной ячейки таблицы
+    /// value - значение которое присвоится ячейке
+    ///
     pub fn set(&mut self, key_path: &str, value: Result<f64,String>) {
         let parts: Vec<&str> = key_path.split('/').collect();
         let mut current_map = self.storage
@@ -45,9 +85,10 @@ impl Storage {
         }
         
     }
-
-    
-
+    ///
+    /// Метод для получения либо значения ячейки либо таблицы
+    /// key_path - путь для нахождения нунжого результата
+    ///   
     pub fn get(&self, key_path: &str) -> Option<&Value> {
         let parts: Vec<&str> = key_path.split('/').collect();
         let mut current_value = self.storage.get(parts[0])?;
@@ -63,23 +104,5 @@ impl Storage {
         }
 
         Some(current_value)
-    }
-}
-
-impl Value {
-    pub fn as_nested(&self) -> Option<&HashMap<String, Value>> {
-        if let Value::NextMap(map) = self {
-            Some(map)
-        } else {
-            None
-        }
-    }
-
-    pub fn as_nested_mut(&mut self) -> Option<&mut HashMap<String, Value>> {
-        if let Value::NextMap(map) = self {
-            Some(map)
-        } else {
-            None
-        }
     }
 }

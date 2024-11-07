@@ -3,6 +3,7 @@ use crate::kernel::storage::storage::Value;
 use super::all_hooks::{self, AllHooks};
 use std::io;
 pub struct Hook{
+    dbgid: String,
     pub all_hooks: Vec<Vec<String>>,
     pub hook: Vec<String>,
     pub bearing: String,
@@ -21,10 +22,11 @@ pub struct Hook{
 impl Hook{
     ///
     /// Метод создание нового экземпляра класса Hook
-    /// all_hooks - экземпляр класса AllHooks, в котором хранятся готовые крюки для выбора нужного
+    /// - all_hooks - экземпляр класса AllHooks, в котором хранятся готовые крюки для выбора нужного
     /// 
     pub fn new(all_hooks: AllHooks) -> Self{
         Self {
+            dbgid: String::from(format!("{}/Hook",all_hooks.dbgid)),
             cargo_weight: all_hooks.cargo_weight,
             summary_weight: 0.0,
             good_weight: 0.0,
@@ -40,11 +42,11 @@ impl Hook{
     }
     ///
     /// Метод для нахождения крюка и подшипника из списка подходящих
-    /// hooks_storage - экземпляр класса-хранилища Storage, в котором хранятся все крюки
+    /// - hooks_storage - экземпляр класса-хранилища Storage, в котором хранятся все крюки
     /// 
     pub fn eval(&mut self,hook_storage: &mut Storage){
-        self.hook = Self::hook_select(self.all_hooks.clone());
-        self.bearing = Self::bearing_select(Self::bearing_check(self.fmg, &self.hook_type,hook_storage , &self.hook));
+        self.hook = self.hook_select(self.all_hooks.clone());
+        self.bearing = self.bearing_select(Self::bearing_check(self.fmg, &self.hook_type,hook_storage , &self.hook));
 
         // Расчет массы грузозахватного органа
         let mut hook_weight = 0.0;
@@ -66,9 +68,9 @@ impl Hook{
     }
     /// 
     /// Метод для вычисления суммарной и полезной масс доп грузозахватного органа
-    /// m_to_lift - масса на крюке
-    /// cargo_weight - масса доп грузозахватного органа
-    /// hook_weight  - масса, выбранного пользователем крюка
+    /// - m_to_lift - масса на крюке
+    /// - cargo_weight - масса доп грузозахватного органа
+    /// - hook_weight  - масса, выбранного пользователем крюка
     /// 
     pub fn cargo_weights(m_to_lift: f64, cargo_weight: f64,hook_weight: f64) -> (f64,f64){
         let summary_weight = hook_weight + cargo_weight;
@@ -78,15 +80,15 @@ impl Hook{
     }
     ///
     /// Метод выбора крюков из предложенных
-    /// hooks - вектор векторов в котором лежат все подходящие крюки
+    /// - hooks - вектор векторов в котором лежат все подходящие крюки
     /// 
-    fn hook_select(hooks: Vec<Vec<String>>) -> Vec<String> {
-        println!("Which one do you choose?");
+    fn hook_select(&self,hooks: Vec<Vec<String>>) -> Vec<String> {
+        log::debug!("{}.hook_select | Which one do you choose?", self.dbgid);
         let mut counter: usize = 0;
     
         // Печать вариантов выбора
         for value in hooks.iter() {
-            println!("{} - {:?}", counter, value);
+            log::debug!("{}.hook_select | Hook {}: {:?}", self.dbgid, counter,value);
             counter += 1;
         }
     
@@ -112,18 +114,18 @@ impl Hook{
     }
     ///
     /// Метод выбора подшипников из предложенных
-    /// bearings - вектор в котором лежат все подходящие подшипники
+    /// - bearings - вектор в котором лежат все подходящие подшипники
     /// 
-    fn bearing_select(bearings: Vec<String>) -> String{
+    fn bearing_select(&self,bearings: Vec<String>) -> String{
         println!("{:?}",bearings);
 
         if bearings.len()!=0{
-            println!("Which bearing do you choose?");
+            log::debug!("{}.bearing_select | Which bearing do you choose?",self.dbgid);
             let mut counter: usize = 0;
             
             // Печать вариантов выбора
             for value in bearings.iter() {
-                println!("{} - {:?}", counter, value);
+                log::debug!("{}.bearing_select | Bearing {}: {:?}", self.dbgid, counter,value);
                 counter += 1;
             }
             
@@ -141,16 +143,16 @@ impl Hook{
             bearings[1].clone()
         }
         else{
-            println!("There is no right bearing for your hook");
+            log::debug!("{}.bearing_select | There is no right bearing for your hook",self.dbgid);
             String::new()
         }
     }
     ///
     /// Метод выбора подшипников, где всевозможные варианты фильтруются по условию совпдания диаметров 
-    /// hook_type - тип крюка
-    /// fmg - сила тяжести, действующая на крюк
-    /// hooks_storage - экземпляр класса-хранилища Storage, в котором хранятся все крюки
-    /// res_hooks - вектор, в котором хранятся все подходящие крюки
+    /// - hook_type - тип крюка
+    /// - fmg - сила тяжести, действующая на крюк
+    /// - hooks_storage - экземпляр класса-хранилища Storage, в котором хранятся все крюки
+    /// - res_hooks - вектор, в котором хранятся все подходящие крюки
     /// 
     pub fn bearing_check(fmg: f64, hook_type: &String,hooks_storage: &mut Storage,res_hooks: &Vec<String>) -> Vec<String> {
         let mut tmp_bearings: Vec<String> = Vec::new();
