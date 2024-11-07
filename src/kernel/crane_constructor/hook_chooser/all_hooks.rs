@@ -3,10 +3,14 @@ use crate::kernel::storage::storage::Value;
 use crate::Param_to_compare;
 ///
 /// Класс, реализующий выбор всех подходящихкрюков, относительно характеристик пользователя
-///  hook - вектор в котором хранится, подходящий крюк
-///  bearing - имя подходящего подшипника для крюка (hook)
+/// - hooks - вектор в котором хранится, подходящий крюк
+/// - hooks_type - имя типа крюка, выбранного пользователем
+/// - m_to_lift - масса на крюке, введенная пользователем
+/// - work_type - тип работа механизма работы
+/// - fmg - сила тяжести, действующая на грузозахватный механизм
 ///
 pub struct AllHooks {
+    pub dbgid: String,
     pub hooks: Vec<Vec<String>>,
     pub hook_type: String,
     pub m_to_lift: f64,
@@ -19,10 +23,11 @@ pub struct AllHooks {
 impl AllHooks {
     ///
     /// Метод создание нового экземпляра класса Hook
-    /// _param_comp - экземпляр класса Param_to_compare, в котором хранятся готовые характеристики для выбора крюка
+    /// - _param_comp - экземпляр класса Param_to_compare, в котором хранятся готовые характеристики для выбора крюка
     ///
     pub fn new(_param_comp: Param_to_compare) -> Self {
         Self {
+            dbgid: String::from(format!("{}/AllHooks",_param_comp.dbgid)),
             hooks: Vec::new(),
             hook_type: _param_comp._hook_type,
             m_to_lift: _param_comp._m_to_lift,
@@ -32,7 +37,7 @@ impl AllHooks {
     }
     ///
     /// Метод для нахождения крюков и подшинпиков
-    /// hooks_storage - экземпляр класса-хранилища Storage, в котором хранятся все крюки
+    /// - hooks_storage - экземпляр класса-хранилища Storage, в котором хранятся все крюки
     ///
     pub fn eval(&mut self, hooks_storage: &mut Storage) {
         //Выбор крюка
@@ -45,11 +50,11 @@ impl AllHooks {
     }
     ///
     /// Метод выбора крюков, где всевозможные варианты фильтруются по условию грузоподъемности
-    /// bearings - вектор в котором лежат все подходящие подшипники
-    /// work_type - тип работы механизма подъема
-    /// m_to_lift - масса на крюке
-    /// hook_type - тип крюка
-    /// hooks_storage - экземпляр класса-хранилища Storage, в котором хранятся все крюки
+    /// - bearings - вектор в котором лежат все подходящие подшипники
+    /// - work_type - тип работы механизма подъема
+    /// - m_to_lift - масса на крюке
+    /// - hook_type - тип крюка
+    /// - hooks_storage - экземпляр класса-хранилища Storage, в котором хранятся все крюки
     ///  
     pub fn weight_check(
         work_type: &String,

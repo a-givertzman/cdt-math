@@ -4,6 +4,7 @@ use std::io;
 use std::string;
 
 pub struct UserSelect {
+    pub dbgid: String,
     pub m_to_lift: f64,
     pub m_work_type: String,
     pub vhmax: f64,
@@ -94,6 +95,7 @@ impl UserSelect {
         }
 
         Self {
+            dbgid: String::from(format!("{}/UserSelect",storage.dbgid)), 
             m_to_lift: m_to_lift_tmp,
             lift_class: lift_class_tmp,
             load_comb: load_comb_tmp,
