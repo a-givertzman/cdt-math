@@ -2,7 +2,9 @@ use std::io;
 use std::string;
 use crate::Storage;
 use crate::kernel::storage::storage::Value;
-
+///
+/// Класс, которой реализует характеристики выбранные пользователем для дальнейшего расчета крана
+/// 
 pub struct UserSelect{
     pub dbgid: String,
     pub m_to_lift: f64,
@@ -16,8 +18,14 @@ pub struct UserSelect{
     pub cargo_name: String,
     pub cargo_weight: f64
 }
-
+//
+//
+//
 impl UserSelect {
+    ///
+    /// Метод создания экземпляра класса UserSelect
+    /// - storage - экземпляр класса-хранилища Storage, в котором находится "таблица" конструкций, кранов, подшипников
+    /// 
     pub fn new(storage: Storage) -> Self{            
             let mut m_to_lift_tmp = 0.0;
             if let Some(value) = storage.get("грузоподъемность/"){
