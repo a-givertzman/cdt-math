@@ -16,7 +16,15 @@ pub struct UserSelect{
     pub drive_type: String, 
     pub hook_type: String,
     pub cargo_name: String,
-    pub cargo_weight: f64
+    pub cargo_weight: f64,
+    pub crane_work_type: f64,
+    pub rope_type: String,
+    pub crane_type_area: String,
+    pub rejecting_blocks: f64,
+    pub rope_count: f64,
+    pub rope_diametr: f64,
+    pub rope_twisting_method: String,
+    pub balance_degree: String,
 }
 //
 //
@@ -28,35 +36,35 @@ impl UserSelect {
     /// 
     pub fn new(storage: Storage) -> Self{            
             let mut m_to_lift_tmp = 0.0;
-            if let Some(value) = storage.get("грузоподъемность/"){
+            if let Some(value) = storage.get("конструкции/крюк/грузоподъемность/"){
                 if let Value::Data(data) = value  {
                     m_to_lift_tmp = *data;
                 }
             }
 
             let mut lift_class_tmp = String::new();
-            if let Some(value) = storage.get("класс подъема/"){
+            if let Some(value) = storage.get("конструкции/крюк/класс подъема/"){
                 if let Value::String(data) = value  {
                     lift_class_tmp = data.to_string();
                 }
             }
             
             let mut load_comb_tmp = String::new();
-            if let Some(value) = storage.get("комбинация нагрузок/"){
+            if let Some(value) = storage.get("конструкции/крюк/комбинация нагрузок/"){
                 if let Value::String(data) = value  {
                     load_comb_tmp = data.to_string();
                 }
             }
 
             let mut drive_type_tmp = String::new();
-            if let Some(value) = storage.get("тип привода/"){
+            if let Some(value) = storage.get("конструкции/крюк/тип привода/"){
                 if let Value::String(data) = value  {
                     drive_type_tmp = data.to_string();
                 }
             }
 
             let mut vhcs_tmp = 0.0;
-            if let Some(value) = storage.get("номинальная скорость подъема механизма/"){
+            if let Some(value) = storage.get("конструкции/крюк/номинальная скорость подъема механизма/"){
                 if let Value::Data(data) = value  {
                     vhcs_tmp = *data;
                 }
@@ -64,41 +72,105 @@ impl UserSelect {
 
 
             let mut vhmax_tmp = 0.0;
-            if let Some(value) = storage.get("замедленная скорость подъема механизма/"){
+            if let Some(value) = storage.get("конструкции/крюк/замедленная скорость подъема механизма/"){
                 if let Value::Data(data) = value  {
                     vhmax_tmp = *data;
                 }
             }
 
             let mut m_work_type_tmp = String::new();
-            if let Some(value) = storage.get("режим работы механизма/"){
+            if let Some(value) = storage.get("конструкции/крюк/режим работы механизма/"){
                 if let Value::String(data) = value  {
                     m_work_type_tmp = data.to_string();
                 }
             }
 
             let mut hook_type_tmp = String::new();
-            if let Some(value) = storage.get("тип крюка/"){
+            if let Some(value) = storage.get("конструкции/крюк/тип крюка/"){
                 if let Value::String(data) = value  {
                     hook_type_tmp = data.to_string();
                 }
             }
 
             let mut name_cargo_tmp = String::new();
-            if let Some(value) = storage.get("тип грузозахватного органа механизма подъёма/"){
+            if let Some(value) = storage.get("конструкции/крюк/тип грузозахватного органа механизма подъёма/"){
                 if let Value::String(data) = value  {
                     name_cargo_tmp = data.to_string();
                 }
             }
 
             let mut weight_cargo_tmp = 0.0;
-            if let Some(value) = storage.get("грузоподъемность грузозахватного органа механизма подъёма/"){
+            if let Some(value) = storage.get("конструкции/крюк/грузоподъемность грузозахватного органа механизма подъёма/"){
                 if let Value::Data(data) = value  {
                     weight_cargo_tmp = *data;
                 }
             }
 
+            let mut crane_work_type_tmp = 0.0;
+            if let Some(value) = storage.get("конструкции/крюк/грузоподъемность грузозахватного органа механизма подъёма/"){
+                if let Value::Data(data) = value  {
+                    crane_work_type_tmp = *data;
+                }
+            }
+
+            let mut rope_type_tmp = String::new();
+            if let Some(value) = storage.get("конструкции/канат/тип сердечника/"){
+                if let Value::String(data) = value  {
+                    rope_type_tmp = data.to_string();
+                }
+            }
+
+            let mut crane_type_area_tmp = String::new();
+            if let Some(value) = storage.get("конструкции/кран/ветровой район расположения крана/"){
+                if let Value::String(data) = value  {
+                    crane_type_area_tmp = data.to_string();
+                }
+            }
+
+            let mut rejecting_blocks_tmp = 0.0;
+            if let Some(value) = storage.get("конструкции/канат/количество отклоняющих блоков для полиспаста/"){
+                if let Value::Data(data) = value  {
+                    rejecting_blocks_tmp = *data;
+                }
+            }
+
+            let mut rope_count_tmp = 0.0;
+            if let Some(value) = storage.get("конструкции/канат/количество канатов маркировочной группы/"){
+                if let Value::Data(data) = value  {
+                    rope_count_tmp = *data;
+                }
+            }
+
+            let mut rope_diametr_tmp = 0.0;
+            if let Some(value) = storage.get("конструкции/канат/диаметр каната/"){
+                if let Value::Data(data) = value  {
+                    rope_diametr_tmp = *data;
+                }
+            }
+
+            let mut twisting_method_tmp = String::new();
+            if let Some(value) = storage.get("конструкции/канат/способ свивки каната/"){
+                if let Value::String(data) = value  {
+                    twisting_method_tmp = data.to_string();
+                }
+            }
+
+            let mut balance_degree_tmp = String::new();
+            if let Some(value) = storage.get("конструкции/канат/степень уравновешенности каната/"){
+                if let Value::String(data) = value  {
+                    balance_degree_tmp = data.to_string();
+                }
+            }
+
             Self {
+                balance_degree: balance_degree_tmp,
+                rope_twisting_method: twisting_method_tmp,
+                rope_diametr: rope_diametr_tmp,
+                rope_count: rope_count_tmp,
+                rejecting_blocks: rejecting_blocks_tmp,
+                crane_type_area: crane_type_area_tmp,
+                rope_type: rope_type_tmp,
+                crane_work_type: crane_work_type_tmp,
                 dbgid: String::from(format!("{}/UserSelect",storage.dbgid)), 
                 m_to_lift: m_to_lift_tmp, 
                 lift_class: lift_class_tmp, 

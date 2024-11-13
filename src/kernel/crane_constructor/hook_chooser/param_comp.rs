@@ -25,16 +25,16 @@ impl Param_to_compare{
     /// Метод создание нового экземпляра класса Param_to_compare
     /// - user_select - экземпляр класса-хранилища UserSelect, в котором хранятся все пользовательские значения
     ///
-    pub fn new(user_select: UserSelect) -> Self {
+    pub fn new(user_select: &UserSelect) -> Self {
        let fmg = Self::get_fmg(user_select.m_to_lift,&user_select.lift_class,&user_select.load_comb,&user_select.drive_type,user_select.vhmax,user_select.vhcs);
         Self {
             dbgid: String::from(format!("{}/Param_to_compare",user_select.dbgid)),
-            cargo_name: user_select.cargo_name,
+            cargo_name: user_select.cargo_name.clone(),
             cargo_weight: user_select.cargo_weight,
             _m_to_lift: user_select.m_to_lift,
-            _m_work_type: user_select.m_work_type,
+            _m_work_type: user_select.m_work_type.clone(),
             _fmg: fmg,
-            _hook_type: user_select.hook_type,
+            _hook_type: user_select.hook_type.clone(),
         }
     }
     ///

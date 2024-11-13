@@ -3,7 +3,7 @@ use crate::kernel::storage::storage::Value;
 use super::all_hooks::{self, AllHooks};
 use std::io;
 pub struct Hook{
-    dbgid: String,
+    pub dbgid: String,
     pub all_hooks: Vec<Vec<String>>,
     pub hook: Vec<String>,
     pub bearing: String,
