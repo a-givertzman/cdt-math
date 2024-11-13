@@ -15,6 +15,7 @@ use crate::kernel::{crane_constructor::{hoisting_tackle::hoisting_tackle::Hoisti
 /// - rope_diametr - диаметр каната, введенный пользователем
 /// 
 pub struct HoistRope{
+    ropes_list: Vec<Vec<String>>,
     dbgid: String,
     cable_count: f64,
     m_to_lift: f64,
@@ -41,6 +42,7 @@ impl HoistRope{
     /// 
     pub fn new(hoisting_tackle: &HoistingTackle, user_select: &UserSelect) -> Self{
         Self{
+            ropes_list: Vec::new(),
             dbgid: hoisting_tackle.dbgid.clone(),
             balance_degree: user_select.balance_degree.clone(),
             twisting_method: user_select.rope_twisting_method.clone(),
@@ -64,10 +66,7 @@ impl HoistRope{
     pub fn eval(&mut self, rope_storage: &mut Storage){
         self.S = Self::s_get(self.m_to_lift,self.hook_weight,9.81,self.cable_count,Self::n_get(self.multiplicity_of_polispast, self.rejecting_blocks));
         self.F = Self::F_get(self.S, Self::z_select(&self));
-
-        let tmp_ropes_list: Vec<Vec<String>> = Self::filter(&self, rope_storage);
-
-
+        self.ropes_list = Self::filter(&self, rope_storage);
     }
     ///
     /// Метод расчёта максимального усилия, возникающего в канате при подъёме номинального груза
@@ -76,7 +75,7 @@ impl HoistRope{
     /// - n - кратность полиспаста
     /// - N - коэффициент полезного действия полиспаста
     /// 
-    fn s_get(M: f64, m: f64, g: f64, n: f64, N: f64) -> f64{
+    pub fn s_get(M: f64, m: f64, g: f64, n: f64, N: f64) -> f64{
         (M+m)*g/(n*N)
     }
     ///
@@ -84,7 +83,7 @@ impl HoistRope{
     /// multiplicity_of_polispast - кратность полиспаста
     /// rejecting_blocks - количество отклоняющих блоков для полиспаста
     /// 
-    fn n_get(multiplicity_of_polispast: f64,rejecting_blocks: f64) -> f64{
+    pub fn n_get(multiplicity_of_polispast: f64,rejecting_blocks: f64) -> f64{
         f64::powf(0.985,rejecting_blocks)*(1.0 - f64::powf(0.98, multiplicity_of_polispast))/((1.0-0.98)*multiplicity_of_polispast)
     }
     ///
