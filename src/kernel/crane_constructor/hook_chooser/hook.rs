@@ -3,7 +3,7 @@ use crate::kernel::storage::storage::Value;
 use super::all_hooks::{self, AllHooks};
 use std::io;
 pub struct Hook{
-    dbgid: String,
+    pub dbgid: String,
     pub all_hooks: Vec<Vec<String>>,
     pub hook: Vec<String>,
     pub bearing: String,
@@ -11,10 +11,10 @@ pub struct Hook{
     pub cargo_weight: f64,
     pub summary_weight: f64,
     pub good_weight: f64,
-    hook_type: String,
+    pub hook_type: String,
     m_to_lift: f64,
-    work_type: String,
-    fmg: f64,
+    pub work_type: String,
+    pub fmg: f64,
 }
 //
 //
@@ -46,8 +46,6 @@ impl Hook{
     /// 
     pub fn eval(&mut self,hook_storage: &mut Storage){
         self.hook = self.hook_select(self.all_hooks.clone());
-        self.bearing = self.bearing_select(Self::bearing_check(self.fmg, &self.hook_type,hook_storage , &self.hook));
-
         // Расчет массы грузозахватного органа
         let mut hook_weight = 0.0;
         match self.hook[4].parse::<f64>() {
@@ -111,92 +109,6 @@ impl Hook{
                 Vec::new() // Возврат пустого вектора при неверном вводе
             }
         }
-    }
-    ///
-    /// Метод выбора подшипников из предложенных
-    /// - bearings - вектор в котором лежат все подходящие подшипники
-    /// 
-    fn bearing_select(&self,bearings: Vec<String>) -> String{
-        println!("{:?}",bearings);
-
-        if bearings.len()!=0{
-            log::debug!("{}.bearing_select | Which bearing do you choose?",self.dbgid);
-            let mut counter: usize = 0;
-            
-            // Печать вариантов выбора
-            for value in bearings.iter() {
-                log::debug!("{}.bearing_select | Bearing {}: {:?}", self.dbgid, counter,value);
-                counter += 1;
-            }
-            
-            let mut user_select = String::new();
-
-            // Чтение выбора пользователя
-            match io::stdin().read_line(&mut user_select) {
-                Ok(_) => {},
-                Err(e) => {
-                    println!("Input error! {}", e);
-                    return String::new(); // Возврат пустого вектора в случае ошибки
-                }
-            }
-
-            bearings[1].clone()
-        }
-        else{
-            log::debug!("{}.bearing_select | There is no right bearing for your hook",self.dbgid);
-            String::new()
-        }
-    }
-    ///
-    /// Метод выбора подшипников, где всевозможные варианты фильтруются по условию совпдания диаметров 
-    /// - hook_type - тип крюка
-    /// - fmg - сила тяжести, действующая на крюк
-    /// - hooks_storage - экземпляр класса-хранилища Storage, в котором хранятся все крюки
-    /// - res_hooks - вектор, в котором хранятся все подходящие крюки
-    /// 
-    pub fn bearing_check(fmg: f64, hook_type: &String,hooks_storage: &mut Storage,res_hooks: &Vec<String>) -> Vec<String> {
-        let mut tmp_bearings: Vec<String> = Vec::new();
-    
-        if let Some(value) = hooks_storage.get("конструкции/подшипники/название") {
-            if let Value::NextMap(bearings_map) = value {
-                for (bearing_name, _) in bearings_map {
-                    if let Some(Value::Data(static_load)) = hooks_storage.get(
-                        &format!("конструкции/подшипники/название/{}/статическая грузоподъемность/", bearing_name),
-                    ) {
-                        if fmg <= *static_load {
-                            for res_hook in res_hooks {
-                                if let Some(Value::Data(hook_diameter)) = hooks_storage.get(
-                                    &format!(
-                                        "конструкции/крюки/тип крюка/{}/ИСО/{}/диаметр хвостовика/",
-                                        hook_type.trim(),
-                                        res_hook
-                                    ),
-                                ) {
-                                    if let Some(Value::Data(bearing_outer_diameter)) = hooks_storage.get(
-                                        &format!("конструкции/подшипники/название/{}/наружный диаметр/", bearing_name),
-                                    ) {
-                                        if hook_diameter >= bearing_outer_diameter {
-                                            tmp_bearings.push(bearing_name.clone());
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        } else {
-            println!("Path not found for bearing selection.");
-        }
-
-        tmp_bearings.sort_by_key(|s| {
-            s.chars()
-                .take_while(|c| c.is_digit(10)) // Берем только числовую часть
-                .collect::<String>()            // Собираем ее в строку
-                .parse::<i32>()                 // Преобразуем строку в число
-                .unwrap_or(0)                   // Обрабатываем ошибку преобразования, если будет
-        });
-        tmp_bearings
     }
     
 }
