@@ -1,8 +1,8 @@
 #[cfg(test)]
 
-mod hook {
+mod bearing {
     use crate::kernel::crane_constructor::hook_chooser::param_comp::Param_to_compare;
-    use crate::kernel::crane_constructor::hook_chooser::{all_hooks::AllHooks, hook::Hook};
+    use crate::kernel::crane_constructor::hook_chooser::{all_bearings::AllBearings, hook::Hook};
     use crate::kernel::storage::storage::Storage;
     use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
     use std::{
@@ -184,7 +184,7 @@ mod hook {
         ];
 
         for (value, target) in test_data.into_iter() {
-            let result = Hook::bearing_check(
+            let result = AllBearings::bearings_check(
                 Param_to_compare::get_fmg(3.0, "M1", "A1", "HD1", 1.0, 1.0),
                 &value.1.to_string(),
                 &mut storage,
