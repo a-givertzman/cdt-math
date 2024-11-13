@@ -7,7 +7,9 @@ mod tests;
 use app::app::App;
 use kernel::crane_constructor::hoist_rope::hoist_rope::HoistRope;
 use kernel::crane_constructor::hoisting_tackle::hoisting_tackle::HoistingTackle;
+use kernel::crane_constructor::hook_chooser::all_bearings::AllBearings;
 use kernel::crane_constructor::hook_chooser::all_hooks::AllHooks;
+use kernel::crane_constructor::hook_chooser::bearing::Bearing;
 use kernel::crane_constructor::{hoisting_tackle, hook_chooser::hook::Hook};
 use kernel::crane_constructor::hook_chooser::param_comp::Param_to_compare;
 use kernel::crane_constructor::user::user_select::UserSelect;
@@ -126,29 +128,28 @@ fn main() {
     //Запрос пользователя
     let user: UserSelect = UserSelect::new(user_select_storage);
 
-    println!("фывафывафы");
-
-    // Создание экземпляра класса AllHooks
+    // Выбор всех подходящих крюков
     let mut all_hooks = AllHooks::new(Param_to_compare::new(&user));
-
-    // Вычисление всех крюков и подшипников
     all_hooks.eval(&mut storage);
 
-    // Создание экземпляра класса Hook
+    // Выбор подходящего крюка
     let mut hook = Hook::new(all_hooks);
-
-    // Вычисление нужного крюка и подшипника
     hook.eval(&mut storage);
 
-    // Создание экземпляра класса HoistingTackle
-    let mut hoisting_tackle = HoistingTackle::new(&hook);
+    // Выбор всех подходящиего подшипников
+    let mut all_bearings = AllBearings::new(&hook);
+    all_bearings.eval(&storage);
 
-    // Вычисление кол-ва канатов и полиспаста
+    // Выбор подходящего подшипника
+    let mut bearing = Bearing::new(&all_bearings);
+    bearing.eval(all_bearings.res_bearings);
+
+    // Расчёт типа полиспаста
+    let mut hoisting_tackle = HoistingTackle::new(&hook);
     hoisting_tackle.eval();
 
-    // Создание экземпляра класса HoistRope
+    // Выбор каната
     let mut hoist_rope = HoistRope::new(&hoisting_tackle,&user);
-
     hoist_rope.eval(&mut storage);
 
 }
