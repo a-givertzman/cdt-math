@@ -3,7 +3,7 @@ mod app;
 mod algorithm;
 #[cfg(test)]
 mod tests;
-use algorithm::storage::storage::Storage;
+use algorithm::{storage::storage::Storage, user_select::user_select::UserSelect};
 use app::app::App;
 use kernel::run::Run;
 use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
@@ -152,4 +152,7 @@ fn main() {
     user_select_storage.set("тип крюка/", Err("крюк однорогий".to_string()));
     user_select_storage.set("тип грузозахватного органа механизма подъёма/",Err("съёмный электрогидравлический грейфер".to_string()),);
     user_select_storage.set( "грузоподъемность грузозахватного органа механизма подъёма/", Ok(0.3),);
+
+    //Запрос пользователя
+    let user_select: UserSelect = UserSelect::new(&user_select_storage);
 }
