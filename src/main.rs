@@ -3,7 +3,7 @@ mod app;
 mod algorithm;
 #[cfg(test)]
 mod tests;
-use algorithm::{hook_choose::user_hook::user_hook::UserHook, storage::storage::Storage, user_select::user_select::UserSelect};
+use algorithm::{bearing_choose::user_bearing::user_bearing::UserBearing, dynamic_coefficient::dynamic_coefficient::DynamicCoefficient, hook_choose::user_hook::user_hook::UserHook, lifting_speed::lifting_speed::LiftingSpeed, select_bet_phi::select_bet_phi::SelectBetPhi, storage::storage::Storage, user_select::user_select::UserSelect};
 use app::app::App;
 use kernel::run::Run;
 use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
@@ -160,7 +160,12 @@ fn main() {
     let mut user_hook: UserHook = UserHook::new();  
     user_hook.eval(&user_select, &mut storage);
 
+    //Подшипник выбранный пользователем
+    let mut user_bearing: UserBearing = UserBearing::new();
+    user_bearing.eval(&user_hook, &user_select, &mut storage, DynamicCoefficient::new(SelectBetPhi::new(user_select.lift_class.clone()), LiftingSpeed::new(user_select.drive_type.clone(), user_select.load_comb.clone(), user_select.vhmax, user_select.vhcs)));
+
     user_hook.user_hook.print();
+    user_bearing.user_bearing.print();
 
 
 }
