@@ -1,3 +1,4 @@
+#[derive(PartialEq)]
 pub struct DbgId(pub String);
 //
 //
