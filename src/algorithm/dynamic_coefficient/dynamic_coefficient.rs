@@ -6,10 +6,10 @@ use crate::{algorithm::{lifting_speed::lifting_speed::LiftingSpeed, select_bet_p
 /// [reference to dynamic coefficient documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
 #[derive(Debug, Clone)]
 pub struct DynamicCoefficient {
-    dbgid: DbgId,
-    select_bet_phi: SelectBetPhi,
-    lifting_speed: LiftingSpeed,
-    value: Option<f64>,
+    pub(crate) dbgid: DbgId,
+    pub(crate) select_bet_phi: SelectBetPhi,
+    pub(crate) lifting_speed: LiftingSpeed,
+    pub(crate) value: Option<f64>,
 }
 impl DynamicCoefficient {
     ///
