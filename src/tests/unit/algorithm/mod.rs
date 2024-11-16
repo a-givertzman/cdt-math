@@ -5,3 +5,4 @@ pub mod hook_filter;
 pub mod lifting_speed;
 pub mod select_bet_phi;
 pub mod storage;
+pub mod summary_good_weight;

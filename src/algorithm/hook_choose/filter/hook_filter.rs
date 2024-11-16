@@ -5,12 +5,16 @@ use crate::{algorithm::{hook_choose::hook::Hook, storage::storage::Storage, user
 /// - 'm_to_lift' - масса на крюке
 /// - 'mechanism_work_type' - режим работы механизма согласно ГОСТ 34017-2016
 /// - 'hook_type' - тип крюка
+/// - 'name_cargo_hand_device' - имя дополнительного грузозахватного органа
+/// - 'weight_cargo_hand_device' - масса дополнительного грузозахватного органа
 pub struct HookFilter{
     dbgid: DbgId,
     filtered_hooks: Vec<Hook>,
     m_to_lift: f64,
     mechanism_work_type: String,
     hook_type: String,
+    name_cargo_hand_device: String,
+    weight_cargo_hand_device: f64,
 }
 //
 //
@@ -24,6 +28,8 @@ impl HookFilter{
                 m_to_lift: user_select.m_to_lift, 
                 mechanism_work_type: user_select.mechanism_work_type.clone(),
                 hook_type: user_select.hook_type.clone(),
+                name_cargo_hand_device: user_select.name_cargo_hand_device.clone(),
+                weight_cargo_hand_device: user_select.weight_cargo_hand_device,
              }
     }
     ///
@@ -53,7 +59,11 @@ impl HookFilter{
                                     key_iso
                                 )) {
                                     if let Value::Data(da) = v {
-                                        self.filtered_hooks.push(Hook::new(key_iso.to_string(),self.mechanism_work_type.to_string(),self.hook_type.to_string(),*datt,*da));
+                                        if let Some(aa) = hooks_storage.get(&format!("конструкции/крюки/тип крюка/{}/ИСО/{}/масса заготовки/",self.hook_type.trim(),key_iso)){
+                                            if let Value::Data(hook_weight) = aa{
+                                                self.filtered_hooks.push(Hook::new(key_iso.to_string(),self.mechanism_work_type.to_string(),self.hook_type.to_string(),*datt,*da,self.name_cargo_hand_device.clone(),self.weight_cargo_hand_device,*hook_weight));
+                                            }
+                                        }
 
                                     }
                                 }

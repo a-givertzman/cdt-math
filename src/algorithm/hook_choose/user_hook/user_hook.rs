@@ -17,7 +17,7 @@ impl UserHook{
     pub fn new() ->Self{
         Self {
             dbgid: DbgId(format!("UserHook")),
-            user_hook: Hook::new(String::new(), String::new(), String::new(), 0.0, 0.0) }
+            user_hook: Hook::new(String::new(), String::new(), String::new(), 0.0, 0.0,String::new(), 0.0, 0.0) }
 
     }
     ///
@@ -32,11 +32,11 @@ impl UserHook{
             log::debug!("{}", format!("{}.eval | {:?}", self.dbgid,hook.print()));
         }
         
-        let mut user_select = String::new();
+        let mut user_input = String::new();
 
         log::debug!("{}.eval | Please, select your hook",self.dbgid);
         // Чтение выбора пользователя
-        match io::stdin().read_line(&mut user_select) {
+        match io::stdin().read_line(&mut user_input) {
             Ok(_) => {}
             _ => {
                
@@ -44,7 +44,7 @@ impl UserHook{
         }
 
         // Преобразование ввода пользователя в число
-        match user_select.trim().parse::<usize>() {
+        match user_input.trim().parse::<usize>() {
             Ok(index) => {
                 if index < filtered_hooks.len(){
                     self.user_hook = filtered_hooks[index].to_owned();
@@ -54,6 +54,7 @@ impl UserHook{
 
             }
         }
+        self.user_hook.sum_good_weights.eval(self.user_hook.hook_weight, self.user_hook.weight_cargo_hand_device, user_select.m_to_lift);
 
     }
 

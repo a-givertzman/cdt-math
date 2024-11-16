@@ -14,8 +14,8 @@ pub struct UserSelect {
     pub load_comb: LoadCombination,
     pub drive_type: DriverType,
     pub hook_type: String,
-    pub cargo_name: String,
-    pub cargo_weight: f64,
+    pub name_cargo_hand_device: String,
+    pub weight_cargo_hand_device: f64,
 }
 //
 //
@@ -120,8 +120,8 @@ impl UserSelect {
             vhmax: vhmax_tmp,
             mechanism_work_type: m_work_type_tmp,
             hook_type: hook_type_tmp,
-            cargo_name: name_cargo_tmp,
-            cargo_weight: weight_cargo_tmp,
+            name_cargo_hand_device: name_cargo_tmp,
+            weight_cargo_hand_device: weight_cargo_tmp,
         }
     }
 }
