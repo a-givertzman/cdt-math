@@ -8,7 +8,7 @@ mod hook {
     };
     use testing::stuff::max_test_duration::TestDuration;
 
-    use crate::algorithm::{hook_choose::{filter::hook_filter::HookFilter, hook::Hook}, storage::storage::Storage, user_select::user_select::UserSelect};
+    use crate::{algorithm::{bearing_choose::{bearing::Bearing, filter::bearing_filter::BearingFilter}, dynamic_coefficient::dynamic_coefficient::DynamicCoefficient, force_of_gravity::force_of_gravity::ForceOfGravity, hook_choose::{filter::hook_filter::HookFilter, hook::Hook, user_hook::user_hook::UserHook}, lifting_speed::lifting_speed::LiftingSpeed, select_bet_phi::select_bet_phi::{BetPhi, SelectBetPhi}, storage::storage::Storage, user_select::user_select::UserSelect}, kernel::{dbgid::dbgid::DbgId, entities::{driver_type::DriverType, liftclass::LiftClass, load_combination::LoadCombination}}};
     ///
     ///
     static INIT: Once = Once::new();
@@ -107,15 +107,53 @@ mod hook {
 
         let test_data = [
             (
-                HookFilter::new(&user_select), 4
+                BearingFilter{
+                    dbgid: DbgId(format!("BearingFilter")),
+                    user_hook: UserHook{
+                        dbgid: DbgId(format!("UserHook")),
+                        user_hook: Hook{
+                            dbgid: DbgId(format!("Hook")),
+                            ISO_4301: String::from("1"),
+                            mechanism_work_type: String::from("M1"),
+                            hook_type: String::from("крюк однорогий"),
+                            max_m_to_lift: 0.5,
+                            d_tail: 12.0,
+                        },
+                    },
+                    force_of_gravity: ForceOfGravity{
+                        dbgid: DbgId(format!("ForceOfGravity")),
+                        dynamic_coefficient: DynamicCoefficient{
+                            dbgid: DbgId(format!("DynamicCoefficient")),
+                            select_bet_phi: SelectBetPhi{
+                                dbgid: DbgId(format!("SelectBetPhi")),
+                                lift_class: LiftClass::Hc1,
+                                value: Some(BetPhi{
+                                    bet: 2.0,
+                                    phi: 12.0,
+                                }),
+                            },
+                            lifting_speed: LiftingSpeed{
+                                dbgid: DbgId(format!("LiftingSpeed")),
+                                driver_type: DriverType::Hd1,
+                                load_comb: LoadCombination::A1,
+                                vhmax: 20.0,
+                                vhcs: 20.0,
+                                value: Some(20.0),
+                            },
+                            value: Some(20.0),
+                        },
+                        m_to_lift: 20.0,
+                        g: 9.81,
+                        value: Some(20.0),
+                    },
+                    filtered_bearings: vec![Bearing{ dbgid: DbgId(format!("Bearing")), name: "H6100".to_string(), d_out: 20.0 },Bearing{ dbgid: DbgId(format!("Bearing")), name: "H6100".to_string(), d_out: 20.0 }],
+                }, 2
             )
         ];
 
         for (mut value, target) in test_data.into_iter() {
             let result = value.filter(&mut storage).clone();
-            let mut i: usize = 0;
-            let mut i: usize = 0;
-            assert!(result.len() == target);
+            assert!(result.len() == target, "result: {:?}\ntarget: {:?}", result.len(), target);
         }
         test_duration.exit(); 
     }

@@ -1,6 +1,6 @@
 #[cfg(test)]
 
-mod dk {
+mod ForceOfGravity {
     use std::{env::var, str::FromStr, sync::Once, time::{Duration, Instant}};
     use env_logger::Target;
     use testing::stuff::max_test_duration::TestDuration;

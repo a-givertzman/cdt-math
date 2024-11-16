@@ -1,6 +1,6 @@
 #[cfg(test)]
 
-mod dk {
+mod DynamicCoefficient {
     use std::{str::FromStr, sync::Once, time::{Duration, Instant}};
     use testing::stuff::max_test_duration::TestDuration;
     use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};

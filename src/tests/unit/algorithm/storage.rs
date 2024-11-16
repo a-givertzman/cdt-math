@@ -1,6 +1,6 @@
 #[cfg(test)]
 
-mod user_select {
+mod Storage {
     use crate::{kernel::entities::value::Value, Storage};
     use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
     use std::{

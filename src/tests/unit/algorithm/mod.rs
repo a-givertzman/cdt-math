@@ -1,3 +1,4 @@
+pub mod bearing_filter;
 pub mod dynamic_coefficient;
 pub mod force_of_gravity;
 pub mod hook_filter;

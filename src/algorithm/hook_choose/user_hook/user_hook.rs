@@ -5,7 +5,7 @@ use crate::{algorithm::{hook_choose::{filter::hook_filter::HookFilter, hook::Hoo
 /// Класс который содержит крюк (экземпляр класса [Hook]) выбранный пользователем из предложенных
 #[derive(Debug, Clone)]
 pub struct UserHook{
-    dbgid: DbgId,
+    pub(crate) dbgid: DbgId,
     pub user_hook: Hook,
 }
 //

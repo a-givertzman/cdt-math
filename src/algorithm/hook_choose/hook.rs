@@ -11,11 +11,11 @@ use crate::kernel::dbgid::dbgid::DbgId;
 #[derive(PartialEq)]
 #[derive(Debug, Clone)]
 pub struct Hook{
-    dbgid: DbgId,
-    ISO_4301: String,
-    mechanism_work_type: String,
-    hook_type: String,
-    max_m_to_lift: f64,
+    pub(crate) dbgid: DbgId,
+    pub(crate) ISO_4301: String,
+    pub(crate) mechanism_work_type: String,
+    pub(crate) hook_type: String,
+    pub(crate) max_m_to_lift: f64,
     pub d_tail: f64,
 }
 //
