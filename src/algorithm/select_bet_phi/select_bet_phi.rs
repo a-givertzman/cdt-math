@@ -6,9 +6,9 @@ use crate::kernel::{dbgid::dbgid::DbgId, entities::liftclass::LiftClass, str_err
 /// [reference to Lift Class documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
 #[derive(Debug, Clone)]
 pub struct SelectBetPhi {
-    dbgid: DbgId,
-    lift_class: LiftClass,
-    value: Option<BetPhi>,
+    pub(crate) dbgid: DbgId,
+    pub(crate) lift_class: LiftClass,
+    pub(crate) value: Option<BetPhi>,
 }
 impl SelectBetPhi {
     ///
@@ -41,6 +41,7 @@ impl SelectBetPhi {
 /// Just holding Bet & Phi
 /// [reference to Lift Class documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
 #[derive(Debug, Clone)]
+#[derive(PartialEq)]
 pub struct BetPhi {
     pub bet: f64,
     pub phi: f64,
