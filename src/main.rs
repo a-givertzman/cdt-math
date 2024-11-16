@@ -3,7 +3,7 @@ mod app;
 mod algorithm;
 #[cfg(test)]
 mod tests;
-use algorithm::{storage::storage::Storage, user_select::user_select::UserSelect};
+use algorithm::{hook_choose::user_hook::user_hook::UserHook, storage::storage::Storage, user_select::user_select::UserSelect};
 use app::app::App;
 use kernel::run::Run;
 use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
@@ -155,4 +155,12 @@ fn main() {
 
     //Запрос пользователя
     let user_select: UserSelect = UserSelect::new(&user_select_storage);
+
+    //Крюк выбранный пользователем
+    let mut user_hook: UserHook = UserHook::new();  
+    user_hook.eval(&user_select, &mut storage);
+
+    user_hook.user_hook.print();
+
+
 }
