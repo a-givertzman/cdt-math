@@ -9,4 +9,5 @@ pub mod multiplicity_of_the_polispast;
 pub mod polispast_type;
 pub mod select_bet_phi;
 pub mod storage;
+pub mod tension_in_the_rope;
 pub mod user_select;
