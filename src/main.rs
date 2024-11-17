@@ -3,7 +3,7 @@ mod app;
 mod algorithm;
 #[cfg(test)]
 mod tests;
-use algorithm::{bearing_choose::user_bearing::user_bearing::UserBearing, dynamic_coefficient::dynamic_coefficient::DynamicCoefficient, hook_choose::user_hook::user_hook::UserHook, lifting_speed::lifting_speed::LiftingSpeed, select_bet_phi::select_bet_phi::SelectBetPhi, storage::storage::Storage, user_select::user_select::UserSelect};
+use algorithm::{bearing_choose::user_bearing::user_bearing::UserBearing, dynamic_coefficient::dynamic_coefficient::DynamicCoefficient, hoist_rope_choose::filter::hoist_rope_filter::HoistRopeFilter, hook_choose::user_hook::user_hook::UserHook, lifting_speed::lifting_speed::LiftingSpeed, select_bet_phi::select_bet_phi::SelectBetPhi, storage::storage::Storage, user_select::user_select::UserSelect};
 use app::app::App;
 use kernel::run::Run;
 use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
@@ -66,10 +66,15 @@ fn main() {
     storage.set("конструкции/канат/тип сердечника/металлический/СТО 71915393-ТУ 051-2014 Октопус 826K/3/масса каната/", Ok(0.93));
     storage.set("конструкции/канат/тип сердечника/металлический/СТО 71915393-ТУ 051-2014 Октопус 826K/4/масса каната/", Ok(1.067));
 
-    storage.set("конструкции/канат/тип сердечника/металлический/СТО 71915393-ТУ 051-2014 Октопус 826K/1/сечение каната/", Ok(67.824));
-    storage.set("конструкции/канат/тип сердечника/металлический/СТО 71915393-ТУ 051-2014 Октопус 826K/2/сечение каната/", Ok(79.599));
-    storage.set("конструкции/канат/тип сердечника/металлический/СТО 71915393-ТУ 051-2014 Октопус 826K/3/сечение каната/", Ok(92.316));
-    storage.set("конструкции/канат/тип сердечника/металлический/СТО 71915393-ТУ 051-2014 Октопус 826K/4/сечение каната/", Ok(105.975));
+    storage.set("конструкции/канат/тип сердечника/металлический/СТО 71915393-ТУ 051-2014 Октопус 826K/1/площадь сечения каната/", Ok(67.824));
+    storage.set("конструкции/канат/тип сердечника/металлический/СТО 71915393-ТУ 051-2014 Октопус 826K/2/площадь сечения каната/", Ok(79.599));
+    storage.set("конструкции/канат/тип сердечника/металлический/СТО 71915393-ТУ 051-2014 Октопус 826K/3/площадь сечения каната/", Ok(92.316));
+    storage.set("конструкции/канат/тип сердечника/металлический/СТО 71915393-ТУ 051-2014 Октопус 826K/4/площадь сечения каната/", Ok(105.975));
+
+    storage.set("конструкции/канат/тип сердечника/металлический/СТО 71915393-ТУ 051-2014 Октопус 826K/1/удельная масса каната/", Ok(0.688));
+    storage.set("конструкции/канат/тип сердечника/металлический/СТО 71915393-ТУ 051-2014 Октопус 826K/2/удельная масса каната/", Ok(0.808));
+    storage.set("конструкции/канат/тип сердечника/металлический/СТО 71915393-ТУ 051-2014 Октопус 826K/3/удельная масса каната/", Ok(0.93));
+    storage.set("конструкции/канат/тип сердечника/металлический/СТО 71915393-ТУ 051-2014 Октопус 826K/4/удельная масса каната/", Ok(1.067));
 
     storage.set("конструкции/канат/тип сердечника/металлический/СТО 71915393-ТУ 051-2014 Октопус 826K/1/разрывное усилие/1770/", Ok(112.0));
     storage.set("конструкции/канат/тип сердечника/металлический/СТО 71915393-ТУ 051-2014 Октопус 826K/1/разрывное усилие/1860/", Ok(118.0));
@@ -125,6 +130,9 @@ fn main() {
 
     user_hook.user_hook.print();
     user_bearing.user_bearing.print();
+
+    //Фильтрация канатов
+    let filtered_hoist_ropes = HoistRopeFilter::new().filter(&mut storage, user_select.m_to_lift, user_hook.user_hook.sum_good_weights.summary_weight, user_select.rejecting_blocks, user_select.mechanism_work_type, user_select.hoist_rope_core_type, user_select.hoist_rope_diametr, user_select.hoist_rope_twisting_method, user_select.hoist_rope_balance_degree);
 
 
 }

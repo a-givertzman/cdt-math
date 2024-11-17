@@ -26,14 +26,14 @@ impl FromStr for MechanismWorkType {
     type Err = StrErr;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.to_lowercase().as_str() {
-            "м1" => Ok(Self::M1),
-            "м2" => Ok(Self::M2),
-            "м3" => Ok(Self::M3),
-            "м4" => Ok(Self::M4),
-            "м5" => Ok(Self::M5),
-            "м6" => Ok(Self::M6),
-            "м7" => Ok(Self::M7),
-            "м8" => Ok(Self::M8),
+            "m1" => Ok(Self::M1),
+            "m2" => Ok(Self::M2),
+            "m3" => Ok(Self::M3),
+            "m4" => Ok(Self::M4),
+            "m5" => Ok(Self::M5),
+            "m6" => Ok(Self::M6),
+            "m7" => Ok(Self::M7),
+            "m8" => Ok(Self::M8),
             _ => Err(format!("MechanismWorkType.from_str | Invalid MechanismWorkType: {}", s).into()),
         }
     }
@@ -43,6 +43,15 @@ impl FromStr for MechanismWorkType {
 //
 impl ToString for MechanismWorkType{
     fn to_string(&self) -> String {
-        self.to_string()
+        match self {
+            MechanismWorkType::M1 => "M1".to_string(),
+            MechanismWorkType::M2 => "M2".to_string(),
+            MechanismWorkType::M3 => "M3".to_string(),
+            MechanismWorkType::M4 => "M4".to_string(),
+            MechanismWorkType::M5 => "M5".to_string(),
+            MechanismWorkType::M6 => "M6".to_string(),
+            MechanismWorkType::M7 => "M7".to_string(),
+            MechanismWorkType::M8 => "M8".to_string(),
+        }
     }
 }

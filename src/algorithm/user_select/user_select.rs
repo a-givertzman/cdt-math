@@ -1,6 +1,6 @@
 use std::str::FromStr;
 
-use crate::{algorithm::storage::storage::Storage, kernel::entities::{crane_work_area::CraneWorkArea, driver_type::DriverType, liftclass::LiftClass, load_combination::LoadCombination, mechanism_work_type::MechanismWorkType, value::Value}};
+use crate::{algorithm::storage::storage::Storage, kernel::entities::{crane_work_area::CraneWorkArea, driver_type::DriverType, hoist_rope_balance_degree::HoistRopeBalanceDegree, hoist_rope_twisting_method::HoistRopeTwistingMethod, hoist_rope_type::HoistRopeType, liftclass::LiftClass, load_combination::LoadCombination, mechanism_work_type::MechanismWorkType, value::Value}};
 
 ///
 /// Класс, которой реализует хранение характеристики выбранные пользователем для дальнейшего расчета крана
@@ -18,6 +18,10 @@ pub struct UserSelect {
     pub weight_cargo_hand_device: f64,
     pub rejecting_blocks: f64,
     pub crane_work_area: CraneWorkArea,
+    pub hoist_rope_core_type: HoistRopeType,
+    pub hoist_rope_twisting_method: HoistRopeTwistingMethod,
+    pub hoist_rope_balance_degree: HoistRopeBalanceDegree,
+    pub hoist_rope_diametr: f64,
 
 }
 //
@@ -29,14 +33,14 @@ impl UserSelect {
     /// - storage - экземпляр класса-хранилища Storage, в котором находится "таблица" конструкций, кранов, подшипников
     pub fn new(user_select_storage: &Storage) -> Self {
         let mut m_to_lift_tmp = 0.0;
-        if let Some(value) = user_select_storage.get("грузоподъемность/") {
+        if let Some(value) = user_select_storage.get("конструкции/крюк/грузоподъемность/") {
             if let Value::Data(data) = value {
                 m_to_lift_tmp = *data;
             }
         }
 
         let mut lift_class_tmp:LiftClass = LiftClass::Hc1;
-        if let Some(value) = user_select_storage.get("класс подъема/") {
+        if let Some(value) = user_select_storage.get("конструкции/крюк/класс подъема/") {
             if let Value::String(data) = value {
                 match LiftClass::from_str(&data){
                     Ok(liftclass) => lift_class_tmp = liftclass,
@@ -46,7 +50,7 @@ impl UserSelect {
         };
 
         let mut load_comb_tmp:LoadCombination = LoadCombination::A1;
-        if let Some(value) = user_select_storage.get("комбинация нагрузок/") {
+        if let Some(value) = user_select_storage.get("конструкции/крюк/комбинация нагрузок/") {
             if let Value::String(data) = value {
                 match LoadCombination::from_str(&data){
                     Ok(load_comb) => load_comb_tmp = load_comb,
@@ -56,7 +60,7 @@ impl UserSelect {
         };
 
         let mut drive_type_tmp:DriverType = DriverType::Hd1;
-        if let Some(value) = user_select_storage.get("тип привода/") {
+        if let Some(value) = user_select_storage.get("конструкции/крюк/тип привода/") {
             if let Value::String(data) = value {
                 match DriverType::from_str(&data){
                     Ok(driver_type) => drive_type_tmp = driver_type,
@@ -66,7 +70,7 @@ impl UserSelect {
         };
 
         let mut vhcs_tmp = 0.0;
-        if let Some(value) = user_select_storage.get("номинальная скорость подъема механизма/")
+        if let Some(value) = user_select_storage.get("конструкции/крюк/номинальная скорость подъема механизма/")
         {
             if let Value::Data(data) = value {
                 vhcs_tmp = *data;
@@ -74,7 +78,7 @@ impl UserSelect {
         }
 
         let mut vhmax_tmp = 0.0;
-        if let Some(value) = user_select_storage.get("замедленная скорость подъема механизма/")
+        if let Some(value) = user_select_storage.get("конструкции/крюк/замедленная скорость подъема механизма/")
         {
             if let Value::Data(data) = value {
                 vhmax_tmp = *data;
@@ -92,14 +96,14 @@ impl UserSelect {
         };
 
         let mut hook_type_tmp = String::new();
-        if let Some(value) = user_select_storage.get("тип крюка/") {
+        if let Some(value) = user_select_storage.get("конструкции/крюк/тип крюка/") {
             if let Value::String(data) = value {
                 hook_type_tmp = data.to_string();
             }
         }
 
         let mut name_cargo_tmp = String::new();
-        if let Some(value) = user_select_storage.get("тип грузозахватного органа механизма подъёма/")
+        if let Some(value) = user_select_storage.get("конструкции/крюк/тип грузозахватного органа механизма подъёма/")
         {
             if let Value::String(data) = value {
                 name_cargo_tmp = data.to_string();
@@ -108,7 +112,7 @@ impl UserSelect {
 
         let mut weight_cargo_tmp = 0.0;
         if let Some(value) =
-            user_select_storage.get("грузоподъемность грузозахватного органа механизма подъёма/")
+            user_select_storage.get("конструкции/крюк/грузоподъемность грузозахватного органа механизма подъёма/")
         {
             if let Value::Data(data) = value {
                 weight_cargo_tmp = *data;
@@ -132,7 +136,45 @@ impl UserSelect {
             }
         };
 
+        let mut hoist_rope_core_type_tmp: HoistRopeType = HoistRopeType::Metal;
+        if let Some(value) = user_select_storage.get("конструкции/канат/тип сердечника/") {
+            if let Value::String(data) = value {
+                match HoistRopeType::from_str(&data){
+                    Ok(hoist_rope_core_type) => hoist_rope_core_type_tmp = hoist_rope_core_type,
+                    Err(_) => todo!(),
+                }
+            }
+        };
+
+        let mut hoist_rope_twisting_method_tmp: HoistRopeTwistingMethod = HoistRopeTwistingMethod::Twisting;
+        if let Some(value) = user_select_storage.get("конструкции/канат/способ свивки каната/") {
+            if let Value::String(data) = value {
+                match HoistRopeTwistingMethod::from_str(&data){
+                    Ok(hoist_rope_twisting_method) => hoist_rope_twisting_method_tmp = hoist_rope_twisting_method,
+                    Err(_) => todo!(),
+                }
+            }
+        };
+
+        let mut hoist_rope_balance_degree_tmp: HoistRopeBalanceDegree = HoistRopeBalanceDegree::Straightened;
+        if let Some(value) = user_select_storage.get("конструкции/канат/степень уравновешенности каната/") {
+            if let Value::String(data) = value {
+                match HoistRopeBalanceDegree::from_str(&data){
+                    Ok(hoist_rope_balance_degree) => hoist_rope_balance_degree_tmp = hoist_rope_balance_degree,
+                    Err(_) => todo!(),
+                }
+            }
+        };
+
+        let mut hoist_rope_diametr_tmp = 0.0;
+        if let Some(value) = user_select_storage.get("конструкции/канат/диаметр каната/"){
+            if let Value::Data(data) = value  {
+                hoist_rope_diametr_tmp = *data;
+            }
+        }
+
         Self {
+            hoist_rope_twisting_method: hoist_rope_twisting_method_tmp,
             crane_work_area: crane_type_area_tmp,
             rejecting_blocks: rejecting_blocks_tmp,
             dbgid: String::from(format!("UserSelect")), 
@@ -146,6 +188,9 @@ impl UserSelect {
             hook_type: hook_type_tmp,
             name_cargo_hand_device: name_cargo_tmp,
             weight_cargo_hand_device: weight_cargo_tmp,
+            hoist_rope_core_type: hoist_rope_core_type_tmp,
+            hoist_rope_balance_degree: hoist_rope_balance_degree_tmp,
+            hoist_rope_diametr: hoist_rope_diametr_tmp,
         }
     }
 }

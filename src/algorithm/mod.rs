@@ -4,6 +4,7 @@ pub mod dynamic_coefficient;
 pub mod efficiency_of_the_polyspast;
 pub mod effort_in_the_rope;
 pub mod force_of_gravity;
+pub mod hoist_rope_choose;
 pub mod hook_choose;
 pub mod lifting_speed;
 pub mod maximum_effort;
