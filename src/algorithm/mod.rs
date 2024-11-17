@@ -7,6 +7,7 @@ pub mod force_of_gravity;
 pub mod hook_choose;
 pub mod lifting_speed;
 pub mod maximum_effort;
+pub mod minimum_breaking_force;
 pub mod multiplicity_of_the_polispast;
 pub mod polispast_type;
 pub mod rope_reserve_ratio;
