@@ -5,7 +5,7 @@ use crate::{algorithm::cable_count::cable_count::CableCount, kernel::dbgid::dbgi
 /// [reference to polispast type documentation](design\docs\algorithm\part02\chapter_03_choose_hoisting_tackle.md)
 pub struct PolispastType{
     dbgid: DbgId,
-    cable_count: CableCount,
+    pub(crate) cable_count: CableCount,
     value: u8
 }
 //

@@ -6,7 +6,7 @@ use crate::{algorithm::effort_in_the_rope::effort_in_the_rope::EffortInTheRope, 
 pub struct CableCount{
     dbgid: DbgId,
     effort_in_the_rope: EffortInTheRope,
-    value: f64,
+    pub(crate) value: f64,
 }
 //
 //

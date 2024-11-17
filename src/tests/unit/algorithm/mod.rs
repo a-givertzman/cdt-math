@@ -5,6 +5,7 @@ pub mod effort_in_the_rope;
 pub mod force_of_gravity;
 pub mod hook_filter;
 pub mod lifting_speed;
+pub mod multiplicity_of_the_polispast;
 pub mod polispast_type;
 pub mod select_bet_phi;
 pub mod storage;
