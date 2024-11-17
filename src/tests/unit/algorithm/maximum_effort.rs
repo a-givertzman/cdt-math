@@ -1,11 +1,11 @@
 #[cfg(test)]
 
-mod EfficiencyOfThePolyspast {
+mod MaximumEffort {
     use std::{sync::Once, time::{Duration, Instant}};
     use testing::stuff::max_test_duration::TestDuration;
     use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
 
-    use crate::algorithm::efficiency_of_the_polyspast::efficiency_of_the_polyspast::EfficiencyOfThePolyspast;
+    use crate::algorithm::maximum_effort::maximum_effort::MaximumEffort;
     ///
     ///
     static INIT: Once = Once::new();
@@ -32,20 +32,20 @@ mod EfficiencyOfThePolyspast {
         log::debug!("\n{}", self_id);
         let test_duration = TestDuration::new(self_id, Duration::from_secs(1));
         test_duration.run().unwrap();
-        let test_data =[
+        let test_data = [
             (
                 1,
                 (0.0,0.0,0.0),
-                0.9900000000000011
+                0.0
             ),
             (
                 1,
-                (2.0,0.5,13.4),
-                0.9605227500000011
+                (5.0,2.0,14.0),
+                42.854322164224534
             ),
         ];
-        for (step,(rejecting_blocks,m_to_lift,hook_weight),target) in test_data.iter(){
-            let result = EfficiencyOfThePolyspast::new().eval(*m_to_lift, *hook_weight,*rejecting_blocks);
+        for (step,(m_to_lift,hook_weight,rejecting_blocks),target) in test_data.iter(){
+            let result = MaximumEffort::new().eval(*m_to_lift, *hook_weight, *rejecting_blocks);
             assert!(result == *target, "step {} \nresult: {:?}\ntarget: {:?}", step, result, target);
 
         }
