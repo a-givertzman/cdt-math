@@ -3,6 +3,7 @@ use crate::algorithm::polispast_type::polispast_type::PolispastType;
 ///
 /// Класс, который рассчитывает кратность полиспаста
 /// [reference to the multiplicity of the polispast documentation](design\docs\algorithm\part02\chapter_03_choose_hoisting_tackle.md)
+/// - 'polispast_type' - тип полиспаста (экзмепляр класса [PolispastType])
 pub struct MultiplicityOfThePolispast{
     polispast_type: PolispastType,
     value: f64
@@ -19,6 +20,8 @@ impl MultiplicityOfThePolispast{
     ///
     /// Метод расчёта кратности полиспаста
     /// [reference to the multiplicity of the polispast documentation](design\docs\algorithm\part02\chapter_03_choose_hoisting_tackle.md)
+    /// - 'm_to_lift' - масса на крюке
+    /// - 'hook_weight' - масса грузовой подвески
     pub fn eval(&mut self,m_to_lift:f64, hook_weight: f64) -> f64{
         let value = self.polispast_type.eval(m_to_lift, hook_weight);
         self.value = self.polispast_type.cable_count.value/(value as f64);
