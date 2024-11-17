@@ -1,4 +1,4 @@
-use crate::{algorithm::{hook_choose::hook::Hook, storage::storage::Storage, user_select::user_select::UserSelect}, kernel::{dbgid::dbgid::DbgId, entities::value::Value}};
+use crate::{algorithm::{hook_choose::hook::Hook, storage::storage::Storage, user_select::user_select::UserSelect}, kernel::{dbgid::dbgid::DbgId, entities::{mechanism_work_type::MechanismWorkType, value::Value}}};
 ///
 /// Класс, реалилующий фильтрацию крюков по грузоподъемности
 /// - 'filtered_hooks' - вектор отфильтрованных крюков
@@ -11,7 +11,7 @@ pub struct HookFilter{
     dbgid: DbgId,
     filtered_hooks: Vec<Hook>,
     m_to_lift: f64,
-    mechanism_work_type: String,
+    mechanism_work_type: MechanismWorkType,
     hook_type: String,
     name_cargo_hand_device: String,
     weight_cargo_hand_device: f64,
@@ -49,7 +49,7 @@ impl HookFilter{
                         "конструкции/крюки/тип крюка/{}/ИСО/{}/грузоподъемность/{}/",
                         self.hook_type.trim(),
                         key_iso,
-                        self.mechanism_work_type.trim()
+                        self.mechanism_work_type.to_string()
                     )) {
                         if let Value::Data(datt) = vall {
                             if self.m_to_lift <= *datt {

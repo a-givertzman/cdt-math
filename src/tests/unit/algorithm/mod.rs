@@ -9,6 +9,7 @@ pub mod lifting_speed;
 pub mod maximum_effort;
 pub mod multiplicity_of_the_polispast;
 pub mod polispast_type;
+pub mod rope_reserve_ratio;
 pub mod select_bet_phi;
 pub mod storage;
 pub mod summary_good_weight;
