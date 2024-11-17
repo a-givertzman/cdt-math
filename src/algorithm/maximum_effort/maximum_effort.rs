@@ -4,6 +4,7 @@ use crate::{algorithm::{cable_count::cable_count::CableCount, efficiency_of_the_
 /// Класс, для расчёта максимального усилия, возникающего в канате при подъёме номинального груза
 /// - 'cable_count' - количество канатов, сходящих с крюковой подвески (экземпляр класса [CableCount])
 /// - 'efficiency_of_the_polyspast' - коэффициент полезного действия полиспаста (экземпляр класса [EfficiencyOfThePolyspast])
+/// [reference to maximum effort documentation](design\docs\algorithm\part02\chapter_04_choose_hoist_rope.md)
 pub struct MaximumEffort{
     dbgid: DbgId,
     cable_count: CableCount,
@@ -27,6 +28,7 @@ impl MaximumEffort{
     }
     ///
     /// Метод расчёта максимального усилия, возникающего в канате при подъёме номинального груза
+    /// [reference to maximum effort documentation](design\docs\algorithm\part02\chapter_04_choose_hoist_rope.md)
     pub fn eval(&mut self,m_to_lift: f64, hook_weight: f64, rejecting_blocks: f64) ->f64{
         self.value = (m_to_lift+hook_weight)*self.g/(self.cable_count.eval(m_to_lift, hook_weight)*self.efficiency_of_the_polyspast.eval(m_to_lift, hook_weight, rejecting_blocks));
         self.value
