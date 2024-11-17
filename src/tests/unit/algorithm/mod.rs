@@ -1,6 +1,7 @@
 pub mod bearing_filter;
 pub mod cable_count;
 pub mod dynamic_coefficient;
+pub mod efficiency_of_the_polispast;
 pub mod effort_in_the_rope;
 pub mod force_of_gravity;
 pub mod hook_filter;

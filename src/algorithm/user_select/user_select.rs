@@ -16,6 +16,7 @@ pub struct UserSelect {
     pub hook_type: String,
     pub name_cargo_hand_device: String,
     pub weight_cargo_hand_device: f64,
+    pub rejecting_blocks: f64,
 }
 //
 //
@@ -110,7 +111,15 @@ impl UserSelect {
             }
         }
 
+        let mut rejecting_blocks_tmp = 0.0;
+        if let Some(value) = storage.get("конструкции/канат/количество отклоняющих блоков для полиспаста/"){
+            if let Value::Data(data) = value  {
+                rejecting_blocks_tmp = *data;
+            }
+        }
+
         Self {
+            rejecting_blocks: rejecting_blocks_tmp,
             dbgid: String::from(format!("UserSelect")), 
             m_to_lift: m_to_lift_tmp,
             lift_class: lift_class_tmp,
