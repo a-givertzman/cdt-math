@@ -1,8 +1,9 @@
 use std::str::FromStr;
+use serde::{Deserialize, Serialize};
 use crate::kernel::str_err::str_err::StrErr;
 ///
 /// Перечисление для структуирования типов привода мех.под.
-#[derive(Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum DriverType {
     Hd1,
     Hd2,

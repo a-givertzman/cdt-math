@@ -1,9 +1,9 @@
 use std::str::FromStr;
-
+use serde::{Deserialize, Serialize};
 use crate::kernel::str_err::str_err::StrErr;
 ///
 /// Перечисление для структуирования классов подъема
-#[derive(Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum LiftClass {
     Hc1,
     Hc2,

@@ -1,8 +1,9 @@
 use std::str::FromStr;
+use serde::{Deserialize, Serialize};
 use crate::kernel::str_err::str_err::StrErr;
 ///
 /// Перечисление для структуирования степени уравновешенности каната
-#[derive(Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum HoistRopeBalanceDegree {
     Straightened,
     Unstraightened,
