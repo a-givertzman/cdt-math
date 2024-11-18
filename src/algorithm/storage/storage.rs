@@ -4,7 +4,6 @@ use crate::kernel::entities::value::Value;
 ///
 /// Класс, для хранение данных
 /// storage - "база данных", в которой будут хранится таблицы
-/// 
 pub struct Storage {
     pub dbgid: String,
     storage: HashMap<String, Value>,
