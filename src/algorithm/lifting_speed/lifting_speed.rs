@@ -1,4 +1,4 @@
-use crate::kernel::{dbgid::dbgid::DbgId, entities::{driver_type::{self, DriverType}, load_combination::LoadCombination}, str_err::str_err::StrErr};
+use crate::kernel::{dbgid::dbgid::DbgId, entities::{driver_type::DriverType, load_combination::LoadCombination}, str_err::str_err::StrErr};
 ///
 /// Класс, реализующий выбор установившейся скорости подъёма груза дальнейшего расчёта динамического коэффициента
 /// [reference to Lift Class documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
