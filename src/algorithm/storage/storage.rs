@@ -1,11 +1,11 @@
 use std::collections::HashMap;
 
-use crate::kernel::entities::value::Value;
+use crate::kernel::{dbgid::dbgid::DbgId, entities::value::Value};
 ///
 /// Класс, для хранение данных
 /// storage - "база данных", в которой будут хранится таблицы
 pub struct Storage {
-    pub dbgid: String,
+    pub dbgid: DbgId,
     storage: HashMap<String, Value>,
 }
 //
@@ -16,7 +16,7 @@ impl Storage {
     /// Метод создание нового экземпляра класса Storage
     pub fn new() -> Self {
         Storage {
-            dbgid: String::from("Storage"),
+            dbgid: DbgId(format!("Storage")),
             storage: HashMap::new(),
         }
     }
