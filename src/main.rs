@@ -3,9 +3,9 @@ mod app;
 mod algorithm;
 #[cfg(test)]
 mod tests;
-use algorithm::{bearing_choose::user_bearing::user_bearing::UserBearing, dynamic_coefficient::dynamic_coefficient::DynamicCoefficient, hook_choose::user_hook::user_hook::UserHook, lifting_speed::lifting_speed::LiftingSpeed, select_bet_phi::select_bet_phi::SelectBetPhi, storage::storage::Storage, user_select::user_select::UserSelect};
+use algorithm::{bearing_choose::user_bearing::{self, user_bearing::UserBearing}, hook_choose::user_hook::{self, user_hook::UserHook}, storage::storage::Storage, user_select::user_select::UserSelect};
 use app::app::App;
-use kernel::run::Run;
+use kernel::{run::Run};
 use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
 ///
 /// Application entry point
@@ -17,155 +17,28 @@ fn main() {
         log::error!("main | Error: {:#?}", err);
     };
 
-    // Заполнение хранилища пока только крюки
+    // Заполнение хранилища
     let mut storage = Storage::new();
+    if let Err(e) = storage.load_from_json("C:\\Users\\klaim\\Desktop\\cdt-math\\src\\kernel\\storage\\storage.json") {
+        eprintln!("Error loading JSON: {}", e);
+        return;
+    }
 
-    storage.set(
-        "конструкции/крюки/тип крюка/крюк однорогий/ИСО/1/грузоподъемность/M1/",
-        Ok(0.4),
-    );
-    storage.set(
-        "конструкции/крюки/тип крюка/крюк однорогий/ИСО/2/грузоподъемность/M1/",
-        Ok(0.5),
-    );
-    storage.set(
-        "конструкции/крюки/тип крюка/крюк однорогий/ИСО/3/грузоподъемность/M1/",
-        Ok(0.63),
-    );
-    storage.set(
-        "конструкции/крюки/тип крюка/крюк однорогий/ИСО/4/грузоподъемность/M1/",
-        Ok(0.8),
-    );
+    let user_select = match UserSelect::load_from_json("C:\\Users\\klaim\\Desktop\\cdt-math\\src\\kernel\\storage\\user_select_storage.json") {
+        Ok(data) => data,
+        Err(e) => {
+            eprintln!("Error loading UserSelect data from JSON: {}", e);
+            return;
+        }
+    };
 
-    storage.set(
-        "конструкции/крюки/тип крюка/крюк однорогий/ИСО/1/диаметр хвостовика/",
-        Ok(12.0),
-    );
-    storage.set(
-        "конструкции/крюки/тип крюка/крюк однорогий/ИСО/2/диаметр хвостовика/",
-        Ok(12.0),
-    );
-    storage.set(
-        "конструкции/крюки/тип крюка/крюк однорогий/ИСО/3/диаметр хвостовика/",
-        Ok(15.0),
-    );
-    storage.set(
-        "конструкции/крюки/тип крюка/крюк однорогий/ИСО/4/диаметр хвостовика/",
-        Ok(17.0),
-    );
+    let mut user_hook: UserHook = UserHook::new();
+    user_hook.eval(user_select.hook_type, user_select.lifting_mechanism_work_type, user_select.m_to_lift, &mut storage);
+    user_hook.user_hook.paint();
 
-    storage.set(
-        "конструкции/крюки/тип крюка/крюк однорогий/ИСО/1/масса заготовки/",
-        Ok(0.2),
-    );
-    storage.set(
-        "конструкции/крюки/тип крюка/крюк однорогий/ИСО/2/масса заготовки/",
-        Ok(0.25),
-    );
-    storage.set(
-        "конструкции/крюки/тип крюка/крюк однорогий/ИСО/3/масса заготовки/",
-        Ok(0.4),
-    );
-    storage.set(
-        "конструкции/крюки/тип крюка/крюк однорогий/ИСО/4/масса заготовки/",
-        Ok(0.6),
-    );
-
-    storage.set(
-        "конструкции/подшипники/название/8100Н/статическая грузоподъемность/",
-        Ok(11800.0),
-    );
-    storage.set(
-        "конструкции/подшипники/название/8101Н/статическая грузоподъемность/",
-        Ok(12900.0),
-    );
-    storage.set(
-        "конструкции/подшипники/название/8100Н/наружный диаметр/",
-        Ok(24.0),
-    );
-    storage.set(
-        "конструкции/подшипники/название/8101Н/наружный диаметр/",
-        Ok(26.0),
-    );
-
-    storage.set(
-        "конструкции/подшипники/название/8102Н/статическая грузоподъемность/",
-        Ok(14000.0),
-    );
-    storage.set(
-        "конструкции/подшипники/название/8103Н/статическая грузоподъемность/",
-        Ok(16600.0),
-    );
-    storage.set(
-        "конструкции/подшипники/название/8102Н/наружный диаметр/",
-        Ok(28.0),
-    );
-    storage.set(
-        "конструкции/подшипники/название/8103Н/наружный диаметр/",
-        Ok(30.0),
-    );
-
-    storage.set(
-        "конструкции/подшипники/название/8104Н/статическая грузоподъемность/",
-        Ok(22400.0),
-    );
-    storage.set(
-        "конструкции/подшипники/название/8105Н/статическая грузоподъемность/",
-        Ok(30000.0),
-    );
-    storage.set(
-        "конструкции/подшипники/название/8104Н/наружный диаметр/",
-        Ok(35.0),
-    );
-    storage.set(
-        "конструкции/подшипники/название/8105Н/наружный диаметр/",
-        Ok(42.0),
-    );
-
-    storage.set(
-        "конструкции/подшипники/название/8106Н/статическая грузоподъемность/",
-        Ok(33500.0),
-    );
-    storage.set(
-        "конструкции/подшипники/название/8107Н/статическая грузоподъемность/",
-        Ok(39000.0),
-    );
-    storage.set(
-        "конструкции/подшипники/название/8106Н/наружный диаметр/",
-        Ok(47.0),
-    );
-    storage.set(
-        "конструкции/подшипники/название/8107Н/наружный диаметр/",
-        Ok(52.0),
-    );
-
-    //Заполнение хранилища выбор пользователя
-    let mut user_select_storage = Storage::new();
-
-    user_select_storage.set("грузоподъемность/", Ok(0.1));
-    user_select_storage.set("класс подъема/", Err("HC3".to_string()));
-    user_select_storage.set("комбинация нагрузок/", Err("A1".to_string()));
-    user_select_storage.set("тип привода/", Err("HD3".to_string()));
-    user_select_storage.set("номинальная скорость подъема механизма/", Ok(1.0));
-    user_select_storage.set("замедленная скорость подъема механизма/", Ok(1.0));
-    user_select_storage.set("режим работы механизма/", Err("M1".to_string()));
-    user_select_storage.set("тип крюка/", Err("крюк однорогий".to_string()));
-    user_select_storage.set("тип грузозахватного органа механизма подъёма/",Err("съёмный электрогидравлический грейфер".to_string()),);
-    user_select_storage.set( "грузоподъемность грузозахватного органа механизма подъёма/", Ok(0.3),);
-
-    //Запрос пользователя
-    let user_select: UserSelect = UserSelect::new(&user_select_storage);
-
-    //Крюк выбранный пользователем
-    let mut user_hook: UserHook = UserHook::new();  
-    user_hook.eval(&user_select, &mut storage);
-
-    //Подшипник выбранный пользователем
     let mut user_bearing: UserBearing = UserBearing::new();
-    user_bearing.eval(&user_hook, &user_select, &mut storage, DynamicCoefficient::new(SelectBetPhi::new(user_select.lift_class.clone()), LiftingSpeed::new(user_select.drive_type.clone(), user_select.load_comb.clone(), user_select.vhmax, user_select.vhcs)));
-
-    user_hook.user_hook.print();
-    user_bearing.user_bearing.print();
+    user_bearing.eval(&mut storage, &user_hook, user_select.m_to_lift, user_select.lift_class, user_select.driver_type, user_select.load_combination, user_select.vhmax, user_select.vhcs);
+    user_bearing.user_bearing.paint();
 
 
 }

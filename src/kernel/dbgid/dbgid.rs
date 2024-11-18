@@ -1,4 +1,5 @@
-#[derive(PartialEq)]
+use serde::{Deserialize, Serialize};
+#[derive(Serialize, Deserialize)]
 pub struct DbgId(pub String);
 //
 //
