@@ -1,15 +1,13 @@
-
+use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 use crate::kernel::str_err::str_err::StrErr;
 ///
 /// Перечисление для структуирования способ свивки каната
-#[derive(Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum HoistRopeTwistingMethod {
     Nontwisting,
     Twisting,
 }
-//
-//
 //
 impl FromStr for HoistRopeTwistingMethod {
     ///
