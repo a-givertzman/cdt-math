@@ -10,7 +10,12 @@ pub enum LiftClass {
     Hc3,
     Hc4,    
 }
+//
+//
+//
 impl FromStr for LiftClass {
+    ///
+    /// Метод перевод из строки в тип перечисления LiftClass
     type Err = StrErr;
      fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.to_lowercase().as_str() {

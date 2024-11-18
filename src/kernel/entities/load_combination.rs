@@ -8,6 +8,9 @@ pub enum LoadCombination {
     B1,
     C1,
 }
+//
+//
+//
 impl FromStr for LoadCombination {
     ///
     /// Метод перевод из строки в тип перечисления LoadCombination
