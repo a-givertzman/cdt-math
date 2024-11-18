@@ -19,7 +19,7 @@ impl ForceOfGravity{
     }
     ///
     /// Метод расчёта силы тяжести, действующей на крюк
-    /// - 'm_to_lif' - масса на крюке
+    /// - 'm_to_lift' - масса на крюке
     /// - 'lift_class' - класс подъема (enum [LiftClass])
     /// - 'driver_type' - тип привода механизма подъема (enum [DriverType])
     /// - 'load_comb' - тип комбинации нагрузок (enum [LoadCombination])

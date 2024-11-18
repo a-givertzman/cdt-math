@@ -18,8 +18,16 @@ impl BearingFilter{
     }
     ///
     /// Метод фильтрации подшипников 
-    /// - 'user_hook' - крюк выбранный пользователем (экземпляр класса [UserHook])
     /// [reference to bearing filtration documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
+    /// - 'storage' - БД [Storage]
+    /// - 'user_hook' - крюк выбранный пользователем (экземпляр класса [UserHook])
+    /// - 'm_to_lift' - масса на крюке
+    /// - 'lift_class' - класс подъема (enum [LiftClass])
+    /// - 'driver_type' - тип привода механизма подъема (enum [DriverType])
+    /// - 'load_comb' - тип комбинации нагрузок (enum [LoadCombination])
+    /// - 'vhmax' - номинальная скорость подъёма механизма
+    /// - 'vhcs' - замедленная скорость подъёма механизма
+    /// [reference to force of gravity documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
     pub fn filter(&mut self, storage: &Storage,user_hook: &UserHook,m_to_lift:f64, lift_class: LiftClass, driver_type: DriverType, load_comb: LoadCombination, vhmax: f64, vhcs: f64) -> Vec<Bearing> {
         let fmg = match ForceOfGravity::new().eval(m_to_lift, lift_class, driver_type, load_comb, vhmax, vhcs){
             Ok(value) => value,
