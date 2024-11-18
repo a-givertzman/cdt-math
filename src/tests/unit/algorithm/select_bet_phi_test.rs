@@ -1,14 +1,13 @@
 #[cfg(test)]
 
-mod user_select {
+mod SelectBetPhi {
     use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
     use std::{
-        sync::Once,
-        time::{Duration, Instant},
+        result, sync::Once, time::{Duration, Instant}
     };
     use testing::stuff::max_test_duration::TestDuration;
 
-    use crate::{algorithm::lifting_speed::lifting_speed::LiftingSpeed, kernel::{dbgid::dbgid::DbgId, entities::{driver_type::DriverType, load_combination::LoadCombination}}};
+    use crate::{algorithm::select_bet_phi::select_bet_phi::{BetPhi, SelectBetPhi}, kernel::{dbgid::dbgid::DbgId, entities::lift_class::LiftClass}};
     ///
     ///
     static INIT: Once = Once::new();
@@ -37,21 +36,15 @@ mod user_select {
         test_duration.run().unwrap();
         let test_data = [
             (
-                (DriverType::Hd1,LoadCombination::A1,20.0,20.0),
-                20.0,
-            ),
-            (
-                (DriverType::Hd2,LoadCombination::A1,25.0,20.0),
-                20.0,
+                LiftClass::Hc1,
+                BetPhi{ bet: 0.17, phi: 1.05}
             ),
         ];
-        for ((driver_type, load_comb, vhmax, vhcs), target) in test_data.iter() {
-            let mut result = 0.0;
-            match LiftingSpeed::new().eval(driver_type.clone(), load_comb.clone(), *vhmax, *vhcs){
-                Ok(value) => result=value,
+        for (lift_class, target) in test_data.into_iter() {
+            match SelectBetPhi::new().eval(lift_class) {
+                Ok(result) => assert!(result == target, "result: {:?}\ntarget: {:?}", result, target),
                 Err(_) => todo!(),
-            }
-            assert!(result == *target, "result: {:?}\ntarget: {:?}", result, target);
+            } 
         }
 
         test_duration.exit();

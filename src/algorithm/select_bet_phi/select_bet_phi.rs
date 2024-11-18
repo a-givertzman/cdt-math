@@ -1,19 +1,20 @@
-use crate::kernel::{dbgid::dbgid::DbgId, entities::liftclass::LiftClass, str_err::str_err::StrErr};
+use crate::kernel::{dbgid::dbgid::DbgId, entities::lift_class::LiftClass, str_err::str_err::StrErr};
 ///
 /// Класс реализующий выбор коэффициентов Betta и Phi, относительно класса подъема
 /// - 'value' - экземпляр класса [BetPhi]
-/// [reference to Lift Class documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
+/// [reference to betta and phi coefficients documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
 #[derive(Debug, Clone)]
 pub struct SelectBetPhi {
     dbgid: DbgId,
     value: Option<BetPhi>,
 }
+//
 impl SelectBetPhi {
     ///
     /// Конструктор класса SelectBetPhi 
     pub fn new() -> Self {
         Self {
-            dbgid: DbgId(format!("SelectBetPhi")),
+            dbgid: DbgId(format!("BetPhi/SelectBetPhi")),
             value: None,
         }
     }
@@ -42,6 +43,7 @@ pub struct BetPhi {
     pub bet: f64,
     pub phi: f64,
 }
+//
 impl BetPhi {
     ///
     /// Конструктор класса BetPhi

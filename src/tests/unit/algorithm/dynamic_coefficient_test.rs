@@ -5,7 +5,7 @@ mod dk {
     use testing::stuff::max_test_duration::TestDuration;
     use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
 
-    use crate::{algorithm::{dynamic_coefficient::dynamic_coefficient::DynamicCoefficient, lifting_speed::lifting_speed::LiftingSpeed, select_bet_phi::select_bet_phi::SelectBetPhi}, kernel::{dbgid::dbgid::DbgId, entities::{driver_type::DriverType, liftclass::LiftClass, load_combination::LoadCombination}}};
+    use crate::{algorithm::{dynamic_coefficient::dynamic_coefficient::DynamicCoefficient, lifting_speed::lifting_speed::LiftingSpeed, select_bet_phi::select_bet_phi::SelectBetPhi}, kernel::{dbgid::dbgid::DbgId, entities::{driver_type::DriverType, lift_class::LiftClass, load_combination::LoadCombination}}};
     ///
     ///
     static INIT: Once = Once::new();
