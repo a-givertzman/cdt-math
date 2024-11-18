@@ -1,11 +1,11 @@
 use std::str::FromStr;
 
-use crate::{algorithm::storage::storage::Storage, kernel::entities::{crane_work_area::CraneWorkArea, driver_type::DriverType, hoist_rope_balance_degree::HoistRopeBalanceDegree, hoist_rope_twisting_method::HoistRopeTwistingMethod, hoist_rope_type::HoistRopeType, liftclass::LiftClass, load_combination::LoadCombination, mechanism_work_type::MechanismWorkType, value::Value}};
+use crate::{algorithm::storage::storage::Storage, kernel::{dbgid::dbgid::DbgId, entities::{crane_work_area::CraneWorkArea, driver_type::DriverType, hoist_rope_balance_degree::HoistRopeBalanceDegree, hoist_rope_twisting_method::HoistRopeTwistingMethod, hoist_rope_type::HoistRopeType, liftclass::LiftClass, load_combination::LoadCombination, mechanism_work_type::MechanismWorkType, value::Value}}};
 
 ///
 /// Класс, которой реализует хранение характеристики выбранные пользователем для дальнейшего расчета крана
 pub struct UserSelect {
-    pub dbgid: String,
+    pub dbgid: DbgId,
     pub m_to_lift: f64,
     pub mechanism_work_type: MechanismWorkType,
     pub vhmax: f64,
@@ -177,7 +177,7 @@ impl UserSelect {
             hoist_rope_twisting_method: hoist_rope_twisting_method_tmp,
             crane_work_area: crane_type_area_tmp,
             rejecting_blocks: rejecting_blocks_tmp,
-            dbgid: String::from(format!("UserSelect")), 
+            dbgid: DbgId(format!("{}/UserSelect", user_select_storage.dbgid)), 
             m_to_lift: m_to_lift_tmp,
             lift_class: lift_class_tmp,
             load_comb: load_comb_tmp,
