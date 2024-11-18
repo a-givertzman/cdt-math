@@ -1,9 +1,12 @@
+pub mod bearing;
 pub mod crane_work_area;
 pub mod driver_type;
+pub mod equipment_data;
 pub mod hoist_rope_balance_degree;
 pub mod hoist_rope_twisting_method;
 pub mod hoist_rope_type;
-pub mod liftclass;
+pub mod hook;
+pub mod lift_class;
 pub mod load_combination;
 pub mod mechanism_work_type;
 pub mod value;

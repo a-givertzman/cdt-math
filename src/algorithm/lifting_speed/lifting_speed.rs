@@ -8,8 +8,6 @@ pub struct LiftingSpeed {
     value: Option<f64>,
 }
 //
-//
-//
 impl LiftingSpeed {
     ///
     /// Конструктор класса LiftingSpeed

@@ -1,8 +1,11 @@
 use std::str::FromStr;
+use serde::{Deserialize, Serialize};
 use crate::kernel::str_err::str_err::StrErr;
 ///
 /// Перечисление для структуирования типов работы механизма подъема
 #[derive(Debug, Clone)]
+#[derive(Serialize, Deserialize)]
+
 pub enum MechanismWorkType {
     M1,
     M2,
@@ -13,8 +16,6 @@ pub enum MechanismWorkType {
     M7,
     M8,
 }
-//
-//
 //
 impl FromStr for MechanismWorkType {
     ///

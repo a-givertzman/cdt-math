@@ -1,2 +1,1 @@
-pub mod lifting_speed;
-pub mod storage;
+pub mod lifting_speed_test;
