@@ -1,16 +1,11 @@
-use crate::{algorithm::{hook_choose::hook::Hook, storage::storage::Storage, user_select::user_select::UserSelect}, kernel::{dbgid::dbgid::DbgId, entities::value::Value}};
+use crate::{algorithm::{hook_choose::hook::Hook, storage::storage::Storage, user_select::user_select::UserSelect}, kernel::{dbgid::dbgid::DbgId, entities::{mechanism_work_type::{self, MechanismWorkType}, value::Value}}};
 ///
 /// Класс, реалилующий фильтрацию крюков по грузоподъемности
-/// - 'filtered_hooks' - вектор отфильтрованных крюков
-/// - 'm_to_lift' - масса на крюке
-/// - 'mechanism_work_type' - режим работы механизма согласно ГОСТ 34017-2016
-/// - 'hook_type' - тип крюка
+/// - 'filtered_hooks' - вектор отфильтрованных крюков (экземпляр класса [Hook])
+/// [reference to filtration documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
 pub struct HookFilter{
     dbgid: DbgId,
     filtered_hooks: Vec<Hook>,
-    m_to_lift: f64,
-    mechanism_work_type: String,
-    hook_type: String,
 }
 //
 //
@@ -18,42 +13,29 @@ pub struct HookFilter{
 impl HookFilter{
     ///
     /// Конструктор класса HookFilter
-    pub fn new(user_select: &UserSelect) ->Self{
-        Self {  dbgid: DbgId(format!("HookFilter")),
+    pub fn new() ->Self{
+        Self {  dbgid: DbgId(format!("Hook/HookFilter")),
                 filtered_hooks: Vec::new(),
-                m_to_lift: user_select.m_to_lift, 
-                mechanism_work_type: user_select.mechanism_work_type.clone(),
-                hook_type: user_select.hook_type.clone(),
              }
     }
     ///
     /// Метод фильтрации БД крюков по грузоподъемности
     /// - 'hooks_storage' - хранилище крюков экземпляр класса [Storage]
-    pub fn filter(
-        &mut self,
-        hooks_storage: &mut Storage,
-    ) -> &Vec<Hook> {
-        if let Some(value) = hooks_storage.get(&format!(
-            "конструкции/крюки/тип крюка/{}/ИСО",
-            self.hook_type.trim()
-        )) {
+    /// - 'hook_type' - тип крюка
+    /// - 'mechanism_work_type' - тип работы механизмы подъема
+    /// - 'm_to_lift' - масса на крюке
+    /// [reference to filtration documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
+    pub fn filter(&mut self,hooks_storage: &mut Storage,hook_type: String, mechanism_work_type: MechanismWorkType, m_to_lift: f64) -> &Vec<Hook> {
+        if let Some(value) = hooks_storage.get(&format!("конструкции/крюки/тип крюка/{}/ИСО",hook_type.trim())) {
             if let Value::NextMap(map) = value {
                 for (key_iso, _) in map {
-                    if let Some(vall) = hooks_storage.get(&format!(
-                        "конструкции/крюки/тип крюка/{}/ИСО/{}/грузоподъемность/{}/",
-                        self.hook_type.trim(),
-                        key_iso,
-                        self.mechanism_work_type.trim()
-                    )) {
+                    if let Some(vall) = hooks_storage.get(&format!("конструкции/крюки/тип крюка/{}/ИСО/{}/грузоподъемность/{}/",hook_type.trim(),key_iso,mechanism_work_type.to_string().trim())) {
                         if let Value::Data(datt) = vall {
-                            if self.m_to_lift <= *datt {
-                                if let Some(v) = hooks_storage.get(&format!(
-                                    "конструкции/крюки/тип крюка/{}/ИСО/{}/диаметр хвостовика/",
-                                    self.hook_type.trim(),
-                                    key_iso
+                            if m_to_lift <= *datt {
+                                if let Some(v) = hooks_storage.get(&format!("конструкции/крюки/тип крюка/{}/ИСО/{}/диаметр хвостовика/",hook_type.trim(),key_iso
                                 )) {
                                     if let Value::Data(da) = v {
-                                        self.filtered_hooks.push(Hook::new(key_iso.to_string(),self.mechanism_work_type.to_string(),self.hook_type.to_string(),*datt,*da));
+                                        self.filtered_hooks.push(Hook::new(key_iso.to_string(),mechanism_work_type.to_string(),hook_type.to_string(),*datt,*da));
 
                                     }
                                 }

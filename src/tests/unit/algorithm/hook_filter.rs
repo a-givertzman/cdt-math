@@ -8,7 +8,7 @@ mod hook {
     };
     use testing::stuff::max_test_duration::TestDuration;
 
-    use crate::algorithm::{hook_choose::{filter::hook_filter::HookFilter, hook::Hook}, storage::storage::Storage, user_select::user_select::UserSelect};
+    use crate::{algorithm::{hook_choose::{filter::hook_filter::HookFilter, hook::Hook}, storage::storage::Storage, user_select::user_select::UserSelect}, kernel::entities::mechanism_work_type::MechanismWorkType};
     ///
     ///
     static INIT: Once = Once::new();
@@ -89,33 +89,17 @@ mod hook {
             Ok(0.6),
         );
 
-        //Заполнение хранилища выбор пользователя
-        let mut user_select_storage = Storage::new();
-        user_select_storage.set("грузоподъемность/", Ok(0.1));
-        user_select_storage.set("класс подъема/", Err("HC3".to_string()));
-        user_select_storage.set("комбинация нагрузок/", Err("A1".to_string()));
-        user_select_storage.set("тип привода/", Err("HD3".to_string()));
-        user_select_storage.set("номинальная скорость подъема механизма/", Ok(1.0));
-        user_select_storage.set("замедленная скорость подъема механизма/", Ok(1.0));
-        user_select_storage.set("режим работы механизма/", Err("M1".to_string()));
-        user_select_storage.set("тип крюка/", Err("крюк однорогий".to_string()));
-        user_select_storage.set("тип грузозахватного органа механизма подъёма/",Err("съёмный электрогидравлический грейфер".to_string()),);
-        user_select_storage.set( "грузоподъемность грузозахватного органа механизма подъёма/", Ok(0.3),);
-
-        //Запрос пользователя
-        let user_select: UserSelect = UserSelect::new(&user_select_storage);
-
         let test_data = [
             (
-                HookFilter::new(&user_select), 4
+                ("крюк однорогий", MechanismWorkType::M1, 0.5),
+                3
             )
         ];
 
-        for (mut value, target) in test_data.into_iter() {
-            let result = value.filter(&mut storage).clone();
-            let mut i: usize = 0;
-            let mut i: usize = 0;
-            assert!(result.len() == target);
+        for ((hook_type, mechanism_work_type, m_to_lift), target) in test_data.into_iter() {
+            let mut hook_filter = HookFilter::new();
+            let result = hook_filter.filter(&mut storage, hook_type.to_string(), mechanism_work_type, m_to_lift);
+            assert!(result.len() == target, "result: {:?}\ntarget: {:?}", result.len(), target)
         }
         test_duration.exit(); 
     }

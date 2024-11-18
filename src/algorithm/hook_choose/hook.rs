@@ -1,6 +1,4 @@
 use crate::kernel::dbgid::dbgid::DbgId;
-
-
 ///
 /// Класс, для хранения информации об крюке
 /// - 'GOST' - ГОСТ номер крюка
@@ -16,7 +14,7 @@ pub struct Hook{
     mechanism_work_type: String,
     hook_type: String,
     max_m_to_lift: f64,
-    pub d_tail: f64,
+    d_tail: f64,
 }
 //
 //
