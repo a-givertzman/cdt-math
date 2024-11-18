@@ -1,16 +1,19 @@
 use std::str::FromStr;
-
+use serde::{Deserialize, Serialize};
 use crate::kernel::str_err::str_err::StrErr;
 ///
 /// Перечисление для структуирования классов подъема
-#[derive(Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum LiftClass {
     Hc1,
     Hc2,
     Hc3,
     Hc4,    
 }
+//
 impl FromStr for LiftClass {
+    ///
+    /// Метод перевод из строки в тип перечисления LiftClass
     type Err = StrErr;
      fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.to_lowercase().as_str() {

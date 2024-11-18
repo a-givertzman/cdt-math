@@ -1,32 +1,33 @@
-use crate::{algorithm::{lifting_speed::lifting_speed::LiftingSpeed, select_bet_phi::select_bet_phi::SelectBetPhi}, kernel::{dbgid::dbgid::DbgId, str_err::str_err::StrErr}};
+use crate::{algorithm::{lifting_speed::lifting_speed::LiftingSpeed, select_bet_phi::select_bet_phi::SelectBetPhi}, kernel::{dbgid::dbgid::DbgId, entities::{driver_type::DriverType, lift_class::LiftClass, load_combination::LoadCombination}, str_err::str_err::StrErr}};
 ///
 /// Класс, реализующий расчёт динамического коэффициента
-/// - 'select_bet_phi' - экземпляр класса [SelectBetPhi]
-/// - 'lifting_speed' - экземпляр класса [LiftingSpeed]
 /// [reference to dynamic coefficient documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
 #[derive(Debug, Clone)]
 pub struct DynamicCoefficient {
-    pub(crate) dbgid: DbgId,
-    pub(crate) select_bet_phi: SelectBetPhi,
-    pub(crate) lifting_speed: LiftingSpeed,
-    pub(crate) value: Option<f64>,
+    dbgid: DbgId,
+    value: Option<f64>,
 }
+//
 impl DynamicCoefficient {
     ///
     /// Конструктор класса DynamicCoefficient
-    /// - 'select_bet_phi' - экземпляр класса [SelectBetPhi]
-    /// - 'lifting_speed' - экземпляр класса [LiftingSpeed]
-    pub fn new(select_bet_phi: SelectBetPhi, lifting_speed: LiftingSpeed) -> Self {
-        Self { dbgid: DbgId(format!("DynamicCoefficient")), select_bet_phi, lifting_speed, value: None }
+    pub fn new() -> Self {
+        Self { dbgid: DbgId(format!("DynamicCoefficient")), value: None }
     }
     ///
     /// Метод расчёта динамического коэффициента
-    pub fn eval(&mut self) -> Result<f64, StrErr> {
+    /// - 'lift_class' - класс подъема (enum [LiftClass])
+    /// - 'driver_type' - тип привода механизма подъема (enum [DriverType])
+    /// - 'load_comb' - тип комбинации нагрузок (enum [LoadCombination])
+    /// - 'vhmax' - номинальная скорость подъёма механизма
+    /// - 'vhcs' - замедленная скорость подъёма механизма
+    /// [reference to dynamic coefficient documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
+    pub fn eval(&mut self,lift_class: LiftClass, driver_type: DriverType, load_comb: LoadCombination, vhmax: f64, vhcs: f64) -> Result<f64, StrErr> {
         match self.value {
             Some(val) => Ok(val),
-            None => match self.select_bet_phi.eval() {
+            None => match SelectBetPhi::new().eval(lift_class) {
                 Ok(lift_class) => {
-                    match self.lifting_speed.eval() {
+                    match LiftingSpeed::new().eval(driver_type, load_comb, vhmax, vhcs) {
                         Ok(vh) => {
                             let value = lift_class.phi + lift_class.bet * vh;
                             self.value = Some(value);
