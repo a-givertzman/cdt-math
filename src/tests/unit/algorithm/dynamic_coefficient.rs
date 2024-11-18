@@ -34,29 +34,17 @@ mod dk {
         test_duration.run().unwrap();
         let test_data = [
             (
-                01,
-                SelectBetPhi::new(LiftClass::Hc1),
-                LiftingSpeed::new(DriverType::Hd1, LoadCombination::A1, 0.5, 0.1),
-                1.135,
-            ),
-            (
-                01,
-                SelectBetPhi::new(LiftClass::Hc2),
-                LiftingSpeed::new(DriverType::Hd1, LoadCombination::A1, 0.5, 0.1),
-                1.27,
+                1,
+                (LiftClass::Hc1,DriverType::Hd1,LoadCombination::A1,20.0,20.0),
+                4.45,
             ),
         ];
-        for (step, select_bet_phi, lifting_speed, target) in test_data {
-            let result = DynamicCoefficient::new(
-                select_bet_phi,
-                lifting_speed,
-            ).eval();
-            match result {
-                Ok(result) => {
-                    assert!(result == target, "step {} \nresult: {:?}\ntarget: {:?}", step, result, target);
-                }
-                Err(err) => panic!("{} | Error: {:?}", dbgid, err),
+        for (step, (lift_class, driver_type, load_comb, vhmax, vhcs), target) in test_data {
+            match DynamicCoefficient::new().eval(lift_class, driver_type, load_comb, vhmax, vhcs){
+                Ok(result) => assert!(result == target, "step {} \nresult: {:?}\ntarget: {:?}", step, result, target),
+                Err(_) => todo!(),
             }
+
         }
         test_duration.exit();
     }
