@@ -9,4 +9,3 @@ pub mod hook;
 pub mod lift_class;
 pub mod load_combination;
 pub mod mechanism_work_type;
-pub mod value;

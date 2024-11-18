@@ -8,7 +8,7 @@ pub struct Storage {
     pub dbgid: DbgId,
     equipment_data: Option<EquipmentData>,
 }
-
+//
 impl Storage {
     ///
     /// Конструктор класса Storage
