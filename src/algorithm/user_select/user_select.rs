@@ -15,6 +15,7 @@ use crate::{algorithm::storage::storage::Storage, kernel::{dbgid::{self, dbgid::
 /// - 'hook_type' - тип крюка
 /// - 'name_cargo_hand_device' - имя допольнительного грузозахватного органа
 /// - 'weight_cargo_hand_device' - масса допольнительного грузозахватного органа
+/// [reference to initial data breaking force  documentation](design\docs\algorithm\part01\initial_data.md)
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct UserSelect {
     pub dbgid: DbgId,
@@ -34,27 +35,6 @@ pub struct UserSelect {
 }
 //
 impl UserSelect {
-    ///
-    /// Метод создания экземпляра класса UserSelect
-    /// - storage - экземпляр класса-хранилища Storage, в котором находится "таблица" конструкций, кранов, подшипников
-    pub fn new(user_select_storage: &Storage) -> Self {
-        Self {
-            dbgid: todo!(),
-            m_to_lift: todo!(),
-            lift_class: todo!(),
-            load_combination: todo!(),
-            driver_type: todo!(),
-            vhmax: todo!(),
-            vhcs: todo!(),
-            lifting_mechanism_work_type: todo!(),
-            hook_type: todo!(),
-            name_cargo_hand_device: todo!(),
-            weight_cargo_hand_device: todo!(),
-            crane_work_area: todo!(),
-            hoist_rope_balance_degree: todo!(),
-            hoist_rope_twisting_method: todo!(),
-        }
-    }
     ///
     /// Метод чтения файла Json
     /// - 'file_path' - путь к файлу
