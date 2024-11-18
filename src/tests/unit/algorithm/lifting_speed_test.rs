@@ -1,6 +1,6 @@
 #[cfg(test)]
 
-mod user_select {
+mod LiftingSpeed {
     use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
     use std::{
         sync::Once,
@@ -36,22 +36,22 @@ mod user_select {
         let test_duration = TestDuration::new(self_id, Duration::from_secs(1));
         test_duration.run().unwrap();
         let test_data = [
-            (LiftingSpeed{
-                dbgid: DbgId(format!("LiftingSpeed")),
-                driver_type: DriverType::Hd1,
-                load_comb: LoadCombination::A1,
-                vhmax: 2.0,
-                vhcs: 2.0,
-                value: None,
-            },2.0)
+            (
+                (DriverType::Hd1,LoadCombination::A1,20.0,20.0),
+                20.0,
+            ),
+            (
+                (DriverType::Hd2,LoadCombination::A1,25.0,20.0),
+                20.0,
+            ),
         ];
-        for (mut value, target) in test_data.into_iter() {
+        for ((driver_type, load_comb, vhmax, vhcs), target) in test_data.iter() {
             let mut result = 0.0;
-            match value.eval() {
-                Ok(value) => result = value,
+            match LiftingSpeed::new().eval(driver_type.clone(), load_comb.clone(), *vhmax, *vhcs){
+                Ok(value) => result=value,
                 Err(_) => todo!(),
             }
-            assert!(result == target, "result: {:?}\ntarget: {:?}", result, target);
+            assert!(result == *target, "result: {:?}\ntarget: {:?}", result, target);
         }
 
         test_duration.exit();
