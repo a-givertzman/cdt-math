@@ -1,6 +1,6 @@
 #[cfg(test)]
 
-mod user_select {
+mod LiftingSpeed {
     use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
     use std::{
         sync::Once,
