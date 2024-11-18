@@ -1,4 +1,4 @@
-use crate::{algorithm::{lifting_speed::lifting_speed::LiftingSpeed, select_bet_phi::select_bet_phi::SelectBetPhi}, kernel::{dbgid::dbgid::DbgId, entities::{driver_type::{self, DriverType}, liftclass::{self, LiftClass}, load_combination::LoadCombination}, str_err::str_err::StrErr}};
+use crate::{algorithm::{lifting_speed::lifting_speed::LiftingSpeed, select_bet_phi::select_bet_phi::SelectBetPhi}, kernel::{dbgid::dbgid::DbgId, entities::{driver_type::DriverType, lift_class::LiftClass, load_combination::LoadCombination}, str_err::str_err::StrErr}};
 ///
 /// Класс, реализующий расчёт динамического коэффициента
 /// [reference to dynamic coefficient documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
@@ -7,6 +7,7 @@ pub struct DynamicCoefficient {
     dbgid: DbgId,
     value: Option<f64>,
 }
+//
 impl DynamicCoefficient {
     ///
     /// Конструктор класса DynamicCoefficient
