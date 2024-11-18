@@ -1,48 +1,45 @@
-use crate::{algorithm::{bearing_choose::bearing::Bearing, force_of_gravity::force_of_gravity::ForceOfGravity, hook_choose::user_hook::user_hook::UserHook, storage::storage::Storage}, kernel::{dbgid::dbgid::DbgId, entities::value::Value}};
-
-
+use crate::{algorithm::{force_of_gravity::force_of_gravity::ForceOfGravity, hook_choose::user_hook::user_hook::UserHook, storage::storage::Storage}, kernel::{dbgid::dbgid::DbgId, entities::{bearing::Bearing, driver_type::DriverType, lift_class::LiftClass, load_combination::LoadCombination, value::Value}}};
+///
+/// Класс, реализующий фильтрацию подшипников
+/// [reference to bearing filtration documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
+/// - 'filtered_bearings' - вектор [Bearing] отфильтрованных подшипников
 pub struct BearingFilter{
-    pub(crate) dbgid: DbgId,
-    pub(crate) user_hook: UserHook,
-    pub(crate) force_of_gravity: ForceOfGravity,
-    pub(crate) filtered_bearings: Vec<Bearing>,
+    dbgid: DbgId,
+    filtered_bearings: Vec<Bearing>
 }
-//
-//
 //
 impl BearingFilter{
     ///
     /// Конструктор класса BearingFilter
     pub fn new(user_hook: &UserHook, force_of_gravity: ForceOfGravity) -> Self{
-        Self { dbgid: DbgId(format!("BearingFilter")), filtered_bearings: Vec::new(), user_hook: user_hook.clone(), force_of_gravity }
+        Self {  dbgid: DbgId(format!("BearingFilter")),
+                filtered_bearings: Vec::new(),
+        }
     }
     ///
     /// Метод фильтрации подшипников 
-    pub fn filter(&mut self, storage: &Storage) -> &Vec<Bearing> {
-        let mut fmg: f64 = 0.0;
-        match self.force_of_gravity.eval() {
-            Ok(value) => fmg = value,
-            Err(_) => todo!(),
-        }
-        if let Some(value) = storage.get("конструкции/подшипники/название")
-        {
-            if let Value::NextMap(bearings_map) = value {
-                for (bearing_name, _) in bearings_map {
-                    if let Some(Value::Data(static_load)) = storage.get(&format!("конструкции/подшипники/название/{}/статическая грузоподъемность/",bearing_name)) {
-                        if fmg <= *static_load {
-                            if let Some(Value::Data(d_out)) = storage.get(&format!("конструкции/подшипники/название/{}/наружный диаметр/",bearing_name)) {
-                                if d_out <= &self.user_hook.user_hook.d_tail{
-                                    self.filtered_bearings.push(Bearing::new(bearing_name.to_string(), *d_out));
-                                }
-                            }
+    /// - 'user_hook' - крюк выбранный пользователем (экземпляр класса [UserHook])
+    /// [reference to bearing filtration documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
+    pub fn filter(&mut self, storage: &Storage,user_hook: &UserHook,m_to_lift:f64, lift_class: LiftClass, driver_type: DriverType, load_comb: LoadCombination, vhmax: f64, vhcs: f64) -> Vec<Bearing> {
+        let fmg = match ForceOfGravity::new().eval(m_to_lift, lift_class, driver_type, load_comb, vhmax, vhcs){
+            Ok(value) => value,
+            Err(_) => 0.0,
+        };
+        let mut bearing_index= 0;
+        loop{
+            match storage.get_bearing(bearing_index){
+                Some(bearing) => {
+                    if fmg<= bearing.static_capacity{
+                        if bearing.outer_diameter <= user_hook.user_hook.shank_diameter{
+                            self.filtered_bearings.push(bearing.clone());
                         }
                     }
-                }
+                    bearing_index+=1;
+                },
+                None => break,
             }
-        } else {
-            println!("Path not found for bearing selection.");
         }
-        &self.filtered_bearings
+        self.filtered_bearings.clone()
     }
 
 }
