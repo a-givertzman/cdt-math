@@ -1,15 +1,11 @@
-use std::error::Error;
-
-use crate::kernel::{dbgid::dbgid::DbgId, str_err::str_err::StrErr};
+use crate::kernel::dbgid::dbgid::DbgId;
 ///
 /// Класс, рассчитывающий усилие в канате
-/// [reference to dynamic coefficient documentation](design\docs\algorithm\part02\chapter_03_choose_hoisting_tackle.md)
+/// [reference to effort in the rope documentation](design\docs\algorithm\part02\chapter_03_choose_hoisting_tackle.md)
 pub struct EffortInTheRope{
     dbgid: DbgId,
     value: f64
 }
-//
-//
 //
 impl EffortInTheRope{
     ///
@@ -19,7 +15,7 @@ impl EffortInTheRope{
     }
     ///
     /// Метод, который выбирает усилие в канате относительно массе на крюковой подвеске
-    /// [reference to dynamic coefficient documentation](design\docs\algorithm\part02\chapter_03_choose_hoisting_tackle.md)
+    /// [reference to effort in the rope documentation](design\docs\algorithm\part02\chapter_03_choose_hoisting_tackle.md)
     pub fn eval(&mut self, m_to_lift: f64) -> f64 {
         match m_to_lift {
             n if n <= 1.0 => self.value = 7.5,

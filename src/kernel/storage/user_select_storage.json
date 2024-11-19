@@ -1,0 +1,16 @@
+{
+    "dbgid": "UserSelect",
+    "m_to_lift": 0.1,
+    "lift_class": "Hc3",
+    "load_combination": "A1",
+    "driver_type": "Hd3",
+    "vhmax": 1.0,
+    "vhcs": 1.0,
+    "lifting_mechanism_work_type": "M1",
+    "hook_type": "однорогий",
+    "name_cargo_hand_device": "съёмный электрогидравлический грейфер",
+    "weight_cargo_hand_device": 0.3,
+    "crane_work_area": "Normal",
+    "hoist_rope_balance_degree": "Straightened",
+    "hoist_rope_twisting_method": "Nontwisting"
+  }
