@@ -12,8 +12,6 @@ pub enum DriverType {
     Hd5
 }
 //
-//
-//
 impl FromStr for DriverType {
     type Err = StrErr;
     ///

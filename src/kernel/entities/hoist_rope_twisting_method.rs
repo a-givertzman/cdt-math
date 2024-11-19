@@ -9,8 +9,6 @@ pub enum HoistRopeTwistingMethod {
     Twisting,
 }
 //
-//
-//
 impl FromStr for HoistRopeTwistingMethod {
     type Err = StrErr;
     ///
