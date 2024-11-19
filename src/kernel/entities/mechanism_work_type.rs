@@ -36,8 +36,6 @@ impl FromStr for MechanismWorkType {
     }
 }
 //
-//
-//
 impl ToString for MechanismWorkType{
     ///
     /// Метод перевод из типа перечисления MechanismWorkType в строку
