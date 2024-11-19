@@ -9,8 +9,6 @@ pub struct CableCount{
     value: f64,
 }
 //
-//
-//
 impl CableCount{
     ///
     /// Экземпляр класса CableCount
@@ -22,6 +20,8 @@ impl CableCount{
     }
     ///
     /// Метод рассчитывающий количество канатов, сходящих с крюковой подвески
+    /// - 'm_to_lift' - масса на крюке
+    /// - 'hook_weight' - масса крюковой подвески
     /// [reference to cable count documentation](design\docs\algorithm\part02\chapter_03_choose_hoisting_tackle.md)
     pub fn eval(&mut self,m_to_lift: f64, hook_weight: f64) -> f64{
         self.value = Self::round_to_nearest((m_to_lift+hook_weight)/self.effort_in_the_rope.eval(m_to_lift));

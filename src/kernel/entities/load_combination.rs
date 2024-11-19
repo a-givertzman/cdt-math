@@ -1,13 +1,15 @@
 use std::str::FromStr;
+use serde::{Deserialize, Serialize};
 use crate::kernel::str_err::str_err::StrErr;
 ///
 /// Перечисление для структуирования типов компбинации нагрузок
-#[derive(Debug, Clone)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub enum LoadCombination {
     A1,
     B1,
     C1,
 }
+//
 impl FromStr for LoadCombination {
     ///
     /// Метод перевод из строки в тип перечисления LoadCombination

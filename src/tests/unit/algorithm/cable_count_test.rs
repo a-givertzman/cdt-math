@@ -1,6 +1,6 @@
 #[cfg(test)]
 
-mod tests {
+mod CableCount {
     use std::{sync::Once, time::{Duration, Instant}};
     use testing::stuff::max_test_duration::TestDuration;
     use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
@@ -23,7 +23,7 @@ mod tests {
     ///
     /// Testing such functionality / behavior
     #[test]
-    fn test_task_cycle() {
+    fn eval() {
         DebugSession::init(LogLevel::Info, Backtrace::Short);
         init_once();
         init_each();

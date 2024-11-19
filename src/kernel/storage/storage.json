@@ -1,0 +1,90 @@
+{
+    "hooks": [
+      {
+        "dbgid": "Hook",
+        "hook_type": "однорогий",
+        "standard": "GOST 25835-83",
+        "sequence_number": 1,
+        "capacity_M1": 0.4,
+        "shank_diameter": 12.0,
+        "weight": 0.2
+      },
+      {
+        "dbgid": "Hook",
+        "hook_type": "однорогий",
+        "standard": "GOST 25835-83",
+        "sequence_number": 2,
+        "capacity_M1": 0.5,
+        "shank_diameter": 12.0,
+        "weight": 0.25
+      },
+      {
+        "dbgid": "Hook",
+        "hook_type": "однорогий",
+        "standard": "GOST 25835-83",
+        "sequence_number": 3,
+        "capacity_M1": 0.63,
+        "shank_diameter": 15.0,
+        "weight": 0.4
+      },
+      {
+        "dbgid": "Hook",
+        "hook_type": "однорогий",
+        "standard": "GOST 25835-83",
+        "sequence_number": 4,
+        "capacity_M1": 0.8,
+        "shank_diameter": 17.0,
+        "weight": 0.6
+      }
+    ],
+    "bearings": [
+      {
+        "dbgid": "Bearings",
+        "name": "8100Н",
+        "static_capacity": 11800.0,
+        "outer_diameter": 24.0
+      },
+      {
+        "dbgid": "Bearings",
+        "name": "8101Н",
+        "static_capacity": 12900.0,
+        "outer_diameter": 26.0
+      },
+      {
+        "dbgid": "Bearings",
+        "name": "8102Н",
+        "static_capacity": 14000.0,
+        "outer_diameter": 28.0
+      },
+      {
+        "dbgid": "Bearings",
+        "name": "8103Н",
+        "static_capacity": 16600.0,
+        "outer_diameter": 30.0
+      },
+      {
+        "dbgid": "Bearings",
+        "name": "8104Н",
+        "static_capacity": 22400.0,
+        "outer_diameter": 35.0
+      },
+      {
+        "dbgid": "Bearings",
+        "name": "8105Н",
+        "static_capacity": 30000.0,
+        "outer_diameter": 42.0
+      },
+      {
+        "dbgid": "Bearings",
+        "name": "8106Н",
+        "static_capacity": 33500.0,
+        "outer_diameter": 47.0
+      },
+      {
+        "dbgid": "Bearings",
+        "name": "8107Н",
+        "static_capacity": 39000.0,
+        "outer_diameter": 52.0
+      }
+    ]
+  }
