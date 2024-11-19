@@ -1,14 +1,12 @@
-
 use crate::kernel::dbgid::dbgid::DbgId;
 use serde::{Deserialize, Serialize};
-
 use super::mechanism_work_type::MechanismWorkType;
 ///
 /// Класс, для хранения информации о крюке
 /// - 'hook_type' - тип крюка
 /// - 'standard' - ГОСТ номер
 /// - 'mechanism_work_type' - тип работы механизма подъема (enum [MechanismWorkType])
-/// - 'load_capacity' - грузоподъёмность крюка
+/// - 'capacity_M1' - грузоподъёмность крюка при M1 нагрузке механизма подъема
 /// - 'shank_diameter' - диаметр хвостовика крюка под подшипник
 /// - 'weight' - масса крюка
 #[derive(Serialize, Deserialize, Debug, Clone)]
