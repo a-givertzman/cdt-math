@@ -10,8 +10,6 @@ pub enum CraneWorkArea {
     StrongAggresive,
 }
 //
-//
-//
 impl FromStr for CraneWorkArea {
     type Err = StrErr;
     ///

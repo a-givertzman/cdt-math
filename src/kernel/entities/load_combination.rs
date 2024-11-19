@@ -10,8 +10,6 @@ pub enum LoadCombination {
     C1,
 }
 //
-//
-//
 impl FromStr for LoadCombination {
     type Err = StrErr;
     ///

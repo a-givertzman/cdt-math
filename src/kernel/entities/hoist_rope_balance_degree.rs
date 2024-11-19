@@ -9,8 +9,6 @@ pub enum HoistRopeBalanceDegree {
     Unstraightened,
 }
 //
-//
-//
 impl FromStr for HoistRopeBalanceDegree {
     type Err = StrErr;
     ///

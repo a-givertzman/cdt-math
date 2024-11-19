@@ -9,8 +9,6 @@ pub enum HoistRopeType {
     Synthetic
 }
 //
-//
-//
 impl FromStr for HoistRopeType {
     type Err = StrErr;
     ///

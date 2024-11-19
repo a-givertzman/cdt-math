@@ -3,7 +3,7 @@ use crate::kernel::{dbgid::dbgid::DbgId, entities::{bearing::Bearing, equipment_
 /// Класс, реализующий хранилище БД
 /// - 'equipment_data' - БД (экземпляр класса [EquipmentData])
 pub struct Storage {
-    pub dbgid: DbgId,
+    pub _dbgid: DbgId,
     equipment_data: Option<EquipmentData>,
 }
 //
@@ -12,7 +12,7 @@ impl Storage {
     /// Конструктор класса Storage
     pub fn new() -> Self {
         Storage {
-            dbgid: DbgId(format!("Storage")),
+            _dbgid: DbgId(format!("Storage")),
             equipment_data: None,
         }
     }

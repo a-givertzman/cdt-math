@@ -12,7 +12,7 @@ use crate::kernel::{dbgid::dbgid::DbgId, entities::{crane_work_area::CraneWorkAr
 /// - 'hook_type' - тип крюка
 /// - 'name_cargo_hand_device' - имя допольнительного грузозахватного органа
 /// - 'weight_cargo_hand_device' - масса допольнительного грузозахватного органа
-/// [reference to initial data breaking force  documentation](design\docs\algorithm\part01\initial_data.md)
+/// [reference to initial data documentation](design\docs\algorithm\part01\initial_data.md)
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct UserSelect {
     pub dbgid: DbgId,

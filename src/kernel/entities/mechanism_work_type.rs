@@ -17,8 +17,6 @@ pub enum MechanismWorkType {
     M8,
 }
 //
-//
-//
 impl FromStr for MechanismWorkType {
     type Err = StrErr;
     ///

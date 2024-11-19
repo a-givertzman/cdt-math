@@ -11,8 +11,6 @@ pub enum LiftClass {
     Hc4,    
 }
 //
-//
-//
 impl FromStr for LiftClass {
     type Err = StrErr;
     ///
