@@ -22,8 +22,6 @@ pub struct Hook {
     weight: f64,
 }
 //
-//
-//
 impl Hook{
     ///
     /// Конструктор класса Hook
