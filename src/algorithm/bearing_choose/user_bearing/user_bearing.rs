@@ -1,6 +1,6 @@
 use std::io;
 
-use crate::{algorithm::{bearing_choose::{bearing::Bearing, filter::bearing_filter::BearingFilter}, dynamic_coefficient::dynamic_coefficient::DynamicCoefficient, force_of_gravity::force_of_gravity::ForceOfGravity, hook_choose::user_hook::user_hook::UserHook, storage::storage::Storage, user_select::user_select::UserSelect}, kernel::dbgid::dbgid::DbgId};
+use crate::{algorithm::{bearing_choose::filter::bearing_filter::BearingFilter, hook_choose::user_hook::user_hook::UserHook, storage::storage::Storage}, kernel::{dbgid::dbgid::DbgId, entities::{bearing::Bearing, driver_type::DriverType, lift_class::LiftClass, load_combination::LoadCombination}}};
 ///
 /// Класс который содержит крюк (экземпляр класса [Hook]) выбранный пользователем из предложенных
 pub struct UserBearing{
@@ -8,28 +8,34 @@ pub struct UserBearing{
     pub user_bearing: Bearing,
 }
 //
-//
-//
 impl UserBearing{
     ///
     /// Конструктор класса UserHook
     pub fn new() ->Self{
         Self {
-            dbgid: DbgId(format!("UserBearing")),
-            user_bearing: Bearing::new(String::new(), 0.0) }
+            dbgid: DbgId(format!("Bearing/UserBearing")),
+            user_bearing: Bearing::new() }
 
     }
     ///
     /// Выбор крюка среди отфильтрованных
-    pub fn eval(&mut self,user_hook: &UserHook,user_select: &UserSelect ,hooks_storage: &mut Storage,dynamic_coefficient: DynamicCoefficient){
-        let mut binding = BearingFilter::new(user_hook, ForceOfGravity::new(dynamic_coefficient, user_select.m_to_lift));
-        let mut filtered_bearings = binding.filter(hooks_storage);
-
+    /// [reference to bearing filtration documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
+    /// - 'storage' - БД [Storage]
+    /// - 'user_hook' - крюк выбранный пользователем (экземпляр класса [UserHook])
+    /// - 'm_to_lift' - масса на крюке
+    /// - 'lift_class' - класс подъема (enum [LiftClass])
+    /// - 'driver_type' - тип привода механизма подъема (enum [DriverType])
+    /// - 'load_comb' - тип комбинации нагрузок (enum [LoadCombination])
+    /// - 'vhmax' - номинальная скорость подъёма механизма
+    /// - 'vhcs' - замедленная скорость подъёма механизма
+    pub fn eval(&mut self, storage: &mut Storage, user_hook: &UserHook,m_to_lift:f64, lift_class: LiftClass, driver_type: DriverType, load_comb: LoadCombination, vhmax: f64, vhcs: f64){
+        let mut binding = BearingFilter::new();
+        let mut filtered_bearings = binding.filter(storage, user_hook, m_to_lift, lift_class, driver_type, load_comb, vhmax, vhcs);
         if filtered_bearings.is_empty(){
             log::debug!("{}.eval | There is no bearing for your hook",self.dbgid);
         } else {
             for hook in filtered_bearings.iter(){
-                log::debug!("{}", format!("{}.eval | {:?}", self.dbgid,hook.print()));
+                log::debug!("{}", format!("{}.eval | {:?}", self.dbgid,hook.paint()));
             }
 
             log::debug!("{}.eval | Please, select your bearing",self.dbgid);
@@ -40,7 +46,7 @@ impl UserBearing{
             match io::stdin().read_line(&mut user_select) {
                 Ok(_) => {}
                 _ => {
-                
+
                 }
             }
 

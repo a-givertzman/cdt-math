@@ -8,7 +8,7 @@ mod hook {
     };
     use testing::stuff::max_test_duration::TestDuration;
 
-    use crate::{algorithm::{bearing_choose::{bearing::Bearing, filter::bearing_filter::BearingFilter}, dynamic_coefficient::dynamic_coefficient::DynamicCoefficient, force_of_gravity::force_of_gravity::ForceOfGravity, hook_choose::{filter::hook_filter::HookFilter, hook::Hook, summary_good_weights::summary_good_weight::SummaryGoodWeights, user_hook::user_hook::UserHook}, lifting_speed::lifting_speed::LiftingSpeed, select_bet_phi::select_bet_phi::{BetPhi, SelectBetPhi}, storage::storage::Storage, user_select::user_select::UserSelect}, kernel::{dbgid::dbgid::DbgId, entities::{driver_type::DriverType, liftclass::LiftClass, load_combination::LoadCombination}}};
+    use crate::{algorithm::{bearing_choose::{bearing::Bearing, filter::bearing_filter::BearingFilter}, dynamic_coefficient::dynamic_coefficient::DynamicCoefficient, force_of_gravity::force_of_gravity::ForceOfGravity, hook_choose::{filter::hook_filter::HookFilter, hook::Hook, user_hook::user_hook::UserHook}, lifting_speed::lifting_speed::LiftingSpeed, select_bet_phi::select_bet_phi::{BetPhi, SelectBetPhi}, storage::storage::Storage, user_select::user_select::UserSelect}, kernel::{dbgid::dbgid::DbgId, entities::{driver_type::DriverType, liftclass::LiftClass, load_combination::LoadCombination}}};
     ///
     ///
     static INIT: Once = Once::new();
@@ -118,10 +118,6 @@ mod hook {
                             hook_type: String::from("крюк однорогий"),
                             max_m_to_lift: 0.5,
                             d_tail: 12.0,
-                            name_cargo_hand_device: String::new(),
-                            weight_cargo_hand_device: 0.0,
-                            sum_good_weights: SummaryGoodWeights{ summary_weight: 0.0, good_weight: 0.0},
-                            hook_weight: 0.0,
                         },
                     },
                     force_of_gravity: ForceOfGravity{
