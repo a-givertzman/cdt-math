@@ -20,9 +20,9 @@ pub enum MechanismWorkType {
 //
 //
 impl FromStr for MechanismWorkType {
+    type Err = StrErr;
     ///
     /// Метод перевод из строки в тип перечисления MechanismWorkType
-    type Err = StrErr;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.to_lowercase().as_str() {
             "m1" => Ok(Self::M1),

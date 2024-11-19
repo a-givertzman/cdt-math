@@ -12,13 +12,13 @@ pub enum HoistRopeType {
 //
 //
 impl FromStr for HoistRopeType {
+    type Err = StrErr;
     ///
     /// Метод перевод из строки в тип перечисления HoistRopeType
-    type Err = StrErr;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.to_lowercase().as_str() {
-            "металлический" => Ok(Self::Metal),
-            "синтетический" => Ok(Self::Synthetic),
+            "metal" => Ok(Self::Metal),
+            "synthetic" => Ok(Self::Synthetic),
             _ => Err(format!("DriverType.from_str | Invalid Cargo???DriverType: {}", s).into()),
         }
     }

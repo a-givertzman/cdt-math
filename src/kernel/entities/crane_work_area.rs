@@ -13,14 +13,14 @@ pub enum CraneWorkArea {
 //
 //
 impl FromStr for CraneWorkArea {
+    type Err = StrErr;
     ///
     /// Метод перевод из строки в тип перечисления CraneWorkArea
-    type Err = StrErr;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.to_lowercase().as_str() {
-            "обычная" => Ok(Self::Normal),
-            "агрессивная" => Ok(Self::Aggressive),
-            "сильно агрессивная" => Ok(Self::StrongAggresive),
+            "normal" => Ok(Self::Normal),
+            "aggressive" => Ok(Self::Aggressive),
+            "strong aggresive" => Ok(Self::StrongAggresive),
             _ => Err(format!("CraneWorkArea.from_str | Invalid CraneWorkArea: {}", s).into()),
         }
     }

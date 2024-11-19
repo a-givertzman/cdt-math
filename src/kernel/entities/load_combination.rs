@@ -13,9 +13,9 @@ pub enum LoadCombination {
 //
 //
 impl FromStr for LoadCombination {
+    type Err = StrErr;
     ///
     /// Метод перевод из строки в тип перечисления LoadCombination
-    type Err = StrErr;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.to_lowercase().as_str() {
             "a1" => Ok(Self::A1),

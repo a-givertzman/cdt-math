@@ -12,13 +12,13 @@ pub enum HoistRopeBalanceDegree {
 //
 //
 impl FromStr for HoistRopeBalanceDegree {
+    type Err = StrErr;
     ///
     /// Метод перевод из строки в тип перечисления HoistRopeBalanceDegree
-    type Err = StrErr;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.to_lowercase().as_str() {
-            "рихтованный" => Ok(Self::Straightened),
-            "нерихтованный" => Ok(Self::Unstraightened),
+            "straightened" => Ok(Self::Straightened),
+            "unstraightened" => Ok(Self::Unstraightened),
             _ => Err(format!("DriverType.from_str | Invalid Cargo???DriverType: {}", s).into()),
         }
     }

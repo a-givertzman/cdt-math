@@ -12,13 +12,13 @@ pub enum HoistRopeTwistingMethod {
 //
 //
 impl FromStr for HoistRopeTwistingMethod {
+    type Err = StrErr;
     ///
     /// Метод перевод из строки в тип перечисления HoistRopeTwistingMethod
-    type Err = StrErr;
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.to_lowercase().as_str() {
-            "нераскручивающийся" => Ok(Self::Nontwisting),
-            "раскручивающийся" => Ok(Self::Twisting),
+            "nontwisting" => Ok(Self::Nontwisting),
+            "twisting" => Ok(Self::Twisting),
             _ => Err(format!("DriverType.from_str | Invalid Cargo???DriverType: {}", s).into()),
         }
     }

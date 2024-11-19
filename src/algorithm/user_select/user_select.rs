@@ -1,8 +1,5 @@
 use serde::{Deserialize, Serialize};
-use std::str::FromStr;
-
-
-use crate::{algorithm::storage::storage::Storage, kernel::{dbgid::{self, dbgid::DbgId}, entities::{crane_work_area::CraneWorkArea, driver_type::DriverType, hoist_rope_balance_degree::HoistRopeBalanceDegree, hoist_rope_twisting_method::HoistRopeTwistingMethod, hoist_rope_type::HoistRopeType, lift_class::LiftClass, load_combination::LoadCombination, mechanism_work_type::MechanismWorkType}}};
+use crate::kernel::{dbgid::dbgid::DbgId, entities::{crane_work_area::CraneWorkArea, driver_type::DriverType, hoist_rope_balance_degree::HoistRopeBalanceDegree, hoist_rope_twisting_method::HoistRopeTwistingMethod, lift_class::LiftClass, load_combination::LoadCombination, mechanism_work_type::MechanismWorkType}};
 ///
 /// Класс, которой реализует хранение характеристики выбранные пользователем для дальнейшего расчета крана
 /// - 'm_to_lift' - масса на крюке

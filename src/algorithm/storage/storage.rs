@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use crate::kernel::{dbgid::dbgid::DbgId, entities::{bearing::Bearing, equipment_data::EquipmentData, hook::Hook}};
 ///
 /// Класс, реализующий хранилище БД

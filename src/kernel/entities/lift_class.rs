@@ -14,9 +14,9 @@ pub enum LiftClass {
 //
 //
 impl FromStr for LiftClass {
+    type Err = StrErr;
     ///
     /// Метод перевод из строки в тип перечисления LiftClass
-    type Err = StrErr;
      fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.to_lowercase().as_str() {
             "hc1" => Ok(Self::Hc1),
