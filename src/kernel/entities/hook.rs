@@ -37,14 +37,8 @@ impl Hook{
     }
     ///
     /// Метод вывода информации о крюке в консоль
-    pub fn paint(&self){
-        log::debug!("{}", format!("{}.paint | Hook type: {}",self.dbgid,self.hook_type));
-        log::debug!("{}", format!("{}.paint | Hook standard: {}",self.dbgid,self.standard));
-        log::debug!("{}", format!("{}.paint | Hook sequence number: {}",self.dbgid,self.sequence_number));
-        log::debug!("{}", format!("{}.paint | Hook load capacity M1: {:?}",self.dbgid,self.capacity_m1));
-        log::debug!("{}", format!("{}.paint | Hook shank diameter: {}",self.dbgid,self.shank_diameter));
-        log::debug!("{}", format!("{}.paint | Hook weight: {}",self.dbgid,self.weight));
-
+    pub fn paint(&self) {
+        log::debug!("{:?}", self);
     }
     ///
     /// Метод заполнения информации о крюке
