@@ -1,5 +1,6 @@
 use crate::kernel::dbgid::dbgid::DbgId;
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 ///
 /// Класс, для хранения информации о крюке
 /// - 'hook_type' - тип крюка
@@ -44,5 +45,17 @@ impl Hook{
         log::debug!("{}", format!("{}.paint | Hook shank diameter: {}",self.dbgid,self.shank_diameter));
         log::debug!("{}", format!("{}.paint | Hook weight: {}",self.dbgid,self.weight));
 
+    }
+    ///
+    /// Метод заполнения информации о крюке
+    /// - 'value' - объект структуры serde_json:Value
+    pub fn from_value(value: Value) -> Option<Self> {
+        match serde_json::from_value::<Hook>(value) {
+            Ok(hook) => Some(hook),
+            Err(e) => {
+                log::error!("Failed to deserialize Hook from Value: {}", e);
+                None
+            }
+        }
     }
 }

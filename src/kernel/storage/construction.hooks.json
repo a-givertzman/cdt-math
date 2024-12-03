@@ -1,0 +1,26 @@
+{
+    "type": {
+        "one-horned": {
+            "sequence_number": {
+                "1": {
+                    "standard": "GOST 25835-83",
+                    "capacity_M1": 0.4,
+                    "shank_diameter": 12.0,
+                    "weight": 0.2
+                },
+                "2": {
+                    "standard": "GOST 25835-83",
+                    "capacity_M1": 0.5,
+                    "shank_diameter": 12.0,
+                    "weight": 0.25
+                },
+                "3": {
+                    "standard": "GOST 25835-83",
+                    "capacity_M1": 0.8,
+                    "shank_diameter": 17.0,
+                    "weight": 0.6
+                }
+            }
+        }
+    }
+}
