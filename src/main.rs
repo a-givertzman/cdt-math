@@ -16,22 +16,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     if let Err(err) = app.run() {
         log::error!("main | Error: {:#?}", err);
     }
-    let hooks_storage = Storage::new("src\\kernel\\storage\\construction.hooks.json")
-        .expect("Error to create storage");
-    if let Some(value) = hooks_storage.get("type") {
-        if value.is_object() {
-            if let Some(obj) = value.as_object() {
-                // Итерация по ключам и значениям объекта
-                for (key, val) in obj {
-                    println!("Key: {}, Value: {}", key, val);
-                }
-            }
-        } else {
-            println!("Value is not an object.");
-        }
-    } else {
-        println!("Value doesn't exist.");
-    }    
+    let hooks_storage = Storage::new("src\\kernel\\storage\\construction.hooks.json");  
+    match hooks_storage.load("type") {
+        Ok(value) => println!("Found: {}", value),
+        Err(e) => eprintln!("Error: {}", e),
+    }
     Ok(())
 }
 
