@@ -18,8 +18,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
     let hooks_storage = Storage::new("src\\kernel\\storage\\construction.hooks.json");  
     match hooks_storage.load("type") {
-        Ok(value) => println!("Found: {}", value),
-        Err(e) => eprintln!("Error: {}", e),
+        Ok(value) => log::debug!("{}.load | Found: {}",hooks_storage.dbgid,value),
+        Err(err) => log::error!("{}.load | Some Error: {:#?}",hooks_storage.dbgid, err),
     }
     Ok(())
 }
