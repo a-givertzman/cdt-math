@@ -62,16 +62,16 @@ impl Storage {
         let keys: Vec<&str> = key.split('.').collect();
         //Считываем данные из json данные
         let json_data = fs::read_to_string(&self.file_path)
-            .map_err(|e| format!("{}.load | Failed to read file: {}", self.dbgid,e))?;
+            .map_err(|e| format!("{}.store | Failed to read file: {}", self.dbgid,e))?;
         // Преобразуем в serde json Value
         let mut json_value: Value = serde_json::from_str(&json_data)
-            .map_err(|e| format!("{}.load | Invalid JSON: {}", self.dbgid,e))?;
+            .map_err(|e| format!("{}.store | Invalid JSON: {}", self.dbgid,e))?;
         let mut current = &mut json_value;
         match serde_json::to_value(value){
             Ok(value) => {
                 for key in &keys[..keys.len() - 1] {
                     current = current.as_object_mut()
-                        .ok_or("Object doesn't exist on this path")? 
+                        .ok_or(format!("{}.store | Object doesn't exist on this path", self.dbgid))? 
                         .entry(key.to_string())
                         .or_insert(Value::Object(Map::new()));
                 }
