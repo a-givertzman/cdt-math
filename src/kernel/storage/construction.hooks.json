@@ -23,5 +23,8 @@
         }
       }
     }
+  },
+  "type.one-horned.sequence_number.1.capacity_M2": {
+    "capacity_M2": 0.2
   }
 }

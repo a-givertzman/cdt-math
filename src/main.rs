@@ -25,6 +25,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         Ok(_) => log::debug!("{}.store | Value succesful stored!",hooks_storage.dbgid),
         Err(err) => log::error!("{}.load | Some Error: {:#?}",hooks_storage.dbgid, err)
     }
+    match hooks_storage.load("type.one-horned.sequence_number.1.capacity_M2") {
+        Ok(value) => log::debug!("{}.load | Found: {}",hooks_storage.dbgid,value),
+        Err(err) => log::error!("{}.load | Some Error: {:#?}",hooks_storage.dbgid, err)
+    }
     Ok(())
 }
 

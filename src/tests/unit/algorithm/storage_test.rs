@@ -22,7 +22,7 @@ mod tests {
     ///
     /// Testing such functionality / behavior
     #[test]
-    fn test_get() {
+    fn test_load() {
         DebugSession::init(LogLevel::Info, Backtrace::Short);
         init_once();
         init_each();
@@ -31,7 +31,7 @@ mod tests {
         log::debug!("\n{}", self_id);
         let test_duration = TestDuration::new(self_id, Duration::from_secs(1));
         test_duration.run().unwrap();
-        let hooks_storage = Storage::new("src\\kernel\\storage\\construction.hooks.json");
+        let mut hooks_storage = Storage::new("src\\kernel\\storage\\construction.hooks.json");
         let test_data = [
             (1,
             "type.one-horned.sequence_number.1.capacity_M1",
