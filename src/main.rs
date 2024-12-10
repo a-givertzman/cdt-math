@@ -5,7 +5,7 @@ mod algorithm;
 mod tests;
 use algorithm::storage::storage::Storage;
 use app::app::App;
-use kernel::{entities::hook, run::Run};
+use kernel::run::Run;
 use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
 ///
 /// Application entry point

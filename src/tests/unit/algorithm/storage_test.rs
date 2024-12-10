@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use std::{sync::Once, time::{Duration, Instant}};
+    use std::{sync::Once, time::Duration};
     use testing::stuff::max_test_duration::TestDuration;
     use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
 
@@ -18,7 +18,7 @@ mod tests {
     ///
     /// returns:
     ///  - ...
-    fn init_each() -> () {}
+    fn init_each() {}
     ///
     /// Testing such functionality / behavior
     #[test]
@@ -31,7 +31,7 @@ mod tests {
         log::debug!("\n{}", self_id);
         let test_duration = TestDuration::new(self_id, Duration::from_secs(1));
         test_duration.run().unwrap();
-        let mut hooks_storage = Storage::new("src\\kernel\\storage\\construction.hooks.json");
+        let hooks_storage = Storage::new("src\\kernel\\storage\\construction.hooks.json");
         let test_data = [
             (1,
             "type.one-horned.sequence_number.1.capacity_M1",
