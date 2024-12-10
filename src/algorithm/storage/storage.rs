@@ -1,7 +1,8 @@
 use serde::Serialize;
 use serde_json::{Map, Value};
 use std::collections::HashMap;
-use std::fs;
+use std::fs::{self, OpenOptions};
+use std::path::PathBuf;
 use crate::kernel::dbgid::dbgid::DbgId;
 use crate::kernel::str_err::str_err::StrErr;
 ///
@@ -10,7 +11,7 @@ use crate::kernel::str_err::str_err::StrErr;
 /// - 'hash' - кэш-хранилище
 pub struct Storage {
     pub dbgid: DbgId,
-    file_path: String,
+    path: PathBuf,
     hash: HashMap<String,Value>
 }
 //
@@ -23,7 +24,7 @@ impl Storage {
         Storage {
             hash: HashMap::new(),
             dbgid: DbgId("Storage".to_string()),
-            file_path: file_path.to_string(),
+            path: file_path.to_string(),
         }
     }   
     ///
@@ -32,7 +33,7 @@ impl Storage {
     fn save(&self, data: Value) -> Result<(), StrErr> {
         match serde_json::to_string_pretty(&data) {
             Ok(content) => {
-                match fs::write(&self.file_path,content) {
+                match fs::write(&self.path,content) {
                     Ok(_) => Ok(()),
                     Err(err) => Err(StrErr(format!("{}.save | err: {:?}", self.dbgid, err))),
                 }
@@ -51,7 +52,7 @@ impl Storage {
             }
         } else {
             //Считываем данные из json данные
-            let json_data = fs::read_to_string(&self.file_path)
+            let json_data = fs::read_to_string(&self.path)
                 .map_err(|e| format!("{}.load | Failed to read file: {}", self.dbgid,e))?;
             // Преобразуем в serde json Value
             let json_value: Value = serde_json::from_str(&json_data)
@@ -74,30 +75,30 @@ impl Storage {
     /// - `key` - ключ к данным
     /// - `value` - значение для хранения
     pub fn store(&mut self, key: &str, value: impl Serialize) -> Result<(), StrErr> {
-        let keys: Vec<&str> = key.split('.').collect();
-        //Считываем данные из json данные
-        let json_data = fs::read_to_string(&self.file_path)
-            .map_err(|e| format!("{}.store | Failed to read file: {}", self.dbgid,e))?;
-        // Преобразуем в serde json Value
-        let mut json_value: Value = serde_json::from_str(&json_data)
-            .map_err(|e| format!("{}.store | Invalid JSON: {}", self.dbgid,e))?;
-        let mut current = &mut json_value;
-        match serde_json::to_value(value){
-            Ok(value) => {
-                current = current.as_object_mut()
-                        .ok_or(format!("{}.store | Object doesn't exist on this path", self.dbgid))? 
-                        .entry(key.to_string())
-                        .or_insert(Value::Object(Map::new()));
-                if let Value::Object(map) = current {
-                    map.insert(keys[keys.len() - 1].to_string(), value.clone());
-                    let _ = self.save(json_value); // Сохранение изменений
-                    self.hash.insert(key.to_owned(), value.clone()); // кэширование
-                } else {
-                    return Err(StrErr(format!("{}.store | Path leads to a non-object value: {}",self.dbgid,key)));
+        let key = key.to_string();
+        let key = match key.get(0) {
+            Some(first) => match first {
+                '/' => {
+                    key.remove(0);
+                    key
+                }
+                _ => key
+            }
+            None => return Err(StrErr(format!("{}.store | Key can't be empty", self.dbgid))),
+        };
+        let file = OpenOptions::new()
+            .create(true)
+            .write(true)
+            .truncate(true)
+            .open(self.path.join(key));
+        match file {
+            Ok(file) => {
+                match serde_json::to_writer_pretty(file, &value) {
+                    Ok(_) => Ok(()),
+                    Err(_) => Err(StrErr(format!("{}.store | Error: {}", self.dbgid, err))),
                 }
             }
-            Err(err) => return Err(StrErr(format!("{}.store | Error: {}",self.dbgid,err)))
+            Err(err) => Err(StrErr(format!("{}.store | Error: {}", self.dbgid, err))),
         }
-        Ok(())
     }
 }
