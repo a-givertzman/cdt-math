@@ -92,7 +92,6 @@ impl Storage {
                     map.insert(keys[keys.len() - 1].to_string(), value.clone());
                     let _ = self.save(json_value); // Сохранение изменений
                     self.hash.insert(key.to_owned(), value.clone()); // кэширование
-
                 } else {
                     return Err(StrErr(format!("{}.store | Path leads to a non-object value: {}",self.dbgid,key)));
                 }
