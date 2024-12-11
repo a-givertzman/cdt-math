@@ -31,11 +31,11 @@ mod tests {
         log::debug!("\n{}", self_id);
         let test_duration = TestDuration::new(self_id, Duration::from_secs(1));
         test_duration.run().unwrap();
-        let mut hooks_storage = Storage::new("src\\kernel\\storage\\construction.hooks.json");
+        let mut hooks_storage = Storage::new();
         let test_data = [
             (1,
-            "type.one-horned.sequence_number.1.capacity_M1",
-            0.4),
+            "type.one-horned.sequence_number.1.capacity_M2",
+            0.2),
         ];
         for (step,path,target) in test_data{
             match hooks_storage.load(path) {

@@ -16,8 +16,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     if let Err(err) = app.run() {
         log::error!("main | Error: {:#?}", err);
     }
-    let mut hooks_storage = Storage::new("src\\kernel\\storage\\construction.hooks.json");  
-    match hooks_storage.load("type") {
+    let mut hooks_storage = Storage::new();  
+    match hooks_storage.load("type.one-horned.sequence_number.1.capacity_M1") {
         Ok(value) => log::debug!("{}.load | Found: {}",hooks_storage.dbgid,value),
         Err(err) => log::error!("{}.load | Some Error: {:#?}",hooks_storage.dbgid, err)
     }
