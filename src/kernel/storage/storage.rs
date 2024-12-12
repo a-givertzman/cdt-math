@@ -1,8 +1,9 @@
+use rustc_hash::FxHashMap;
 use serde::Serialize;
 use serde_json::Value;
-use std::collections::HashMap;
-use std::fs::{self, OpenOptions};
-use std::path::PathBuf;
+use std::fs::OpenOptions;
+use std::io::BufReader;
+use std::path::{Path, PathBuf};
 use crate::kernel::dbgid::dbgid::DbgId;
 use crate::kernel::str_err::str_err::StrErr;
 ///
@@ -10,8 +11,9 @@ use crate::kernel::str_err::str_err::StrErr;
 /// - 'file_path' - путь к файлу json
 /// - 'hash' - кэш-хранилище
 pub struct Storage {
-    pub dbgid: DbgId,
-    hash: HashMap<PathBuf,Value>
+    dbgid: DbgId,
+    hash: FxHashMap<String, Value>,
+    path: PathBuf,
 }
 //
 //
@@ -19,10 +21,11 @@ impl Storage {
     ///
     /// Конструктор класса
     /// - `file_path` - путь к файлу JSON
-    pub fn new() -> Self {
+    pub fn new(path: impl AsRef<Path>) -> Self {
         Storage {
-            hash: HashMap::new(),
             dbgid: DbgId("Storage".to_string()),
+            hash: FxHashMap::default(),
+            path: path.as_ref().to_path_buf(),
         }
     }
     ///
@@ -35,19 +38,20 @@ impl Storage {
         } else if key.contains("..") || key.contains('\\') {
             return Err(StrErr(format!("{}.load | Invalid structure of key", self.dbgid)));
         }
-        match self.hash.get(&PathBuf::from(&key)) {
-            Some(value) => return Ok(value.clone()),
+        match self.hash.get(&key) {
+            Some(value) => Ok(value.clone()),
             None => {
+                let path = self.path.join(&key);
                 let file = OpenOptions::new()
                     .read(true)
-                    .open(&key)
-                    .map_err(|err| StrErr(format!("{}.load | Failed to open file: {}", self.dbgid, err)))?;
-                match serde_json::from_reader(file) {
+                    .open(&path)
+                    .map_err(|err| StrErr(format!("{}.load | Failed to open file: {:?}, error: {}", self.dbgid, path, err)))?;
+                match serde_json::from_reader::<_, Value>(BufReader::new(file)) {
                     Ok(json_value) => {
-                        self.hash.insert(key.clone().into(), json_value.clone());
+                        self.hash.insert(key, json_value.clone());
                         Ok(json_value)
                     }
-                    Err(err) => StrErr(format!("{}.load | Invalid JSON: {}", self.dbgid, err)),
+                    Err(err) => Err(StrErr(format!("{}.load | Parse error: {} in the file: {:?}", self.dbgid, err, path))),
                 }
             }
         }
