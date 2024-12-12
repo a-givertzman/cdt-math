@@ -35,18 +35,22 @@ impl Storage {
         } else if key.contains("..") || key.contains('\\') {
             return Err(StrErr(format!("{}.load | Invalid structure of key", self.dbgid)));
         }
-        if let Some(value) = self.hash.get(&PathBuf::from(&key)) {
-            // Если ключ существует, возвращаем значение
-            return Ok(value.clone());
+        match self.hash.get(&PathBuf::from(&key)) {
+            Some(value) => return Ok(value.clone()),
+            None => {
+                let file = OpenOptions::new()
+                    .read(true)
+                    .open(&key)
+                    .map_err(|err| StrErr(format!("{}.load | Failed to open file: {}", self.dbgid, err)))?;
+                match serde_json::from_reader(file) {
+                    Ok(json_value) => {
+                        self.hash.insert(key.clone().into(), json_value.clone());
+                        Ok(json_value)
+                    }
+                    Err(err) => StrErr(format!("{}.load | Invalid JSON: {}", self.dbgid, err)),
+                }
+            }
         }
-        let file = OpenOptions::new()
-            .read(true)
-            .open(&key)
-            .map_err(|e| StrErr(format!("{}.load | Failed to open file: {}", self.dbgid, e)))?;
-        let json_value: Value = serde_json::from_reader(file)
-            .map_err(|e| StrErr(format!("{}.load | Invalid JSON: {}", self.dbgid, e)))?;
-        self.hash.insert(key.clone().into(), json_value.clone());
-        Ok(json_value)
     }
     ///
     /// Метод установления значения по указанному пути
@@ -63,15 +67,11 @@ impl Storage {
             .create(true)
             .write(true)
             .truncate(true)
-            .open(key);
-        match file {
-            Ok(file) => {
-                match serde_json::to_writer_pretty(file, &value) {
-                    Ok(_) => Ok(()),
-                    Err(err) => Err(StrErr(format!("{}.store | Error: {}", self.dbgid, err))),
-                }
-            }
-            Err(err) => Err(StrErr(format!("{}.store | Error: {}", self.dbgid, err))),
+            .open(key)
+            .map_err(|err| StrErr(format!("{}.store | Error: {}", self.dbgid, err)))?;
+        match serde_json::to_writer_pretty(file, &value) {
+            Ok(_) => Ok(()),
+            Err(err) => Err(StrErr(format!("{}.store | Parse error: {}", self.dbgid, err))),
         }
     }
 }
