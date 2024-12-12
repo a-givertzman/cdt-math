@@ -35,6 +35,10 @@ impl Storage {
         } else if key.contains("..") || key.contains('\\') {
             return Err(StrErr(format!("{}.load | Invalid structure of key", self.dbgid)));
         }
+        if let Some(value) = self.hash.get(&PathBuf::from(&key)) {
+            // Если ключ существует, возвращаем значение
+            return Ok(value.clone());
+        }
         let file = OpenOptions::new()
             .read(true)
             .open(&key)
