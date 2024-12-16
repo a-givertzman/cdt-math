@@ -73,10 +73,10 @@ impl Storage {
             .write(true)
             .truncate(true)
             .open(&path)
-            .map_err(|err| StrErr(format!("{}.store | Error: {}", self.dbgid, err)))?;
+            .map_err(|err| StrErr(format!("{}.store | Error on path '{}': {:?}", self.dbgid, path.display(), err)))?;
         match serde_json::to_writer_pretty(file, &value) {
             Ok(_) => Ok(()),
-            Err(err) => Err(StrErr(format!("{}.store | Parse error: {}", self.dbgid, err))),
+            Err(err) => Err(StrErr(format!("{}.store | Parse error on path '{}': {}", self.dbgid, path.display(), err))),
         }
     }
 }
