@@ -67,11 +67,12 @@ impl Storage {
         } else if key.contains("..") || key.contains('\\'){
             return Err(StrErr(format!("{}.store | Invalid structure of key",self.dbgid)))
         }
+        let path = self.path.join(&key);
         let file = OpenOptions::new()
             .create(true)
             .write(true)
             .truncate(true)
-            .open(key)
+            .open(&path)
             .map_err(|err| StrErr(format!("{}.store | Error: {}", self.dbgid, err)))?;
         match serde_json::to_writer_pretty(file, &value) {
             Ok(_) => Ok(()),
