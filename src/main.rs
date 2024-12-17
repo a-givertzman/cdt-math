@@ -18,15 +18,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     if let Err(err) = app.run() {
         log::error!("main | Error: {:#?}", err);
     }
-    let cache_path = "./assets/cache/";
+    let cache_path = r#"src/assets/cache"#;
     let mut hooks_storage = Storage::new(cache_path);
-    match hooks_storage.load("type.one-horned.sequence_number.1.capacity_M1") {
+    match hooks_storage.load("type.one-horned.sequence_number.1.capacity_M2") {
         Ok(value) => log::debug!("{}.load | Found: {}", dbgid, value),
         Err(err) => log::error!("{}.load | Some Error: {:#?}", dbgid, err)
     }
     match hooks_storage.store("type.one-horned.sequence_number.1.capacity_M2", 0.2){
         Ok(_) => log::debug!("{}.store | Value succesful stored!", dbgid),
-        Err(err) => log::error!("{}.load | Some Error: {:#?}", dbgid, err)
+        Err(err) => log::error!("{}.store | Some Error: {:#?}", dbgid, err)
     }
     match hooks_storage.load("type.one-horned.sequence_number.1.capacity_M2") {
         Ok(value) => log::debug!("{}.load | Found: {}", dbgid, value),
