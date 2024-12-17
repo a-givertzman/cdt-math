@@ -24,16 +24,16 @@ impl std::fmt::Debug for DbgId {
 }
 //
 //
-impl Into<String> for DbgId {
-    fn into(self) -> String {
-        self.0
+impl From<DbgId> for String {
+    fn from(val: DbgId) -> Self {
+        val.0
     }
 }
 //
 //
-impl Into<String> for &DbgId {
-    fn into(self) -> String {
-        self.0.clone()
+impl From<&DbgId> for String {
+    fn from(val: &DbgId) -> Self {
+        val.0.clone()
     }
 }
 //
