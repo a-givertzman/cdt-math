@@ -6,7 +6,7 @@ use crate::kernel::{dbgid::dbgid::DbgId, entities::{driver_type::DriverType, loa
 #[derive(Debug, Clone)]
 pub struct LiftingSpeed {
     pub dbgid: DbgId,
-    value: Option<f64>,
+    value: f64,
 }
 //
 //
@@ -15,8 +15,8 @@ impl LiftingSpeed {
     /// Class Constructor
     pub fn new() -> Self {
         Self {
-            dbgid: DbgId(format!("LiftingSpeed")),
-            value: None
+            dbgid: DbgId("LiftingSpeed".to_string()),
+            value: 0.0
         }
     }
     ///
@@ -33,8 +33,8 @@ impl LiftingSpeed {
     /// - 'load_comb' - loading combination (enum [LoadingCombination])
     /// - 'vhmax' - nominal lifting speed of the mechanism
     /// - 'vhcs' - slow lifting speed of the mechanism
-    pub fn eval(&mut self,driver_type: DriverType,load_comb: LoadingCombination,vhmax: f64,vhcs: f64) -> Result<f64, StrErr> {
-        let result = match load_comb {
+    pub fn eval(&mut self,driver_type: DriverType,load_comb: LoadingCombination,vhmax: f64,vhcs: f64) -> f64 {
+        self.value = match load_comb {
             LoadingCombination::A1 | LoadingCombination::B1 => match driver_type {
                 DriverType::Hd1 => vhmax,
                 DriverType::Hd2 | DriverType::Hd3 => vhcs,
@@ -46,7 +46,6 @@ impl LiftingSpeed {
                 DriverType::Hd3 | DriverType::Hd5 => Self::vhmax_half(vhmax),
             },
         };
-        let result = self.value.get_or_insert(result);
-        Ok(result.to_owned())
+        self.value.to_owned()
     }
 }
