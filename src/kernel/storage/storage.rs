@@ -7,9 +7,9 @@ use std::path::{Path, PathBuf};
 use crate::kernel::dbgid::dbgid::DbgId;
 use crate::kernel::str_err::str_err::StrErr;
 ///
-/// Класс, для хранения данных из json файла
-/// - 'file_path' - путь к файлу json
-/// - 'hash' - кэш-хранилище
+/// Struct for storage data from json files
+/// - 'file_path' - path to file json
+/// - 'hash' - cash-storage
 pub struct Storage {
     dbgid: DbgId,
     hash: FxHashMap<String, Value>,
@@ -19,8 +19,8 @@ pub struct Storage {
 //
 impl Storage {
     ///
-    /// Конструктор класса
-    /// - `file_path` - путь к файлу JSON
+    /// Struct constructor
+    /// - `file_path` - path to file json
     pub fn new(path: impl AsRef<Path>) -> Self {
         Storage {
             dbgid: DbgId("Storage".to_string()),
@@ -29,8 +29,8 @@ impl Storage {
         }
     }
     ///
-    /// Метод получения данных из json файла
-    /// - 'key' - ключ к данным
+    /// Method to load data from file json
+    /// - 'key' - key to data
     pub fn load(&mut self, key: &str) -> Result<Value, StrErr> {
         let key = key.trim_start_matches('.').to_owned();
         if key.is_empty() {
@@ -57,9 +57,9 @@ impl Storage {
         }
     }
     ///
-    /// Метод установления значения по указанному пути
-    /// - `key` - ключ к данным
-    /// - `value` - значение для хранения
+    /// Method to store data by key
+    /// - `key` - key to data
+    /// - `value` - value to store
     pub fn store(&mut self, key: &str, value: impl Serialize) -> Result<(), StrErr> {
         let key = key.trim_start_matches('.').to_owned();
         if key.is_empty(){
