@@ -1,6 +1,6 @@
 #[cfg(test)]
 
-mod LiftingSpeed {
+mod Liftingspeed {
     use std::{sync::Once, time::Duration};
     use testing::stuff::max_test_duration::TestDuration;
     use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
@@ -31,7 +31,6 @@ mod LiftingSpeed {
         log::debug!("\n{}", dbgid);
         let test_duration = TestDuration::new(&dbgid, Duration::from_secs(1));
         test_duration.run().unwrap();
-        let mut lifting_speed = LiftingSpeed::new();
         let test_data =[
             (
                 1,
@@ -67,8 +66,10 @@ mod LiftingSpeed {
             ),
         ];
         for (step, driver_type, load_comb, vhmax, vhcs, target) in test_data {
-            let result = lifting_speed.eval(driver_type, load_comb, vhmax, vhcs);
-            assert!(result == target, "step {} \nresult: {:?}\ntarget: {:?}", step, result, target);     
+            match LiftingSpeed::new().eval(driver_type, load_comb, vhmax, vhcs) {
+                Ok(result) => assert!(result == target, "step {} \nresult: {:?}\ntarget: {:?}", step, result, target),
+                Err(err) => panic!("{} | step {},  Error: {:#?}", dbgid, step, err),
+            }  
         }
         test_duration.exit();
     }
