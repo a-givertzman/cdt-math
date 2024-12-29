@@ -1,14 +1,11 @@
 #[cfg(test)]
 
 mod LiftingSpeed {
-    use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
-    use std::{
-        sync::Once,
-        time::{Duration, Instant},
-    };
+    use std::{sync::Once, time::Duration};
     use testing::stuff::max_test_duration::TestDuration;
+    use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
 
-    use crate::{algorithm::lifting_speed::lifting_speed::LiftingSpeed, kernel::{dbgid::dbgid::DbgId, entities::{driver_type::DriverType, load_combination::LoadCombination}}};
+    use crate::{algorithm::lifting_speed::lifting_speed::LiftingSpeed, kernel::{dbgid::dbgid::DbgId, entities::{driver_type::DriverType, loading_combination::LoadingCombination}}};
     ///
     ///
     static INIT: Once = Once::new();
@@ -24,36 +21,56 @@ mod LiftingSpeed {
     ///  - ...
     fn init_each() -> () {}
     ///
-    /// Testing such functionality / behavior
+    /// Testing to 'eval()' method
     #[test]
     fn eval() {
         DebugSession::init(LogLevel::Info, Backtrace::Short);
         init_once();
         init_each();
-        log::debug!("");
-        let self_id = "test";
-        log::debug!("\n{}", self_id);
-        let test_duration = TestDuration::new(self_id, Duration::from_secs(1));
+        let dbgid = DbgId("eval".into());
+        log::debug!("\n{}", dbgid);
+        let test_duration = TestDuration::new(&dbgid, Duration::from_secs(1));
         test_duration.run().unwrap();
-        let test_data = [
+        let test_data =[
             (
-                (DriverType::Hd1,LoadCombination::A1,20.0,20.0),
-                20.0,
+                1,
+                DriverType::Hd1, 
+                LoadingCombination::A1, 
+                0.1, 
+                0.23,
+                0.1
             ),
             (
-                (DriverType::Hd2,LoadCombination::A1,25.0,20.0),
-                20.0,
+                2,
+                DriverType::Hd2, 
+                LoadingCombination::A1, 
+                0.33, 
+                0.43,
+                0.43
+            ),
+            (
+                3,
+                DriverType::Hd2,
+                LoadingCombination::B1, 
+                0.12, 
+                0.65,
+                0.65
+            ),
+            (
+                4,
+                DriverType::Hd3,
+                LoadingCombination::C1,
+                0.81, 
+                0.95,
+                0.405
             ),
         ];
-        for ((driver_type, load_comb, vhmax, vhcs), target) in test_data.iter() {
-            let mut result = 0.0;
-            match LiftingSpeed::new().eval(driver_type.clone(), load_comb.clone(), *vhmax, *vhcs){
-                Ok(value) => result=value,
-                Err(_) => todo!(),
-            }
-            assert!(result == *target, "result: {:?}\ntarget: {:?}", result, target);
+        for (step, driver_type, load_comb, vhmax, vhcs, target) in test_data {
+            match LiftingSpeed::new().eval(driver_type, load_comb, vhmax, vhcs) {
+                Ok(result) => assert!(result == target, "step {} \nresult: {:?}\ntarget: {:?}", step, result, target),
+                Err(err) => panic!("{} | step {},  Error: {:#?}", dbgid, step, err),
+            }  
         }
-
         test_duration.exit();
     }
 }

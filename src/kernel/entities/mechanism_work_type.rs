@@ -2,10 +2,8 @@ use std::str::FromStr;
 use serde::{Deserialize, Serialize};
 use crate::kernel::str_err::str_err::StrErr;
 ///
-/// Перечисление для структуирования типов работы механизма подъема
-#[derive(Debug, Clone)]
-#[derive(Serialize, Deserialize)]
-
+/// Enum for structuring mechanism work type
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum MechanismWorkType {
     M1,
     M2,
@@ -17,10 +15,13 @@ pub enum MechanismWorkType {
     M8,
 }
 //
+//
 impl FromStr for MechanismWorkType {
-    ///
-    /// Метод перевод из строки в тип перечисления MechanismWorkType
     type Err = StrErr;
+    ///
+    /// Method translates from a string to the enumeration type MechanismWorkType
+    /// [reference to mechanism work type documentation](design\docs\algorithm\part01\initial_data.md)
+    /// - 's' - variable to convert to a string
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.to_lowercase().as_str() {
             "m1" => Ok(Self::M1),
@@ -37,10 +38,9 @@ impl FromStr for MechanismWorkType {
 }
 //
 //
-//
-impl ToString for MechanismWorkType{
+impl ToString for MechanismWorkType {
     ///
-    /// Метод перевод из типа перечисления MechanismWorkType в строку
+    /// Method translates from the enumeration type MechanismWorkType into string
     fn to_string(&self) -> String {
         match self {
             MechanismWorkType::M1 => "M1".to_string(),

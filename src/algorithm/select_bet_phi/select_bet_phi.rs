@@ -1,7 +1,7 @@
-use crate::kernel::{dbgid::dbgid::DbgId, entities::lift_class::LiftClass, str_err::str_err::StrErr};
+use crate::kernel::{dbgid::dbgid::DbgId, entities::{bet_phi::BetPhi, lifting_class::LiftClass}, str_err::str_err::StrErr};
 ///
-/// Класс реализующий выбор коэффициентов Betta и Phi, относительно класса подъема
-/// - 'value' - экземпляр класса [BetPhi]
+/// Struct, that make choice β2 and ϕ2 coefficients, based on user lifting class
+/// - 'value' - [BetPhi] instance
 /// [reference to betta and phi coefficients documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
 #[derive(Debug, Clone)]
 pub struct SelectBetPhi {
@@ -9,19 +9,20 @@ pub struct SelectBetPhi {
     value: Option<BetPhi>,
 }
 //
+//
 impl SelectBetPhi {
     ///
-    /// Конструктор класса SelectBetPhi 
+    /// Struct conctructor
     pub fn new() -> Self {
         Self {
-            dbgid: DbgId(format!("BetPhi/SelectBetPhi")),
+            dbgid: DbgId(format!("SelectBetPhi")),
             value: None,
         }
     }
     ///
-    /// Метод выбора коэффициентов Betta и Phi, относительно класса подъема
-    /// - 'lift_class' - класс подъема (enum [LiftClass]) 
-    /// [reference to Lift Class documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
+    /// Method make choice β2 and ϕ2 coefficients, based on user lifting class
+    /// - 'lift_class' - user lifting class (enum [LiftClass]) 
+    /// [reference to betta and phi table-choice documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
     pub fn eval(&mut self,lift_class: LiftClass) -> Result<BetPhi, StrErr> {
         let result = match lift_class {
             LiftClass::Hc1 => BetPhi::new(0.17, 1.05),
@@ -32,22 +33,5 @@ impl SelectBetPhi {
         };
         let result = self.value.get_or_insert(result);
         Ok(result.to_owned())
-    }
-}
-///
-/// Класс для хранение значений bet и phi
-/// [reference to Lift Class documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
-#[derive(Debug, Clone)]
-#[derive(PartialEq)]
-pub struct BetPhi {
-    pub bet: f64,
-    pub phi: f64,
-}
-//
-impl BetPhi {
-    ///
-    /// Конструктор класса BetPhi
-    pub fn new(bet: f64, phi: f64,) -> Self {
-        Self { bet, phi }
     }
 }

@@ -1,13 +1,9 @@
 #[cfg(test)]
-
 mod SelectBetPhi {
-    use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
-    use std::{
-        result, sync::Once, time::{Duration, Instant}
-    };
+    use std::{sync::Once, time::Duration};
     use testing::stuff::max_test_duration::TestDuration;
-
-    use crate::{algorithm::select_bet_phi::select_bet_phi::{BetPhi, SelectBetPhi}, kernel::{dbgid::dbgid::DbgId, entities::lift_class::LiftClass}};
+    use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
+    use crate::{algorithm::select_bet_phi::select_bet_phi::SelectBetPhi, kernel::{dbgid::dbgid::DbgId, entities::{bet_phi::BetPhi, lifting_class::LiftClass}}};
     ///
     ///
     static INIT: Once = Once::new();
@@ -23,30 +19,44 @@ mod SelectBetPhi {
     ///  - ...
     fn init_each() -> () {}
     ///
-    /// Testing such functionality / behavior
+    /// Testing to 'eval()' method
     #[test]
     fn eval() {
         DebugSession::init(LogLevel::Info, Backtrace::Short);
         init_once();
         init_each();
-        log::debug!("");
-        let self_id = "test";
-        log::debug!("\n{}", self_id);
-        let test_duration = TestDuration::new(self_id, Duration::from_secs(1));
+        let dbgid = DbgId("eval".into());
+        log::debug!("\n{}", dbgid);
+        let test_duration = TestDuration::new(&dbgid, Duration::from_secs(1));
         test_duration.run().unwrap();
-        let test_data = [
+        let test_data =[
             (
+                1,
                 LiftClass::Hc1,
-                BetPhi{ bet: 0.17, phi: 1.05}
+                BetPhi::new(0.17, 1.05)
+            ),
+            (
+                2,
+                LiftClass::Hc2,
+                BetPhi::new(0.34, 1.10)
+            ),
+            (
+                3,
+                LiftClass::Hc3,
+                BetPhi::new(0.51, 1.15)
+            ),
+            (
+                4,
+                LiftClass::Hc4,
+                BetPhi::new(0.68, 1.20)
             ),
         ];
-        for (lift_class, target) in test_data.into_iter() {
+        for (step,lift_class,target) in test_data {
             match SelectBetPhi::new().eval(lift_class) {
-                Ok(result) => assert!(result == target, "result: {:?}\ntarget: {:?}", result, target),
-                Err(_) => todo!(),
-            } 
+                Ok(result) => assert!(result.bet == target.bet && result.phi == target.phi, "step {} \nresult: {:?}\ntarget: {:?}", step, result, target),
+                Err(err) => panic!("{} | step {},  Error: {:#?}", dbgid, step, err),
+            }
         }
-
         test_duration.exit();
     }
 }

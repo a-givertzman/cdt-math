@@ -29,8 +29,8 @@ impl From<&str> for StrErr {
 }
 //
 //
-impl Into<Box<StrErr>> for &str {
-    fn into(self) -> Box<StrErr> {
-        Box::new(StrErr(self.to_owned()))
+impl From<&str> for Box<StrErr> {
+    fn from(val: &str) -> Self {
+        Box::new(StrErr(val.to_owned()))
     }
 }

@@ -3,34 +3,34 @@ mod app;
 mod algorithm;
 #[cfg(test)]
 mod tests;
-use algorithm::{storage::storage::Storage, user_select::user_select::UserSelect};
+//
+use api_tools::debug::dbg_id::DbgId;
 use app::app::App;
-use kernel::{run::Run};
+use kernel::{run::Run, storage::storage::Storage};
 use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
 ///
 /// Application entry point
-fn main() {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
     DebugSession::init(LogLevel::Debug, Backtrace::Short);
+    let dbgid = DbgId("main".into());
     let path = "config.yaml";
     let mut app = App::new(path);
     if let Err(err) = app.run() {
         log::error!("main | Error: {:#?}", err);
-    };
-
-    // Заполнение хранилища
-    let mut storage = Storage::new();
-    if let Err(e) = storage.load_from_json("C:\\Users\\klaim\\Desktop\\cdt-math\\src\\kernel\\storage\\storage.json") {
-        eprintln!("Error loading JSON: {}", e);
-        return;
     }
-
-    let user_select = match UserSelect::load_from_json("C:\\Users\\klaim\\Desktop\\cdt-math\\src\\kernel\\storage\\user_select_storage.json") {
-        Ok(data) => data,
-        Err(e) => {
-            eprintln!("Error loading UserSelect data from JSON: {}", e);
-            return;
-        }
-    };
-
-
+    let cache_path = r#"src/assets/cache"#;
+    let mut hooks_storage = Storage::new(cache_path);
+    match hooks_storage.load("type.one-horned.sequence_number.1.capacity_M2") {
+        Ok(value) => log::debug!("{}.load | Found: {}", dbgid, value),
+        Err(err) => log::error!("{}.load | Some Error: {:#?}", dbgid, err)
+    }
+    match hooks_storage.store("type.one-horned.sequence_number.1.capacity_M2", 0.2){
+        Ok(_) => log::debug!("{}.store | Value succesful stored!", dbgid),
+        Err(err) => log::error!("{}.store | Some Error: {:#?}", dbgid, err)
+    }
+    match hooks_storage.load("type.one-horned.sequence_number.1.capacity_M2") {
+        Ok(value) => log::debug!("{}.load | Found: {}", dbgid, value),
+        Err(err) => log::error!("{}.load | Some Error: {:#?}", dbgid, err)
+    }
+    Ok(())
 }
