@@ -53,7 +53,7 @@ mod storage {
         for (step, key, target) in test_data {
             fn load_value(dbgid: &DbgId, step: usize, hooks_storage: &mut Storage, key: &str) -> serde_json::Value {
                 match hooks_storage.load(key){
-                    Ok(result) => return result,
+                    Ok(result) => result,
                     Err(err) => panic!("{} | step {},  Error: {:#?}", dbgid, step, err),
                 }
             }
