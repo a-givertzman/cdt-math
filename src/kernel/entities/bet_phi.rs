@@ -19,7 +19,7 @@ impl BetPhi {
     /// - 'phi' - ϕ2 coefficient
     pub fn new(bet: f64, phi: f64,) -> Self {
         Self {
-            dbgid: DbgId(format!("SelectBetPhi")),
+            dbgid: DbgId("SelectBetPhi".to_string()),
             bet, 
             phi,
         }
