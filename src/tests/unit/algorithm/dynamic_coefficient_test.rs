@@ -19,7 +19,7 @@ mod DynamicCoefficient {
     ///
     /// returns:
     ///  - ...
-    fn init_each() -> () {}
+    fn init_each() {}
     ///
     /// Testing to 'eval()' method
     #[test]

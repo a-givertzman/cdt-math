@@ -13,7 +13,7 @@ impl DynamicCoefficient {
     ///
     /// Struct constructor
     pub fn new() -> Self {
-        Self { dbgid: DbgId(format!("DynamicCoefficient")), value: None }
+        Self { dbgid: DbgId("DynamicCoefficient".to_string()), value: None }
     }
     ///
     /// Method to calculate the dynamic coefficient

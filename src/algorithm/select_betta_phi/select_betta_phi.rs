@@ -15,7 +15,7 @@ impl SelectBettaPhi {
     /// Struct conctructor
     pub fn new() -> Self {
         Self {
-            dbgid: DbgId(format!("SelectBetPhi")),
+            dbgid: DbgId("SelectBetPhi".to_string()),
             value: None,
         }
     }
