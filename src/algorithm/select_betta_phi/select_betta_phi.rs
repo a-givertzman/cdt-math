@@ -1,8 +1,8 @@
 use crate::kernel::{dbgid::dbgid::DbgId, entities::{bet_phi::BetPhi, lifting_class::LiftClass}, str_err::str_err::StrErr};
 ///
 /// Struct, that make choice β2 and ϕ2 coefficients, based on user lifting class
-/// - 'value' - [BetPhi] instance
 /// [reference to betta and phi coefficients documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
+/// - 'value' - [BetPhi] instance
 #[derive(Debug, Clone)]
 pub struct SelectBettaPhi {
     dbgid: DbgId,
@@ -21,8 +21,8 @@ impl SelectBettaPhi {
     }
     ///
     /// Method make choice β2 and ϕ2 coefficients, based on user lifting class
-    /// - 'lift_class' - user lifting class (enum [LiftClass]) 
     /// [reference to betta and phi table-choice documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
+    /// - 'lift_class' - user lifting class (enum [LiftClass]) 
     pub fn eval(&mut self,lift_class: LiftClass) -> Result<BetPhi, StrErr> {
         let result = match lift_class {
             LiftClass::Hc1 => BetPhi::new(0.17, 1.05),
