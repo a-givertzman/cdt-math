@@ -1,10 +1,11 @@
 #[cfg(test)]
-mod HookFilter {
+
+mod UserHook {
     use std::{sync::Once, time::Duration};
-    use api_tools::debug::dbg_id::DbgId;
     use testing::stuff::max_test_duration::TestDuration;
     use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
-    use crate::{algorithm::hook_filter::hook_filter::HookFilter, kernel::{entities::hook::Hook, storage::storage::Storage}};
+
+    use crate::{algorithm::dynamic_coefficient::dynamic_coefficient::DynamicCoefficient, kernel::{dbgid::dbgid::DbgId, entities::{driver_type::DriverType, hook::Hook, lifting_class::LiftClass, loading_combination::LoadingCombination}, user_setup::user_hook::UserHook}};
     ///
     ///
     static INIT: Once = Once::new();
@@ -20,19 +21,16 @@ mod HookFilter {
     ///  - ...
     fn init_each() {}
     ///
-    /// Testing filter() method on simple types
+    /// Testing to 'select()' method
     #[test]
-    fn filter() {
+    fn select() {
         DebugSession::init(LogLevel::Info, Backtrace::Short);
         init_once();
         init_each();
-        let dbgid = DbgId("filter".into());
+        let dbgid = DbgId("select".into());
         log::debug!("\n{}", dbgid);
         let test_duration = TestDuration::new(&dbgid, Duration::from_secs(1));
         test_duration.run().unwrap();
-        let path = "./src/tests/unit/kernel/storage/cache";
-        let storage = Storage::new(path);
-        let user_select = Storage::new(path);
         let test_data = [
             (
                 1,
@@ -53,13 +51,22 @@ mod HookFilter {
                         load_capacity_m78: 10.0,
                         shank_diameter: 10.0
                     },
-                ]
+                ],
+                0,
+                Hook {
+                    gost: "GOST 123".to_string(),
+                    r#type: "Type A".to_string(),
+                    load_capacity_m13: 25.7,
+                    load_capacity_m46: 10.0,
+                    load_capacity_m78: 12.0,
+                    shank_diameter: 15.0
+                },
             )
         ];
-        let value = HookFilter::new().filter(user_select, storage);
-        for (step,target) in test_data {
+        for (step, filtered_hooks, user_choice, target) in test_data {
+            let value = UserHook::new().select(filtered_hooks, user_choice);
             match value {
-                Ok(ref result) => assert_eq!(*result,target,"step {} \nresult: {:?}\ntarget: {:?}", step, result, target),
+                Ok(result) => assert_eq!(result, target, "step {} \nresult: {:?}\ntarget: {:?}", step, result, target),
                 Err(err) => panic!("{} | step {},  Error: {:#?}", dbgid, step, err),
             }
         }
