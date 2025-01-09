@@ -5,7 +5,7 @@ mod UserHook {
     use testing::stuff::max_test_duration::TestDuration;
     use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
 
-    use crate::{algorithm::dynamic_coefficient::dynamic_coefficient::DynamicCoefficient, kernel::{dbgid::dbgid::DbgId, entities::{driver_type::DriverType, hook::Hook, lifting_class::LiftClass, loading_combination::LoadingCombination}, user_setup::user_hook::UserHook}};
+    use crate::kernel::{dbgid::dbgid::DbgId, entities::hook::Hook, user_setup::user_hook::UserHook};
     ///
     ///
     static INIT: Once = Once::new();
