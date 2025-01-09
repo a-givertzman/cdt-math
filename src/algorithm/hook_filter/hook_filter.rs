@@ -22,6 +22,7 @@ impl HookFilter {
     /// Method to filter hooks based on load capacity
     /// - 'user_select' - [Storage] instance, where user characteristics are stored
     /// - 'storage' - [Storage] instance, where stored data base
+    /// [documentation for hooks filter](design\docs\algorithm\part02\chapter_01_choose_hook.md)
     pub fn filter(&mut self, mut user_select: Storage, mut storage: Storage) -> Result<Vec<Hook>,StrErr> {
         let user_load_capacity = serde_json::from_value::<f64>(user_select.load("test.user_characteristics.load_capacity")?).map_err(|err| StrErr(format!("{}.filter | Error {:?}",self.dbgid, err)))?;
         let user_mechanism_work_type = serde_json::from_value::<String>(user_select.load("test.user_characteristics.mechanism_work_type")?).map_err(|err| StrErr(format!("{}.filter | Error {:?}",self.dbgid, err)))?;

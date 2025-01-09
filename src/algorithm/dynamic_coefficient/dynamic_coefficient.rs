@@ -34,10 +34,10 @@ impl DynamicCoefficient {
                             self.value = Some(value);
                             Ok(value)
                         }
-                        Err(err) => Err(err)
+                        Err(err) => Err(StrErr(format!("{}.eval | Some error: {:?}", self.dbgid,err)))
                     }
                 }
-                Err(err) => Err(err),
+                Err(err) => Err(StrErr(format!("{}.eval | Some error: {:?}", self.dbgid,err)))
             }
         }
     }
