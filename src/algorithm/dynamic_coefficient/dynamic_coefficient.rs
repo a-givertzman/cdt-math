@@ -2,6 +2,7 @@ use crate::{algorithm::{lifting_speed::lifting_speed::LiftingSpeed, select_betta
 ///
 /// Struct, that make calculate the dynamic coefficient
 /// [reference to dynamic coefficient documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
+/// - 'value' - value of dynamic coefficient
 #[derive(Debug, Clone)]
 pub struct DynamicCoefficient {
     dbgid: DbgId,

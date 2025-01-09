@@ -1,3 +1,4 @@
+mod bearing_filter_test;
 mod dynamic_coefficient_test;
 mod hook_filter_test;
 mod lifting_speed_test;

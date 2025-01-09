@@ -20,7 +20,7 @@ mod HookFilter {
     ///  - ...
     fn init_each() {}
     ///
-    /// Testing filter() method on simple types
+    /// Testing filter() method
     #[test]
     fn filter() {
         DebugSession::init(LogLevel::Info, Backtrace::Short);
