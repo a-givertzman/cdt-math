@@ -1,11 +1,11 @@
 #[cfg(test)]
 
-mod UserHook {
+mod UserBearing {
     use std::{sync::Once, time::Duration};
     use testing::stuff::max_test_duration::TestDuration;
     use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
 
-    use crate::kernel::{dbgid::dbgid::DbgId, entities::hook::Hook, user_setup::user_hook::UserHook};
+    use crate::kernel::{dbgid::dbgid::DbgId, entities::bearing::Bearing, user_setup::user_bearing::UserBearing};
     ///
     ///
     static INIT: Once = Once::new();
@@ -35,36 +35,40 @@ mod UserHook {
             (
                 1,
                 vec![
-                    Hook {
-                        gost: "GOST 123".to_string(),
-                        r#type: "Type A".to_string(),
-                        load_capacity_m13: 25.7,
-                        load_capacity_m46: 10.0,
-                        load_capacity_m78: 12.0,
-                        shank_diameter: 15.0
+                    Bearing {
+                        name: "Bearing1".to_string(),
+                        outer_diameter: 50.0,
+                        inner_diameter: 20.0,
+                        static_load_capacity: 1000.0,
+                        height: 15.0,
                     },
-                    Hook {
-                        gost: "GOST 456".to_string(),
-                        r#type: "Type B".to_string(),
-                        load_capacity_m13: 30.1,
-                        load_capacity_m46: 12.0,
-                        load_capacity_m78: 10.0,
-                        shank_diameter: 10.0
+                    Bearing {
+                        name: "Bearing2".to_string(),
+                        outer_diameter: 60.0,
+                        inner_diameter: 30.0,
+                        static_load_capacity: 1500.0,
+                        height: 20.0,
                     },
+                    Bearing {
+                        name: "Bearing3".to_string(),
+                        outer_diameter: 40.0,
+                        inner_diameter: 15.0,
+                        static_load_capacity: 800.0,
+                        height: 10.0,
+                    }
                 ],
                 0,
-                Hook {
-                    gost: "GOST 123".to_string(),
-                    r#type: "Type A".to_string(),
-                    load_capacity_m13: 25.7,
-                    load_capacity_m46: 10.0,
-                    load_capacity_m78: 12.0,
-                    shank_diameter: 15.0
+                Bearing {
+                    name: "Bearing1".to_string(),
+                    outer_diameter: 50.0,
+                    inner_diameter: 20.0,
+                    static_load_capacity: 1000.0,
+                    height: 15.0,
                 },
             )
         ];
-        for (step, filtered_hooks, user_choice, target) in test_data {
-            let value = UserHook::new().select(filtered_hooks, user_choice);
+        for (step, filtered_bearings, user_choice, target) in test_data {
+            let value = UserBearing::new().select(filtered_bearings, user_choice);
             match value {
                 Ok(result) => assert_eq!(result, target, "step {} \nresult: {:?}\ntarget: {:?}", step, result, target),
                 Err(err) => panic!("{} | step {},  Error: {:#?}", dbgid, step, err),

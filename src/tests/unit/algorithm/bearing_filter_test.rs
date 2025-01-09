@@ -4,7 +4,7 @@ mod BearingFilter {
     use api_tools::debug::dbg_id::DbgId;
     use testing::stuff::max_test_duration::TestDuration;
     use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
-    use crate::{algorithm::{bearing_filter::bearing_filter::BearingFilter, hook_filter::hook_filter::HookFilter}, kernel::{entities::{bearing::Bearing, hook::Hook}, storage::storage::Storage}};
+    use crate::{algorithm::bearing_filter::bearing_filter::BearingFilter, kernel::{entities::{bearing::Bearing, hook::Hook}, storage::storage::Storage}};
     ///
     ///
     static INIT: Once = Once::new();
