@@ -2,6 +2,7 @@ use crate::{algorithm::{lifting_speed::lifting_speed::LiftingSpeed, select_betta
 ///
 /// Struct, that make calculate the dynamic coefficient
 /// [reference to dynamic coefficient documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
+/// - 'value' - value of dynamic coefficient
 #[derive(Debug, Clone)]
 pub struct DynamicCoefficient {
     dbgid: DbgId,
@@ -17,12 +18,12 @@ impl DynamicCoefficient {
     }
     ///
     /// Method to calculate the dynamic coefficient
+    /// [reference to dynamic coefficient calculating documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
     /// - 'lift_class' - type of lifting class (enum [LiftClass])
     /// - 'driver_type' - lifting mechanism driver type (enum [DriverType])
     /// - 'load_comb' - loading combination (enum [LoadCombination])
     /// - 'vhmax' - rated lifting speed of the mechanism
     /// - 'vhcs' - slow lifting speed of the mechanism
-    /// [reference to dynamic coefficient calculating documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
     pub fn eval(&mut self, lift_class: LiftClass, driver_type: DriverType, load_comb: LoadingCombination, vhmax: f64, vhcs: f64) -> Result<f64, StrErr> {
         match self.value {
             Some(val) => Ok(val),
