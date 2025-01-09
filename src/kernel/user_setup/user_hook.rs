@@ -1,6 +1,7 @@
 use crate::kernel::{dbgid::dbgid::DbgId, entities::hook::Hook, str_err::str_err::StrErr};
 ///
 /// Struct to choose the hook from filtered, based on user characteristics
+/// - 'user' - [Hook] instance, where user hook store
 pub struct UserHook {
     dbgid: DbgId,
     hook: Option<Hook>

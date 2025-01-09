@@ -20,6 +20,7 @@ impl HookFilter {
     }
     ///
     /// Method to filter hooks based on load capacity
+    /// [documentation to filter by load capacity](design\docs\algorithm\part02\chapter_01_choose_hook.md)
     /// - 'user_select' - [Storage] instance, where user characteristics are stored
     /// - 'storage' - [Storage] instance, where stored data base
     pub fn filter(&mut self, mut user_select: Storage, mut storage: Storage) -> Result<Vec<Hook>,StrErr> {
