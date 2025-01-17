@@ -97,41 +97,9 @@ $m_п$ - [кратность полиспаста](/design/docs/algorithm/part02
 * вид покрытия проволок каната.
 
 Таблица выбора вида покрытия проволок каната:
-<table>
-    <thead>
-        <tr>
-            <th align="center">Применение</th>
-            <th colspan=4 align="center">Общепромышленный кран и режим работы крана < A6</th>
-            <th align="center">Металлургический/Специальный кран и/или режим работы крана &ge;  A6</th>
-        </tr>
-    </thead>
-    <tbody>
-        <tr>
-            <td rowspan=2></td>
-            <td colspan=2 align="center">Обычная рабочая среда</td>
-            <td rowspan=2 align="center">Агрессивная рабочая среда</td>
-            <td rowspan=2 align="center">Сильно агрессивная рабочая среда</td>
-            <td rowspan=2></td>
-        </tr>
-        <tr>
-            <td align="center">Без ветра</td>
-            <td align="center">Ветровой район I, II и т.д.</td>
-        </tr>
-        <tr>
-            <td align="center">Для канатов ГОСТ, СТО и т.д.</td>
-            <td align="center">без покрытия</td>
-            <td align="center">С</td>
-            <td align="center">Ж</td>
-            <td align="center">ОЖ</td>
-            <td align="center">ОЖ</td>
-        </tr>
-        <tr>
-            <td align="center">Для канатов иностранных стандартов</td>
-            <td align="center">без покрытия</td>
-            <td align="center">C</td>
-            <td align="center">B</td>
-            <td align="center">A</td>
-            <td align="center">A</td>
-        </tr>
-    </tbody>
-</table>
+
+| Применение | Общепромышленный | кран и режим | работы | крана < A6 | Металлургический/Специальный кран и/или режим работы крана &ge;  A6 |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+|  | Обычная рабочая среда без ветра | Обычная рабочая среда с ветровым районом I, II и т.д. | Агрессивная рабочая среда | Сильно агрессивная рабочая среда |
+| Для канатов ГОСТ, СТО и т.д. | без покрытия | С | Ж | ОЖ | ОЖ |
+| Для канатов иностранных стандартов | без покрытия | C | B | A | A |
