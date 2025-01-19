@@ -1,5 +1,4 @@
 #[cfg(test)]
-
 mod UserBearing {
     use std::{sync::Once, time::Duration};
     use testing::stuff::max_test_duration::TestDuration;
