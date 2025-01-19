@@ -1,4 +1,4 @@
-use crate::kernel::{dbgid::dbgid::DbgId, entities::{bearing::Bearing, hook::Hook}, storage::storage::Storage, str_err::str_err::StrErr, user_setup::user_hook::UserHook};
+use crate::{algorithm::dynamic_coefficient::dynamic_coefficient::DynamicCoefficient, kernel::{dbgid::dbgid::DbgId, entities::{bearing::Bearing, hook::Hook}, storage::storage::Storage, str_err::str_err::StrErr, user_setup::user_hook::UserHook}};
 ///
 /// Struct, that will be filter all bearing in storage by user hook, required static loading capacity and shank diameter
 /// [documentation for bearings filter](design\docs\algorithm\part02\chapter_01_choose_hook.md)
@@ -30,7 +30,7 @@ impl BearingFilter {
     /// - 'storage' - [Storage] instance, where stored data base
     /// - 'user_select' - [Storage] instance, where stored user characteristics
     /// - 'user_hook' - [UserHook] instance, where stored hook, selected by user
-    /// - 'dynamic_coefficient' - [DynamicCoefficient] instance, that store calculated dynamic coefficient for user characteristics
+    /// - 'dynamic_coefficient' - value of [DynamicCoefficient]
     pub fn filter(&mut self, storage: &mut Storage, user_select: &mut Storage, user_hook: UserHook, dynamic_coefficient: f64) -> Result<Vec<Bearing>, StrErr> {
         match user_hook.hook {
             Some(hook) => {
@@ -46,7 +46,7 @@ impl BearingFilter {
                 self.bearings = Some(res_bearings.clone());
                 Ok(res_bearings)
             },
-            None => Err(StrErr(format!("{}.filter | User doesn't choose hook",self.dbgid))),
+            None => Err(StrErr(format!("{}.filter | User didn't choose hook yet",self.dbgid)))
         }
 
     }
