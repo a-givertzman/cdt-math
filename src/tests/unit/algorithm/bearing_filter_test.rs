@@ -4,7 +4,7 @@ mod BearingFilter {
     use api_tools::debug::dbg_id::DbgId;
     use testing::stuff::max_test_duration::TestDuration;
     use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
-    use crate::{algorithm::bearing_filter::bearing_filter::BearingFilter, kernel::{entities::{bearing::Bearing, hook::Hook}, storage::storage::Storage}};
+    use crate::{algorithm::bearing_filter::bearing_filter::BearingFilter, kernel::{entities::{bearing::Bearing, hook::Hook}, storage::storage::Storage, user_setup::user_hook::UserHook}};
     ///
     ///
     static INIT: Once = Once::new();
@@ -36,6 +36,7 @@ mod BearingFilter {
         let test_data = [
             (
                 1,
+                UserHook::new(),
                 Hook {
                     gost: "GOST 123".to_string(),
                     r#type: "Type A".to_string(),
@@ -70,7 +71,8 @@ mod BearingFilter {
                 ]
             )
         ];
-        for (step,user_hook,dynamic_coefficient,target) in test_data {
+        for (step,mut user_hook,hook,dynamic_coefficient,target) in test_data {
+            user_hook.hook = Some(hook);
             match BearingFilter::new().filter(&mut storage, &mut user_select, user_hook, dynamic_coefficient) {
                 Ok(ref result) => assert_eq!(*result,target,"step {} \nresult: {:?}\ntarget: {:?}", step, result, target),
                 Err(err) => panic!("{} | step {},  Error: {:#?}", dbgid, step, err),
