@@ -4,7 +4,7 @@ mod UserBearing {
     use testing::stuff::max_test_duration::TestDuration;
     use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
 
-    use crate::kernel::{dbgid::dbgid::DbgId, entities::bearing::Bearing, user_setup::user_bearing::UserBearing};
+    use crate::kernel::{dbgid::dbgid::DbgId, entities::bearing::Bearing, user_setup::entities::user_bearing::UserBearing};
     ///
     ///
     static INIT: Once = Once::new();

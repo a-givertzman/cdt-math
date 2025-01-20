@@ -1,4 +1,4 @@
-use crate::{algorithm::dynamic_coefficient::dynamic_coefficient::DynamicCoefficient, kernel::{dbgid::dbgid::DbgId, entities::{bearing::Bearing, hook::Hook}, storage::storage::Storage, str_err::str_err::StrErr, user_setup::user_hook::UserHook}};
+use crate::{algorithm::dynamic_coefficient::dynamic_coefficient::DynamicCoefficient, kernel::{dbgid::dbgid::DbgId, entities::bearing::Bearing, storage::storage::Storage, str_err::str_err::StrErr, user_setup::entities::user_hook::UserHook}};
 ///
 /// Struct, that will be filter all bearing in storage by user hook, required static loading capacity and shank diameter
 /// [documentation for bearings filter](design\docs\algorithm\part02\chapter_01_choose_hook.md)

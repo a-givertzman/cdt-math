@@ -4,7 +4,7 @@ mod BearingFilter {
     use api_tools::debug::dbg_id::DbgId;
     use testing::stuff::max_test_duration::TestDuration;
     use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
-    use crate::{algorithm::bearing_filter::bearing_filter::BearingFilter, kernel::{entities::{bearing::Bearing, hook::Hook}, storage::storage::Storage, user_setup::user_hook::UserHook}};
+    use crate::{algorithm::bearing_filter::bearing_filter::BearingFilter, kernel::{entities::{bearing::Bearing, hook::Hook}, storage::storage::Storage, user_setup::entities::user_hook::UserHook}};
     ///
     ///
     static INIT: Once = Once::new();
@@ -43,7 +43,8 @@ mod BearingFilter {
                     load_capacity_m13: 25.7,
                     load_capacity_m46: 10.0,
                     load_capacity_m78: 12.0,
-                    shank_diameter: 61.0
+                    shank_diameter: 61.0,
+                    weight: 50.0,
                 },
                 0.63,
                 vec![

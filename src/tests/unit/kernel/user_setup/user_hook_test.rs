@@ -5,7 +5,7 @@ mod UserHook {
     use testing::stuff::max_test_duration::TestDuration;
     use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
 
-    use crate::kernel::{dbgid::dbgid::DbgId, entities::hook::Hook, user_setup::user_hook::UserHook};
+    use crate::kernel::{dbgid::dbgid::DbgId, entities::hook::Hook, user_setup::entities::user_hook::UserHook};
     ///
     ///
     static INIT: Once = Once::new();
@@ -41,7 +41,8 @@ mod UserHook {
                         load_capacity_m13: 25.7,
                         load_capacity_m46: 10.0,
                         load_capacity_m78: 12.0,
-                        shank_diameter: 15.0
+                        shank_diameter: 15.0,
+                        weight: 50.0,
                     },
                     Hook {
                         gost: "GOST 456".to_string(),
@@ -49,7 +50,8 @@ mod UserHook {
                         load_capacity_m13: 30.1,
                         load_capacity_m46: 12.0,
                         load_capacity_m78: 10.0,
-                        shank_diameter: 10.0
+                        shank_diameter: 10.0,
+                        weight: 50.0,
                     },
                 ],
                 0,
@@ -59,7 +61,9 @@ mod UserHook {
                     load_capacity_m13: 25.7,
                     load_capacity_m46: 10.0,
                     load_capacity_m78: 12.0,
-                    shank_diameter: 15.0
+                    shank_diameter: 15.0,
+                    weight: 50.0,
+
                 },
             )
         ];
