@@ -19,6 +19,19 @@ impl RopesCount {
         }
     }
     ///
+    /// Method to rounding up value of rope count
+    /// [documentation to rouding up](design\docs\algorithm\part02\chapter_03_choose_hoisting_tackle.md)
+    /// - 'value' - value to rounding up
+    fn rounding_up(value: f64) -> f64 {
+        let rounding_array = [2.0,4.0,8.0,12.0,16.0];
+        for &round_value in rounding_array.iter() {
+            if value <= round_value as f64 {
+                return round_value;
+            }
+        }
+        16.0
+    }
+    ///
     /// Method to calculate ropes count
     /// [documentation to calculate](design\docs\algorithm\part02\chapter_03_choose_hoisting_tackle.md)
     /// - 'rope_effort' - [RopeEffort] instance, where store rope effort, based on user loading capacity
@@ -31,7 +44,8 @@ impl RopesCount {
                 let user_load_capacity = serde_json::from_value::<f64>(user_select.load("test.user_characteristics.load_capacity")?).map_err(|err| StrErr(format!("{}.filter | Error {:?}",self.dbgid, err)))?;
                 let rope_efort = rope_effort.eval(user_select).expect(&format!("{}.eval | Error to calculate rope effort", self.dbgid));
                 let (summary_weight,payload_weight) = user_load_device.weights(user_select).expect(&format!("{}.eval | Error to calculate rope effort", self.dbgid));
-                let result = (user_load_capacity + summary_weight) / rope_efort;
+                let mut result = (user_load_capacity + summary_weight) / rope_efort;
+                result = RopesCount::rounding_up(result);
                 self.value = Some(result);
                 Ok(result)
             }

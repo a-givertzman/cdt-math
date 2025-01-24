@@ -1,6 +1,7 @@
 use crate::kernel::{dbgid::dbgid::DbgId, entities::bearing::Bearing, str_err::str_err::StrErr};
 ///
 /// Struct to choose the bearing from filtered, based on user characteristics
+#[derive(Clone)]
 pub struct UserBearing {
     dbgid: DbgId,
     pub bearing: Option<Bearing>
