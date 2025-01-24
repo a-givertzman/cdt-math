@@ -1,7 +1,8 @@
-use crate::kernel::{dbgid::dbgid::DbgId, entities::another_load_device::AnLoadDevice};
+use crate::kernel::{dbgid::dbgid::DbgId, entities::another_load_device::AnLoadDevice, storage::storage::Storage};
 ///
 /// Struct to storage user another loading handing device, if it exist
 /// - 'an_device' - another loading handing device, which user select
+#[derive(Clone,Debug)]
 pub struct UserAnLoadDevice {
     dbgid: DbgId,
     pub an_device: Option<AnLoadDevice>
@@ -19,13 +20,22 @@ impl UserAnLoadDevice {
         }
     }
     ///
-    /// Method to change device
-    pub fn change(&mut self, new_name: String, new_weight: f64) {
-        match &self.an_device {
-            Some(_) => {
-                self.an_device = Some(AnLoadDevice{ name: new_name, weight: new_weight });
+    /// Method to selece another loadign handing device, if it exist
+    /// - 'user_select' - [Storage] instance, where user characteristics are store
+    pub fn select(&mut self, user_select: &mut Storage) -> Option<AnLoadDevice> {
+        match serde_json::from_value::<String>(user_select.load("test.constructions.another_loading_device.name").expect("Error")) {
+            Ok(another_load_device_name) => {
+                match serde_json::from_value::<f64>(user_select.load("test.constructions.another_loading_device.weight").expect("Error")) {
+                    Ok(another_load_device_weight) => {
+                        let result = AnLoadDevice { name: another_load_device_name , weight: another_load_device_weight };
+                        self.an_device = Some(result.clone());
+                        Some(result)
+                    },
+                    Err(_) => panic!("{}.self | Another loading device should have weight",self.dbgid),
+                }
             },
-            None => self.an_device = Some(AnLoadDevice{ name: new_name, weight: new_weight }),
+            Err(_) => None,
         }
+        
     }
 }

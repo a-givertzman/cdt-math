@@ -1,4 +1,4 @@
-use crate::kernel::{dbgid::dbgid::DbgId, storage::storage::Storage, str_err::str_err::StrErr};
+use crate::{algorithm::hook_filter::hook_filter::HookFilter, kernel::{dbgid::dbgid::DbgId, storage::storage::Storage, str_err::str_err::StrErr}};
 use super::entities::{user_another_load_device::UserAnLoadDevice, user_hook::UserHook};
 ///
 /// Struct to storage summary info about user loading handing device
@@ -21,13 +21,34 @@ impl UserLoadHandDevice {
     /// Struct constructor 
     /// - 'hook' [UserHook] instance, where store hook, based on user characteristics
     /// - 'an_device' - [UserAnLoadDevice] instance, where store another loading handing device, which user select
-    pub fn new(hook: UserHook, an_device: UserAnLoadDevice) -> Self {
+    pub fn new() -> Self {
         Self {
             dbgid: DbgId("UserLoadHandDevice".to_string()),
-            hook,
-            an_device,
+            hook: UserHook::new(),
+            an_device: UserAnLoadDevice::new(),
             summary_weight: 0.0,
             payload_mass: 0.0
+        }
+    }
+    ///
+    /// Method to select hook, based on user characteristics
+    /// - 'user_select' - [Storage] instance, where user characteristics are store
+    /// - 'storage' - [Storage] instance, where date base store
+    pub fn select(&mut self,user_select: &mut Storage, storage: &mut Storage) -> Result<(UserHook,UserAnLoadDevice),StrErr> {
+        match &self.hook.hook {
+            Some(_) => {
+                match &self.an_device.an_device {
+                    Some(_) => Ok((self.hook.clone(),self.an_device.clone())),
+                    None => Ok((self.hook.clone(),self.an_device.clone()))
+                }
+            },
+            None => {
+                self.hook.hook = Some(UserHook::new().select(HookFilter::new().filter(user_select, storage).expect(&format!("{}.select | Error to select hook",self.dbgid)), 1)?);
+                match &self.an_device.an_device {
+                    Some(_) => Ok((self.hook.clone(),self.an_device.clone())),
+                    None => Ok((self.hook.clone(),self.an_device.clone()))
+                }
+            },
         }
     }
     ///

@@ -24,7 +24,7 @@ impl HookFilter {
     /// [documentation for hooks filter](design\docs\algorithm\part02\chapter_01_choose_hook.md)
     /// - 'user_select' - [Storage] instance, where user characteristics are stored
     /// - 'storage' - [Storage] instance, where stored data base
-    pub fn filter(&mut self, mut user_select: Storage, mut storage: Storage) -> Result<Vec<Hook>,StrErr> {
+    pub fn filter(&mut self, user_select: &mut Storage, storage: &mut Storage) -> Result<Vec<Hook>,StrErr> {
         let user_load_capacity = serde_json::from_value::<f64>(user_select.load("test.user_characteristics.load_capacity")?).map_err(|err| StrErr(format!("{}.filter | Error {:?}",self.dbgid, err)))?;
         let user_mechanism_work_type = serde_json::from_value::<String>(user_select.load("test.user_characteristics.mechanism_work_type")?).map_err(|err| StrErr(format!("{}.filter | Error {:?}",self.dbgid, err)))?;
         let all_hooks: Vec<Hook> = serde_json::from_value::<Vec<Hook>>(storage.load("test.constructions.hooks")?).map_err(|err| StrErr(format!("{}.filter | Error {:?}",self.dbgid, err)))?;
