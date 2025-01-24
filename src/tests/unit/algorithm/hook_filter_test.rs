@@ -31,8 +31,8 @@ mod HookFilter {
         let test_duration = TestDuration::new(&dbgid, Duration::from_secs(1));
         test_duration.run().unwrap();
         let path = "./src/tests/unit/kernel/storage/cache";
-        let storage = Storage::new(path);
-        let user_select = Storage::new(path);
+        let mut storage = Storage::new(path);
+        let mut user_select = Storage::new(path);
         let test_data = [
             (
                 1,
@@ -58,7 +58,7 @@ mod HookFilter {
                 ]
             )
         ];
-        let value = HookFilter::new().filter(user_select, storage);
+        let value = HookFilter::new().filter(&mut user_select, &mut storage);
         for (step,target) in test_data {
             match value {
                 Ok(ref result) => assert_eq!(*result,target,"step {} \nresult: {:?}\ntarget: {:?}", step, result, target),
