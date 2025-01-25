@@ -45,9 +45,9 @@ mod HoistingTackle {
                 1.0
             )
         ];
-        for (step,ropes_count, rope_effort,mut user_select,mut user_load_device,target) in test_data {
+        for (step,mut ropes_count, rope_effort,mut user_select,mut user_load_device,target) in test_data {
             let _ = user_load_device.select(&mut user_select, &mut storage);
-            match HoistingTackle::new().eval(ropes_count, &mut user_select, rope_effort, user_load_device) {
+            match HoistingTackle::new().eval(&mut ropes_count, &mut user_select, rope_effort, &mut user_load_device) {
                 Ok(result) => assert_eq!(result,target, "step {} \nresult: {:?}\ntarget: {:?}", step, result, target),
                 Err(err) => panic!("{} | step {},  Error: {:#?}", dbgid, step, err),
             }

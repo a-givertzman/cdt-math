@@ -37,7 +37,7 @@ impl RopesCount {
     /// - 'rope_effort' - [RopeEffort] instance, where store rope effort, based on user loading capacity
     /// - 'user_select' - [Storage] instance, where user characteristics are store
     /// - 'user_load_device' - [UserLoadHandDevice] instance, where store info about user loading handing device (hook and maybe another device)
-    pub fn eval(&mut self, mut rope_effort: RopeEffort, user_select: &mut Storage, mut user_load_device: UserLoadHandDevice) -> Result<f64,StrErr> {
+    pub fn eval(&mut self, mut rope_effort: RopeEffort, user_select: &mut Storage, user_load_device: &mut UserLoadHandDevice) -> Result<f64,StrErr> {
         match self.value {
             Some(ropes_count) => Ok(ropes_count),
             None => {

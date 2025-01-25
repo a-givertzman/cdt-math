@@ -20,7 +20,7 @@ impl HoistingTackle {
     ///
     /// Method to calculate hoisting tackle
     /// [documentation to calculation](design\docs\algorithm\part02\chapter_03_choose_hoisting_tackle.md)
-    pub fn eval(&mut self, mut ropes_count: RopesCount, user_select: &mut Storage,rope_effort: RopeEffort, user_load_device: UserLoadHandDevice) -> Result<f64,StrErr> {
+    pub fn eval(&mut self, ropes_count: &mut RopesCount, user_select: &mut Storage,rope_effort: RopeEffort, user_load_device: &mut UserLoadHandDevice) -> Result<f64,StrErr> {
         match self.value {
             Some(hoisting_tackle) => Ok(hoisting_tackle),
             None => {
