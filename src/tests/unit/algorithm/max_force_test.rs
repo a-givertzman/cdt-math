@@ -1,11 +1,11 @@
 #[cfg(test)]
 
-mod HoistTackleEfficienyCoeff {
+mod MaxForce {
     use std::{sync::Once, time::{Duration, Instant}};
     use testing::stuff::max_test_duration::TestDuration;
     use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
 
-    use crate::{algorithm::{hoist_tackle_efficiency_coef::hoist_tackle_efficieny_coef::HoistTackleEfficienyCoeff, hoist_tackle_multiplicity::hoist_tackle_multiplicity::HoistTackleMultiplicity}, kernel::{storage::storage::Storage, user_setup::{entities::user_another_load_device, user_load_hand::UserLoadHandDevice}}};
+    use crate::{algorithm::maximum_force::max_force::MaxForce, kernel::{storage::storage::Storage, user_setup::user_load_hand::UserLoadHandDevice}};
     ///
     ///
     static INIT: Once = Once::new();
@@ -34,18 +34,17 @@ mod HoistTackleEfficienyCoeff {
         test_duration.run().unwrap();
         let path = "./src/tests/unit/kernel/storage/cache";
         let mut user_select = Storage::new(path);
-        let mut storage = Storage::new(path);
-        let test_data = [
+        let mut storage = Storage::new(path); 
+        let test_data= [
             (
                 1,
-                0.9605227500000011
+                765.9891449734004
             )
-            
         ];
         for (step,target) in test_data.iter() {
-            let mut user_load_device: UserLoadHandDevice = UserLoadHandDevice::new();
+            let mut user_load_device = UserLoadHandDevice::new();
             let _ = user_load_device.select(&mut user_select, &mut storage);
-            match HoistTackleEfficienyCoeff::new().eval(HoistTackleMultiplicity::new(), &mut user_select, &mut user_load_device) {
+            match MaxForce::new().eval(&mut user_select, &mut user_load_device) {
                 Ok(result) => assert!(result == *target, "step {} \nresult: {:?}\ntarget: {:?}", step, result, target),
                 Err(err) => panic!("{} | step {},  Error: {:#?}", dbgid, step, err),
             }
