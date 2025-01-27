@@ -7,5 +7,6 @@ pub mod hook_filter;
 pub mod lifting_speed;
 pub mod maximum_force;
 pub mod rope_effort;
+pub mod rope_safety_factor;
 pub mod ropes_count;
 pub mod select_betta_phi;

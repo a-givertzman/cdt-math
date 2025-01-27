@@ -1,7 +1,9 @@
 pub mod another_load_device;
 pub mod bearing;
 pub mod bet_phi;
+pub mod cable_winding_method;
 pub mod driver_type;
 pub mod hook;
 pub mod lifting_class;
 pub mod loading_combination;
+pub mod mechanism_work_type;
