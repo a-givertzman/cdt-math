@@ -19,7 +19,7 @@ mod app {
     ///
     /// returns:
     ///  - ...
-    fn init_each() -> () {}
+    fn init_each() {}
     ///
     /// Testing such functionality / behavior
     #[test]
