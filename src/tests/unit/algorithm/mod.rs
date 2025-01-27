@@ -1,5 +1,6 @@
 mod bearing_filter_test;
 mod dynamic_coefficient_test;
+mod hoist_tackle_efficiency_coef;
 mod hoist_tackle_multiplicity_test;
 mod hoisting_tackle_test;
 mod hook_filter_test;
