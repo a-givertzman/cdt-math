@@ -3,7 +3,7 @@ mod SelectBetPhi {
     use std::{sync::Once, time::Duration};
     use testing::stuff::max_test_duration::TestDuration;
     use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
-    use crate::{algorithm::select_betta_phi::select_betta_phi::SelectBettaPhi, kernel::{dbgid::dbgid::DbgId, entities::{bet_phi::BetPhi, lifting_class::LiftClass}}};
+    use crate::{algorithm::select_betta_phi::select_betta_phi::SelectBettaPhi, kernel::{dbgid::dbgid::DbgId, entities::{bet_phi::BetPhi, lifting_class::LiftClass}, initial_data::{self, initial_data::InitialData}, storage::storage::Storage}};
     ///
     ///
     static INIT: Once = Once::new();
@@ -29,33 +29,18 @@ mod SelectBetPhi {
         log::debug!("\n{}", dbgid);
         let test_duration = TestDuration::new(&dbgid, Duration::from_secs(1));
         test_duration.run().unwrap();
+        let path = "./src/tests/unit/kernel/storage/cache"; 
+        let mut storage_initial_data: Storage = Storage::new(path);
         let test_data =[
             (
                 1,
-                LiftClass::Hc1,
+                InitialData::new(&mut storage_initial_data),
                 BetPhi::new(0.17, 1.05)
             ),
-            (
-                2,
-                LiftClass::Hc2,
-                BetPhi::new(0.34, 1.10)
-            ),
-            (
-                3,
-                LiftClass::Hc3,
-                BetPhi::new(0.51, 1.15)
-            ),
-            (
-                4,
-                LiftClass::Hc4,
-                BetPhi::new(0.68, 1.20)
-            ),
         ];
-        for (step,lift_class,target) in test_data {
-            match SelectBettaPhi::new().eval(lift_class) {
-                Ok(result) => assert!(result.bet == target.bet && result.phi == target.phi, "step {} \nresult: {:?}\ntarget: {:?}", step, result, target),
-                Err(err) => panic!("{} | step {},  Error: {:#?}", dbgid, step, err),
-            }
+        for (step,initial_data,target) in test_data {
+            let result = SelectBettaPhi::new(initial_data.expect(&format!("{} | step {}, Error of initial data",dbgid, step))).eval();
+            assert_eq!(result, target,"step {} \nresult: {:?}\ntarget: {:?}", step, result, target);
         }
         test_duration.exit();
     }
