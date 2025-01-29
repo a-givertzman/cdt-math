@@ -11,6 +11,6 @@
 //! use crate::algorithm::select_betta_phi::select_betta_phi::SelectBettaPhi
 //! use crate::kernel::initial_data::initial_data::InitialData;
 //! let bet_phi = SelectBettaPhi::new(InitialData::new()).eval();
-//! println!("Betta and Phi coefficients: {}", total);
+//! println!("Betta and Phi coefficients: {}", bet_phi);
 //! ```
 pub mod select_betta_phi;

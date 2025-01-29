@@ -5,7 +5,7 @@ mod DynamicCoefficient {
     use testing::stuff::max_test_duration::TestDuration;
     use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
 
-    use crate::{algorithm::dynamic_coefficient::dynamic_coefficient::DynamicCoefficient, kernel::{dbgid::dbgid::DbgId, entities::{driver_type::DriverType, lifting_class::LiftClass, loading_combination::LoadingCombination}}};
+    use crate::{algorithm::{dynamic_coefficient::dynamic_coefficient::DynamicCoefficient, lifting_speed::lifting_speed::LiftingSpeed, select_betta_phi::select_betta_phi::SelectBettaPhi}, kernel::{dbgid::dbgid::DbgId, entities::{driver_type::DriverType, lifting_class::LiftClass, loading_combination::LoadingCombination}, initial_data::initial_data::InitialData, storage::storage::Storage}};
     ///
     ///
     static INIT: Once = Once::new();
@@ -31,49 +31,19 @@ mod DynamicCoefficient {
         log::debug!("\n{}", dbgid);
         let test_duration = TestDuration::new(&dbgid, Duration::from_secs(1));
         test_duration.run().unwrap();
+        let path = "./src/tests/unit/kernel/storage/cache"; 
+        let mut storage_initial_data: Storage = Storage::new(path);
         let test_data =[
             (
                 1,
-                LiftClass::Hc1,
-                DriverType::Hd1, 
-                LoadingCombination::A1, 
-                0.1, 
-                0.23,
-                1.067
-            ),
-            (
-                2,
-                LiftClass::Hc2,
-                DriverType::Hd2, 
-                LoadingCombination::A1, 
-                0.33, 
-                0.43,
-                1.2462
-            ),
-            (
-                3,
-                LiftClass::Hc3,
-                DriverType::Hd2,
-                LoadingCombination::B1, 
-                0.12, 
-                0.65,
-                1.4815
-            ),
-            (
-                4,
-                LiftClass::Hc4,
-                DriverType::Hd3,
-                LoadingCombination::C1,
-                0.81, 
-                0.95,
-                1.4754
+                SelectBettaPhi::new(InitialData::new(&mut storage_initial_data).expect(&format!("{} | Error of initial data",dbgid))),
+                LiftingSpeed::new(InitialData::new(&mut storage_initial_data).expect(&format!("{} | Error of initial data",dbgid))),
+                1.1571
             ),
         ];
-        for (step, lift_class, driver_type, load_comb, vhmax, vhcs, target) in test_data {
-           match DynamicCoefficient::new().eval(lift_class, driver_type, load_comb, vhmax, vhcs) {
-                Ok(result) => assert!(result == target, "step {} \nresult: {:?}\ntarget: {:?}", step, result, target),
-                Err(err) => panic!("{} | step {},  Error: {:#?}", dbgid, step, err),
-            }
+        for (step, select_betta_phi, lifting_speed, target) in test_data {
+           let result = DynamicCoefficient::new(select_betta_phi, lifting_speed).eval();
+           assert!(result==target,"step {} \nresult: {:?}\ntarget: {:?}", step, result, target);
         }
         test_duration.exit();
     }
