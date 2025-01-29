@@ -1,5 +1,6 @@
 mod kernel;
 mod app;
+mod service;
 #[cfg(test)]
 mod tests;
 use app::app::App;
