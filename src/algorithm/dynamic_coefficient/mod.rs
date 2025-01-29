@@ -9,8 +9,10 @@
 //! ## Example of using
 //! ```rust
 //! use crate::algorithm::lifting_speed::lifting_speed::LiftingSpeed;
-//! use crate::kernel::initial_data::initial_data::InitialData;
-//! let dynamic_coefficient = DynamicCoefficient::new(SelectBettaPhi::new(InitialData::new()), LiftingSpeed::new(InitialData::new())).eval();
+//! use crate::kernel::initial_data::initial_data::InitialData; 
+//! let path = "./src/tests/unit/kernel/storage/cache";
+//! let dynamic_coefficient = DynamicCoefficient::new(
+//!                             SelectBettaPhi::new(InitialData::new(&mut Storage::new(path)).expect(&format!("{} | Error of initial data",dbgid))), LiftingSpeed::new(InitialData::new(&mut Storage::new(path)).expect(&format!("{} | Error of initial data",dbgid))).eval();
 //! println!("dynamic coefficient: {}", dynamic_coefficient);
 //! ```
 pub mod dynamic_coefficient;
