@@ -6,7 +6,8 @@
 //! ## Example of using
 //! ```rust
 //! use crate::kernel::initial_data::initial_data::InitialData;
-//! let initial_data = InitialData::new();
-//! println!("Steady state lifiting speed: {}", total);
+//! let path = "...."; 
+//! let initial_ctx = InitialCtx::new(&mut Storage::new(path);
+//! println!("Steady state lifiting speed: {}", initial_ctx);
 //! ```
 pub mod initial_ctx;

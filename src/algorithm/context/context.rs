@@ -12,7 +12,8 @@ pub struct Context {
 //
 impl Context {
     ///
-    /// ...
+    /// Struct constructor
+    /// - 'initial' - [InitialCtx] instance, where store initial data
     pub fn new(initial: InitialCtx) -> Self {
         Self {
             initial,

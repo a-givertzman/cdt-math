@@ -1,9 +1,9 @@
-use crate::{algorithm::context::context::Context, kernel::{dbgid::dbgid::DbgId, entities::{driver_type::DriverType, loading_combination::LoadingCombination}, initial_ctx::initial_ctx::InitialCtx, str_err::str_err::StrErr}};
+use crate::{algorithm::context::{context::Context, ctx_result::CtxResult}, kernel::{dbgid::dbgid::DbgId, entities::{driver_type::DriverType, loading_combination::LoadingCombination}, initial_ctx::initial_ctx::InitialCtx, str_err::str_err::StrErr}};
 ///
 /// Сlass, that select the steady-state lifting speed of the load
 /// [reference to steady-state lifting speed documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
 /// - 'value' - value of steady-state lifting speed
-/// - 'initial_data' - [Initial] instance, where store initial data
+/// - 'ctx' - [Context] instance, where store all info about initial data and each algorithm result's
 #[derive(Debug, Clone)]
 pub struct LiftingSpeed {
     dbgid: DbgId,
@@ -15,7 +15,7 @@ pub struct LiftingSpeed {
 impl LiftingSpeed {
     ///
     /// Class Constructor
-    /// - 'initial_data' - [Initial] instance, where store initial data
+    /// - 'ctx' - [Context] instance, where store all info about initial data and each algorithm result's
     pub fn new(ctx: Context) -> Self {
         Self {
             dbgid: DbgId("LiftingSpeed".to_string()),
@@ -50,6 +50,7 @@ impl LiftingSpeed {
                     },
                 };
                 self.value = Some(result);
+                self.ctx.lifting_speed.result = CtxResult::Ok(result);
                 result
             },
         }

@@ -5,7 +5,8 @@ mod Liftingspeed {
     use testing::stuff::max_test_duration::TestDuration;
     use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
 
-    use crate::{algorithm::{context::context::Context, lifting_speed::lifting_speed::LiftingSpeed}, kernel::{dbgid::dbgid::DbgId, entities::{driver_type::DriverType, loading_combination::LoadingCombination}, initial_ctx::initial_data::InitialData, storage::storage::Storage}};
+    use crate::{algorithm::{context::context::Context, lifting_speed::lifting_speed::LiftingSpeed}, kernel::{dbgid::dbgid::DbgId, initial_ctx::initial_ctx::InitialCtx, storage::storage::Storage}};
+
     ///
     ///
     static INIT: Once = Once::new();
@@ -32,7 +33,7 @@ mod Liftingspeed {
         let test_duration = TestDuration::new(&dbgid, Duration::from_secs(1));
         let path = "./src/tests/unit/kernel/storage/cache"; 
         let mut storage_initial_data: Storage = Storage::new(path);
-        let initial = InitialData::new(&mut storage_initial_data);
+        let initial = InitialCtx::new(&mut storage_initial_data).expect("Error to create InitialCtx");
         let mut ctx = Context::new(initial);
         test_duration.run().unwrap();
         let test_data =[
@@ -42,7 +43,7 @@ mod Liftingspeed {
             ),
         ];
         for (step,target) in test_data {
-            let result = LiftingSpeed::new(ctx).eval();
+            let result = LiftingSpeed::new(ctx.clone()).eval();
             assert!(result==target,"step {} \nresult: {:?}\ntarget: {:?}", step, result, target);
         }
         test_duration.exit();
