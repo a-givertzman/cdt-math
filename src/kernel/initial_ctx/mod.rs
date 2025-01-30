@@ -9,4 +9,4 @@
 //! let initial_data = InitialData::new();
 //! println!("Steady state lifiting speed: {}", total);
 //! ```
-pub mod initial_data;
+pub mod initial_ctx;

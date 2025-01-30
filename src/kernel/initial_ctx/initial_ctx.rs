@@ -7,7 +7,7 @@ use crate::kernel::{dbgid::dbgid::DbgId, entities::{driver_type::DriverType, loa
 /// - 'vhmax' - value of nominal lifting speed of the mechanism
 /// - 'vhcs' - value of slow lifting speed of the mechanism
 #[derive(Debug, Clone)]
-pub struct InitialData {
+pub struct InitialCtx {
     dbgid: DbgId,
     pub driver_type: DriverType,
     pub load_comb: LoadingCombination,
@@ -16,17 +16,17 @@ pub struct InitialData {
 }
 //
 //
-impl InitialData {
+impl InitialCtx {
     ///
     /// Struct constructor
     /// - 'storage_initial_data' - [Storage] instance, where store initial data
     pub fn new(storage_initial_data: &mut Storage) -> Result<Self,StrErr> {
         Ok(Self {
-            dbgid: DbgId("InitialData".to_string()),
-            driver_type: serde_json::from_value::<DriverType>(storage_initial_data.load("test.user_characteristics.driver_type")?).map_err(|err| StrErr(format!("{}.filter | Error {:?}","InitialData".to_string(), err)))?,
-            load_comb: serde_json::from_value::<LoadingCombination>(storage_initial_data.load("test.user_characteristics.loading_combination")?).map_err(|err| StrErr(format!("{}.filter | Error {:?}","InitialData".to_string(), err)))?,
-            vhmax: serde_json::from_value::<f64>(storage_initial_data.load("test.user_characteristics.vhmax")?).map_err(|err| StrErr(format!("{}.filter | Error {:?}","InitialData".to_string(), err)))?,
-            vhcs: serde_json::from_value::<f64>(storage_initial_data.load("test.user_characteristics.vhcs")?).map_err(|err| StrErr(format!("{}.filter | Error {:?}","InitialData".to_string(), err)))?,
+            dbgid: DbgId("Initial".to_string()),
+            driver_type: serde_json::from_value::<DriverType>(storage_initial_data.load("test.user_characteristics.driver_type")?).map_err(|err| StrErr(format!("{}.filter | Error {:?}","Initial".to_string(), err)))?,
+            load_comb: serde_json::from_value::<LoadingCombination>(storage_initial_data.load("test.user_characteristics.loading_combination")?).map_err(|err| StrErr(format!("{}.filter | Error {:?}","Initial".to_string(), err)))?,
+            vhmax: serde_json::from_value::<f64>(storage_initial_data.load("test.user_characteristics.vhmax")?).map_err(|err| StrErr(format!("{}.filter | Error {:?}","Initial".to_string(), err)))?,
+            vhcs: serde_json::from_value::<f64>(storage_initial_data.load("test.user_characteristics.vhcs")?).map_err(|err| StrErr(format!("{}.filter | Error {:?}","Initial".to_string(), err)))?,
         })
     }
 }
