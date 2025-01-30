@@ -5,7 +5,7 @@ mod Liftingspeed {
     use testing::stuff::max_test_duration::TestDuration;
     use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
 
-    use crate::{algorithm::{context::context::Context, lifting_speed::lifting_speed::LiftingSpeed}, kernel::{dbgid::dbgid::DbgId, initial_ctx::initial_ctx::InitialCtx, storage::storage::Storage}};
+    use crate::{algorithm::{context::context::Context, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed::LiftingSpeed}, kernel::{dbgid::dbgid::DbgId, storage::storage::Storage}};
 
     ///
     ///

@@ -1,4 +1,4 @@
-use crate::{algorithm::lifting_speed::lifting_speed_ctx::LiftingSpeedCtx, kernel::initial_ctx::initial_ctx::InitialCtx};
+use crate::algorithm::{initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed_ctx::LiftingSpeedCtx};
 ///
 /// # Calculation context
 /// - Provides read/write access to initial

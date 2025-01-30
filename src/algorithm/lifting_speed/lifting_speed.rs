@@ -1,4 +1,8 @@
-use crate::{algorithm::context::{context::Context, ctx_result::CtxResult}, kernel::{dbgid::dbgid::DbgId, entities::{driver_type::DriverType, loading_combination::LoadingCombination}, initial_ctx::initial_ctx::InitialCtx, str_err::str_err::StrErr}};
+use crate::{
+    algorithm::context::{context::Context, ctx_result::CtxResult},
+    kernel::{dbgid::dbgid::DbgId, entities::{driver_type::DriverType, loading_combination::LoadingCombination},
+    str_err::str_err::StrErr},
+};
 ///
 /// Сlass, that select the steady-state lifting speed of the load
 /// [reference to steady-state lifting speed documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
