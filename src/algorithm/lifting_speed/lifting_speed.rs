@@ -1,7 +1,8 @@
+use std::sync::{Arc, RwLock};
 use crate::{
     algorithm::context::{context::Context, ctx_result::CtxResult},
-    kernel::{dbgid::dbgid::DbgId, entities::{driver_type::DriverType, loading_combination::LoadingCombination},
-    str_err::str_err::StrErr},
+    kernel::{dbgid::dbgid::DbgId, entities::{driver_type::DriverType, loading_combination::LoadingCombination}, eval::Eval, str_err::str_err::StrErr,
+},
 };
 ///
 /// Сlass, that select the steady-state lifting speed of the load
@@ -12,7 +13,7 @@ use crate::{
 pub struct LiftingSpeed {
     dbgid: DbgId,
     value: Option<f64>,
-    ctx: Context,
+    ctx: Arc<RwLock<Context>>,
 }
 //
 //
@@ -20,7 +21,7 @@ impl LiftingSpeed {
     ///
     /// Class Constructor
     /// - 'ctx' - [Context] instance, where store all info about initial data and each algorithm result's
-    pub fn new(ctx: Context) -> Self {
+    pub fn new(ctx: Arc<RwLock<Context>>) -> Self {
         Self {
             dbgid: DbgId("LiftingSpeed".to_string()),
             value: None,
@@ -34,30 +35,43 @@ impl LiftingSpeed {
     fn vhmax_half(vhmax: f64) -> f64 {
         vhmax * 0.5
     }
+}
+//
+//
+impl Eval for LiftingSpeed {
     ///
     /// Method of calculating the steady-state lifting speed of the load
     /// [reference to steady-state lifting speed choice documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
-    pub fn eval(&mut self) -> f64 {
+    fn eval(&mut self) -> CtxResult<Arc<RwLock<Context>>, StrErr> {
         match self.value {
-            Some(lifting_speed) => return lifting_speed,
+            Some(_) => return CtxResult::Ok(self.ctx.clone()),
             None => {
-                let result = match self.ctx.initial.load_comb {
-                    LoadingCombination::A1 | LoadingCombination::B1 => match self.ctx.initial.driver_type {
-                        DriverType::Hd1 => self.ctx.initial.vhmax,
-                        DriverType::Hd2 | DriverType::Hd3 => self.ctx.initial.vhcs,
-                        DriverType::Hd4 => Self::vhmax_half(self.ctx.initial.vhmax),
-                        DriverType::Hd5 => 0.0,
-                    },
-                    LoadingCombination::C1 => match self.ctx.initial.driver_type {
-                        DriverType::Hd1 | DriverType::Hd2 | DriverType::Hd4 => self.ctx.initial.vhmax,
-                        DriverType::Hd3 | DriverType::Hd5 => Self::vhmax_half(self.ctx.initial.vhmax),
-                    },
-                };
-                self.value = Some(result);
-                self.ctx.lifting_speed.result = CtxResult::Ok(result);
-                result
+                match self.ctx.read() {
+                    Ok(ctx) => {
+                        let result = match ctx.initial.load_comb {
+                            LoadingCombination::A1 | LoadingCombination::B1 => match ctx.initial.driver_type {
+                                DriverType::Hd1 => ctx.initial.vhmax,
+                                DriverType::Hd2 | DriverType::Hd3 => ctx.initial.vhcs,
+                                DriverType::Hd4 => Self::vhmax_half(ctx.initial.vhmax),
+                                DriverType::Hd5 => 0.0,
+                            },
+                            LoadingCombination::C1 => match ctx.initial.driver_type {
+                                DriverType::Hd1 | DriverType::Hd2 | DriverType::Hd4 => ctx.initial.vhmax,
+                                DriverType::Hd3 | DriverType::Hd5 => Self::vhmax_half(ctx.initial.vhmax),
+                            },
+                        };
+                        self.value = Some(result);
+                        match self.ctx.write() {
+                            Ok(mut ctx) => {
+                                ctx.lifting_speed.result = CtxResult::Ok(result);
+                                CtxResult::Ok(self.ctx.clone())
+                            }
+                            Err(err) => CtxResult::Err(StrErr(format!("{}.eval | Read context error: {:?}", self.dbgid, err))),
+                        }
+                    }
+                    Err(err) => CtxResult::Err(StrErr(format!("{}.eval | Read context error: {:?}", self.dbgid, err))),
+                }
             },
         }
-
     }
 }

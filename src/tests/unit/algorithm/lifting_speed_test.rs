@@ -1,11 +1,11 @@
 #[cfg(test)]
 
 mod Liftingspeed {
-    use std::{sync::Once, time::Duration};
+    use std::{sync::{Arc, Once, RwLock}, time::Duration};
     use testing::stuff::max_test_duration::TestDuration;
     use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
 
-    use crate::{algorithm::{context::context::Context, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed::LiftingSpeed}, kernel::{dbgid::dbgid::DbgId, storage::storage::Storage}};
+    use crate::{algorithm::{context::{context::Context, ctx_result::CtxResult}, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed::LiftingSpeed}, kernel::{dbgid::dbgid::DbgId, eval::Eval, storage::storage::Storage}};
 
     ///
     ///
@@ -33,18 +33,19 @@ mod Liftingspeed {
         let test_duration = TestDuration::new(&dbgid, Duration::from_secs(1));
         let path = "./src/tests/unit/kernel/storage/cache"; 
         let mut storage_initial_data: Storage = Storage::new(path);
-        let initial = InitialCtx::new(&mut storage_initial_data).expect("Error to create InitialCtx");
-        let mut ctx = Context::new(initial);
         test_duration.run().unwrap();
         let test_data =[
             (
                 1,
-                0.63
+                InitialCtx::new(&mut storage_initial_data).unwrap(),
+                CtxResult::Ok(0.63),
             ),
         ];
-        for (step,target) in test_data {
+        for (step,initial, target) in test_data {
+            let ctx = Arc::new(RwLock::new(Context::new(initial)));
             let result = LiftingSpeed::new(ctx.clone()).eval();
-            assert!(result==target,"step {} \nresult: {:?}\ntarget: {:?}", step, result, target);
+            let result = result.unwrap().read().unwrap().lifting_speed.result.clone();
+            assert!(result == target,"step {} \nresult: {:?}\ntarget: {:?}", step, result, target);
         }
         test_duration.exit();
     }
