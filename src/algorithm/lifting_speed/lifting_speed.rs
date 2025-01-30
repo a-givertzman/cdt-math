@@ -46,28 +46,27 @@ impl Eval for LiftingSpeed {
         match self.value {
             Some(_) => return CtxResult::Ok(self.ctx.clone()),
             None => {
-                match self.ctx.read() {
-                    Ok(ctx) => {
-                        let result = match ctx.initial.load_comb {
-                            LoadingCombination::A1 | LoadingCombination::B1 => match ctx.initial.driver_type {
-                                DriverType::Hd1 => ctx.initial.vhmax,
-                                DriverType::Hd2 | DriverType::Hd3 => ctx.initial.vhcs,
-                                DriverType::Hd4 => Self::vhmax_half(ctx.initial.vhmax),
-                                DriverType::Hd5 => 0.0,
-                            },
-                            LoadingCombination::C1 => match ctx.initial.driver_type {
-                                DriverType::Hd1 | DriverType::Hd2 | DriverType::Hd4 => ctx.initial.vhmax,
-                                DriverType::Hd3 | DriverType::Hd5 => Self::vhmax_half(ctx.initial.vhmax),
-                            },
-                        };
-                        self.value = Some(result);
-                        match self.ctx.write() {
-                            Ok(mut ctx) => {
-                                ctx.lifting_speed.result = CtxResult::Ok(result);
-                                CtxResult::Ok(self.ctx.clone())
-                            }
-                            Err(err) => CtxResult::Err(StrErr(format!("{}.eval | Read context error: {:?}", self.dbgid, err))),
-                        }
+                let initial = match self.ctx.read() {
+                    Ok(ctx) => ctx.initial.clone(),
+                    Err(err) => return CtxResult::Err(StrErr(format!("{}.eval | Read context error: {:?}", self.dbgid, err))),
+                };
+                let result = match initial.load_comb {
+                    LoadingCombination::A1 | LoadingCombination::B1 => match initial.driver_type {
+                        DriverType::Hd1 => initial.vhmax,
+                        DriverType::Hd2 | DriverType::Hd3 => initial.vhcs,
+                        DriverType::Hd4 => Self::vhmax_half(initial.vhmax),
+                        DriverType::Hd5 => 0.0,
+                    },
+                    LoadingCombination::C1 => match initial.driver_type {
+                        DriverType::Hd1 | DriverType::Hd2 | DriverType::Hd4 => initial.vhmax,
+                        DriverType::Hd3 | DriverType::Hd5 => Self::vhmax_half(initial.vhmax),
+                    },
+                };
+                self.value = Some(result);
+                match self.ctx.write() {
+                    Ok(mut ctx) => {
+                        ctx.lifting_speed.result = CtxResult::Ok(result);
+                        CtxResult::Ok(self.ctx.clone())
                     }
                     Err(err) => CtxResult::Err(StrErr(format!("{}.eval | Read context error: {:?}", self.dbgid, err))),
                 }
