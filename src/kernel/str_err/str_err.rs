@@ -1,6 +1,6 @@
 ///
 /// Error container
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct StrErr(pub String);
 // Error doesn't require you to implement any methods, but
 // your type must also implement Debug and Display.

@@ -1,12 +1,12 @@
 #[cfg(test)]
 mod storage {
-    use core::f64;
-    use std::{collections::HashMap, i64, sync::Once, time::Duration};
-    use api_tools::debug::dbg_id::DbgId;
-    use serde_json::json;
-    use testing::{entities::test_value::Value, stuff::max_test_duration::TestDuration};
-    use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
     use crate::kernel::storage::storage::Storage;
+    use api_tools::debug::dbg_id::DbgId;
+    use core::f64;
+    use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
+    use serde_json::json;
+    use std::{collections::HashMap, i64, sync::Once, time::Duration};
+    use testing::{entities::test_value::Value, stuff::max_test_duration::TestDuration};
     ///
     ///
     static INIT: Once = Once::new();
@@ -32,7 +32,7 @@ mod storage {
         log::debug!("\n{}", dbgid);
         let test_duration = TestDuration::new(&dbgid, Duration::from_secs(1));
         test_duration.run().unwrap();
-        let path = "./src/tests/unit/kernel/storage/cache";
+        let path = "./src/tests/unit/kernel/storage/cache/test_1";
         let mut hooks_storage = Storage::new(path);
         let test_data = [
             (01, "test.int.value-1", Value::Int(i64::MIN)),
@@ -51,32 +51,67 @@ mod storage {
             (14, "test.string.value-2", Value::String("value-2".into())),
         ];
         for (step, key, target) in test_data {
-            fn load_value(dbgid: &DbgId, step: usize, hooks_storage: &mut Storage, key: &str) -> serde_json::Value {
-                match hooks_storage.load(key){
-                    Ok(result) => return result,
+            fn load_value(
+                dbgid: &DbgId,
+                step: usize,
+                hooks_storage: &mut Storage,
+                key: &str,
+            ) -> serde_json::Value {
+                match hooks_storage.load(key) {
+                    Ok(result) => result,
                     Err(err) => panic!("{} | step {},  Error: {:#?}", dbgid, step, err),
                 }
             }
             match &target {
                 Value::Bool(target) => {
                     let result = load_value(&dbgid, step, &mut hooks_storage, key);
-                    assert!(result == json!(target), "step {} \nresult: {:?}\ntarget: {:?}", step, result, target);
+                    assert!(
+                        result == json!(target),
+                        "step {} \nresult: {:?}\ntarget: {:?}",
+                        step,
+                        result,
+                        target
+                    );
                 }
                 Value::Int(target) => {
                     let result = load_value(&dbgid, step, &mut hooks_storage, key);
-                    assert!(result == json!(target), "step {} \nresult: {:?}\ntarget: {:?}", step, result, target);
+                    assert!(
+                        result == json!(target),
+                        "step {} \nresult: {:?}\ntarget: {:?}",
+                        step,
+                        result,
+                        target
+                    );
                 }
                 Value::Real(target) => {
                     let result = load_value(&dbgid, step, &mut hooks_storage, key);
-                    assert!(result == json!(target), "step {} \nresult: {:?}\ntarget: {:?}", step, result, target);
+                    assert!(
+                        result == json!(target),
+                        "step {} \nresult: {:?}\ntarget: {:?}",
+                        step,
+                        result,
+                        target
+                    );
                 }
                 Value::Double(target) => {
                     let result = load_value(&dbgid, step, &mut hooks_storage, key);
-                    assert!(result == json!(target), "step {} \nresult: {:?}\ntarget: {:?}", step, result, target);
+                    assert!(
+                        result == json!(target),
+                        "step {} \nresult: {:?}\ntarget: {:?}",
+                        step,
+                        result,
+                        target
+                    );
                 }
                 Value::String(target) => {
                     let result = load_value(&dbgid, step, &mut hooks_storage, key);
-                    assert!(result == json!(target), "step {} \nresult: {:?}\ntarget: {:?}", step, result, target);
+                    assert!(
+                        result == json!(target),
+                        "step {} \nresult: {:?}\ntarget: {:?}",
+                        step,
+                        result,
+                        target
+                    );
                 }
             }
         }
@@ -93,21 +128,22 @@ mod storage {
         log::debug!("\n{}", dbgid);
         let test_duration = TestDuration::new(&dbgid, Duration::from_secs(1));
         test_duration.run().unwrap();
-        let path = "src/tests/unit/kernel/storage/cache";
+        let path = "src/tests/unit/kernel/storage/cache/test_1";
         let mut hooks_storage = Storage::new(path);
-        let test_data = [
-            (
-                1,
-                "test.map.f64",
-                HashMap::from([
-                    ("12.0", 12.0),
-                    ("-14.1", -14.1),
-                ]),
-            )
-        ];
+        let test_data = [(
+            1,
+            "test.map.f64",
+            HashMap::from([("12.0", 12.0), ("-14.1", -14.1)]),
+        )];
         for (step, key, target) in test_data {
             match hooks_storage.load(key) {
-                Ok(result) =>  assert!(result == json!(target), "step {} \nresult: {:?}\ntarget: {:?}", step, result, target),
+                Ok(result) => assert!(
+                    result == json!(target),
+                    "step {} \nresult: {:?}\ntarget: {:?}",
+                    step,
+                    result,
+                    target
+                ),
                 Err(err) => panic!("{} | step {},  Error: {:#?}", dbgid, step, err),
             }
         }
@@ -124,21 +160,22 @@ mod storage {
         log::debug!("\n{}", dbgid);
         let test_duration = TestDuration::new(&dbgid, Duration::from_secs(1));
         test_duration.run().unwrap();
-        let path = "src/tests/unit/kernel/storage/cache";
+        let path = "src/tests/unit/kernel/storage/cache/test_1";
         let mut hooks_storage = Storage::new(path);
-        let test_data = [
-            (
-                1,
-                "test.map.str_str",
-                HashMap::from([
-                    ("12.0", "Value 12.0"),
-                    ("-14.1", "Value -14.1"),
-                ]),
-            )
-        ];
-        for (step,key,target) in test_data {
+        let test_data = [(
+            1,
+            "test.map.str_str",
+            HashMap::from([("12.0", "Value 12.0"), ("-14.1", "Value -14.1")]),
+        )];
+        for (step, key, target) in test_data {
             match hooks_storage.load(key) {
-                Ok(result) => assert!(result == json!(target), "step {} \nresult: {:?}\ntarget: {:?}", step, result, target),
+                Ok(result) => assert!(
+                    result == json!(target),
+                    "step {} \nresult: {:?}\ntarget: {:?}",
+                    step,
+                    result,
+                    target
+                ),
                 Err(err) => panic!("{} | step {},  Error: {:#?}", dbgid, step, err),
             }
         }
@@ -155,22 +192,18 @@ mod storage {
         log::debug!("\n{}", dbgid);
         let test_duration = TestDuration::new(&dbgid, Duration::from_secs(1));
         test_duration.run().unwrap();
-        let path = "src/tests/unit/kernel/storage/cache";
+        let path = "src/tests/unit/kernel/storage/cache/test_1";
         let mut hooks_storage = Storage::new(path);
-        let test_data = [
-            (
-                1,
-                "test.vec.str",
-                vec![
-                    "Value 00",
-                    "Value 1",
-                    "Value 2",
-                ],
-            )
-        ];
-        for (step,key,target) in test_data {
+        let test_data = [(1, "test.vec.str", vec!["Value 00", "Value 1", "Value 2"])];
+        for (step, key, target) in test_data {
             match hooks_storage.load(key) {
-                Ok(result) => assert!(result == json!(target), "step {} \nresult: {:?}\ntarget: {:?}", step, result, target),
+                Ok(result) => assert!(
+                    result == json!(target),
+                    "step {} \nresult: {:?}\ntarget: {:?}",
+                    step,
+                    result,
+                    target
+                ),
                 Err(err) => panic!("{} | step {},  Error: {:#?}", dbgid, step, err),
             }
         }
@@ -187,24 +220,18 @@ mod storage {
         log::debug!("\n{}", dbgid);
         let test_duration = TestDuration::new(&dbgid, Duration::from_secs(1));
         test_duration.run().unwrap();
-        let path = "src/tests/unit/kernel/storage/cache";
+        let path = "src/tests/unit/kernel/storage/cache/test_1";
         let mut hooks_storage = Storage::new(path);
-        let test_data = [
-            (
-                1,
-                "test.vec.f64",
-                vec![
-                    -0.223,
-                    -0.10,
-                    0.0,
-                    0.10,
-                    0.2204,
-                ],
-            )
-        ];
-        for (step,key,target) in test_data {
+        let test_data = [(1, "test.vec.f64", vec![-0.223, -0.10, 0.0, 0.10, 0.2204])];
+        for (step, key, target) in test_data {
             match hooks_storage.load(key) {
-                Ok(result) => assert!(result == json!(target), "step {} \nresult: {:?}\ntarget: {:?}", step, result, target),
+                Ok(result) => assert!(
+                    result == json!(target),
+                    "step {} \nresult: {:?}\ntarget: {:?}",
+                    step,
+                    result,
+                    target
+                ),
                 Err(err) => panic!("{} | step {},  Error: {:#?}", dbgid, step, err),
             }
         }
