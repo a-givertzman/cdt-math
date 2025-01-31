@@ -1,9 +1,8 @@
-use crate::kernel::{
+use crate::{algorithm::entities::{driver_type::DriverType, loading_combination::LoadingCombination}, kernel::{
     dbgid::dbgid::DbgId,
-    entities::{driver_type::DriverType, loading_combination::LoadingCombination},
     storage::storage::Storage,
     str_err::str_err::StrErr,
-};
+}};
 ///
 /// Struct to storage initial data
 /// [documentation to initial data](design\docs\algorithm\part01\initial_data.md)
