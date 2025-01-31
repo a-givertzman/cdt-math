@@ -1,6 +1,6 @@
 #[cfg(test)]
 
-mod Liftingspeed {
+mod lifting_speed {
     use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
     use std::{
         sync::{Arc, Once, RwLock},
