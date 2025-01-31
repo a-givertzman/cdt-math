@@ -6,16 +6,16 @@ use crate::{algorithm::entities::{driver_type::DriverType, loading_combination::
 ///
 /// Struct to storage initial data
 /// [documentation to initial data](design\docs\algorithm\part01\initial_data.md)
-/// - 'driver_type' - [DriverType] enum, where store initial driver type
-/// - 'load_comb' - [LoadingCombination] enum, where store initial loading combination
-/// - 'vhmax' - value of nominal lifting speed of the mechanism
-/// - 'vhcs' - value of slow lifting speed of the mechanism
 #[derive(Debug, Clone)]
 pub struct InitialCtx {
     // dbgid: DbgId,
+    /// where store initial driver type
     pub driver_type: DriverType,
+    /// where store initial loading combination
     pub load_comb: LoadingCombination,
+    /// value of nominal lifting speed of the mechanism
     pub vhmax: f64,
+    /// value of slow lifting speed of the mechanism
     pub vhcs: f64,
 }
 //
