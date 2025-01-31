@@ -1,5 +1,6 @@
 use crate::algorithm::{
-    initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed_ctx::LiftingSpeedCtx, select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx,
+    initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed_ctx::LiftingSpeedCtx,
+    select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx,
 };
 ///
 /// # Calculation context

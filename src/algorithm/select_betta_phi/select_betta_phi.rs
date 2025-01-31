@@ -1,5 +1,11 @@
+use crate::{
+    algorithm::{
+        context::{context::Context, ctx_result::CtxResult},
+        entities::{bet_phi::BetPhi, lifting_class::LiftClass},
+    },
+    kernel::{dbgid::dbgid::DbgId, eval::Eval, str_err::str_err::StrErr},
+};
 use std::sync::{Arc, RwLock};
-use crate::{algorithm::{context::{context::Context, ctx_result::CtxResult}, entities::{bet_phi::BetPhi, lifting_class::LiftClass}}, kernel::{dbgid::dbgid::DbgId, eval::Eval, str_err::str_err::StrErr}};
 ///
 /// Struct, that make choice β2 and ϕ2 coefficients, based on user [lifting class](design\docs\algorithm\part01\initial_data.md)
 /// [reference to β2 and ϕ2 coefficients documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
@@ -21,7 +27,7 @@ impl SelectBettaPhi {
         Self {
             dbgid: DbgId("SelectBetPhi".to_string()),
             value: None,
-            ctx
+            ctx,
         }
     }
 }
@@ -61,7 +67,7 @@ impl Eval for SelectBettaPhi {
                         self.dbgid, err
                     ))),
                 }
-            },
+            }
         }
     }
 }

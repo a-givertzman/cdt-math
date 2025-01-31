@@ -1,7 +1,7 @@
 //! # Module of choice betta and phi coefficients
 //!
 //! This module constist method of choosing betta and phi coefficients
-//! and their processing in the system. 
+//! and their processing in the system.
 //! [reference to choice documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
 //! It includes:
 //! - choosing method of betta and phi coefficients (`bet_phi`)

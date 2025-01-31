@@ -10,7 +10,11 @@ mod SelectBetPhi {
 
     use crate::{
         algorithm::{
-            context::{context::Context, ctx_result::CtxResult}, entities::bet_phi::BetPhi, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed::LiftingSpeed, select_betta_phi::select_betta_phi::SelectBettaPhi
+            context::{context::Context, ctx_result::CtxResult},
+            entities::bet_phi::BetPhi,
+            initial_ctx::initial_ctx::InitialCtx,
+            lifting_speed::lifting_speed::LiftingSpeed,
+            select_betta_phi::select_betta_phi::SelectBettaPhi,
         },
         kernel::{dbgid::dbgid::DbgId, eval::Eval, storage::storage::Storage},
     };
@@ -45,29 +49,45 @@ mod SelectBetPhi {
                 1,
                 InitialCtx::new(&mut Storage::new(
                     "./src/tests/unit/kernel/storage/cache/test_1",
-                )).unwrap(),
-                CtxResult::Ok(BetPhi{ bet: 0.17, phi: 1.05 }),
+                ))
+                .unwrap(),
+                CtxResult::Ok(BetPhi {
+                    bet: 0.17,
+                    phi: 1.05,
+                }),
             ),
             (
                 2,
                 InitialCtx::new(&mut Storage::new(
                     "./src/tests/unit/kernel/storage/cache/test_2",
-                )).unwrap(),
-                CtxResult::Ok(BetPhi{ bet: 0.34, phi: 1.1 }),
+                ))
+                .unwrap(),
+                CtxResult::Ok(BetPhi {
+                    bet: 0.34,
+                    phi: 1.1,
+                }),
             ),
             (
                 3,
                 InitialCtx::new(&mut Storage::new(
                     "./src/tests/unit/kernel/storage/cache/test_3",
-                )).unwrap(),
-                CtxResult::Ok(BetPhi{ bet: 0.51, phi: 1.15 }),
+                ))
+                .unwrap(),
+                CtxResult::Ok(BetPhi {
+                    bet: 0.51,
+                    phi: 1.15,
+                }),
             ),
             (
                 4,
                 InitialCtx::new(&mut Storage::new(
                     "./src/tests/unit/kernel/storage/cache/test_4",
-                )).unwrap(),
-                CtxResult::Ok(BetPhi{ bet: 0.68, phi: 1.2 }),
+                ))
+                .unwrap(),
+                CtxResult::Ok(BetPhi {
+                    bet: 0.68,
+                    phi: 1.2,
+                }),
             ),
         ];
         for (step, initial, target) in test_data {
