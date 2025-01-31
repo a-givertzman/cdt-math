@@ -32,7 +32,7 @@ mod storage {
         log::debug!("\n{}", dbgid);
         let test_duration = TestDuration::new(&dbgid, Duration::from_secs(1));
         test_duration.run().unwrap();
-        let path = "./src/tests/unit/kernel/storage/cache";
+        let path = "./src/tests/unit/kernel/storage/cache_test_1";
         let mut hooks_storage = Storage::new(path);
         let test_data = [
             (01, "test.int.value-1", Value::Int(i64::MIN)),
@@ -128,7 +128,7 @@ mod storage {
         log::debug!("\n{}", dbgid);
         let test_duration = TestDuration::new(&dbgid, Duration::from_secs(1));
         test_duration.run().unwrap();
-        let path = "src/tests/unit/kernel/storage/cache";
+        let path = "src/tests/unit/kernel/storage/cache/test_1";
         let mut hooks_storage = Storage::new(path);
         let test_data = [(
             1,
@@ -160,7 +160,7 @@ mod storage {
         log::debug!("\n{}", dbgid);
         let test_duration = TestDuration::new(&dbgid, Duration::from_secs(1));
         test_duration.run().unwrap();
-        let path = "src/tests/unit/kernel/storage/cache";
+        let path = "src/tests/unit/kernel/storage/cache/test_1";
         let mut hooks_storage = Storage::new(path);
         let test_data = [(
             1,
@@ -192,7 +192,7 @@ mod storage {
         log::debug!("\n{}", dbgid);
         let test_duration = TestDuration::new(&dbgid, Duration::from_secs(1));
         test_duration.run().unwrap();
-        let path = "src/tests/unit/kernel/storage/cache";
+        let path = "src/tests/unit/kernel/storage/cache/test_1";
         let mut hooks_storage = Storage::new(path);
         let test_data = [(1, "test.vec.str", vec!["Value 00", "Value 1", "Value 2"])];
         for (step, key, target) in test_data {
@@ -220,7 +220,7 @@ mod storage {
         log::debug!("\n{}", dbgid);
         let test_duration = TestDuration::new(&dbgid, Duration::from_secs(1));
         test_duration.run().unwrap();
-        let path = "src/tests/unit/kernel/storage/cache";
+        let path = "src/tests/unit/kernel/storage/cache/test_1";
         let mut hooks_storage = Storage::new(path);
         let test_data = [(1, "test.vec.f64", vec![-0.223, -0.10, 0.0, 0.10, 0.2204])];
         for (step, key, target) in test_data {
