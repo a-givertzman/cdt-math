@@ -10,12 +10,12 @@ use std::sync::{Arc, RwLock};
 ///
 /// Сlass, that select the steady-state lifting speed of the load
 /// [reference to steady-state lifting speed documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
-/// - 'value' - value of steady-state lifting speed
-/// - 'ctx' - [Context] instance, where store all info about initial data and each algorithm result's
 #[derive(Debug, Clone)]
 pub struct LiftingSpeed {
     dbgid: DbgId,
+    /// value of [steady-state lifting speed](design\docs\algorithm\part02\chapter_01_choose_hook.md)
     value: Option<f64>,
+    /// [Context] instance, where store all info about initial data and each algorithm result's
     ctx: Arc<RwLock<Context>>,
 }
 //

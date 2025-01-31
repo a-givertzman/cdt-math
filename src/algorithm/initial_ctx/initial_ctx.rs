@@ -9,13 +9,13 @@ use crate::{algorithm::entities::{driver_type::DriverType, loading_combination::
 #[derive(Debug, Clone)]
 pub struct InitialCtx {
     // dbgid: DbgId,
-    /// where store initial driver type
+    /// where store initial [driver type](design\docs\algorithm\part01\initial_data.md)
     pub driver_type: DriverType,
-    /// where store initial loading combination
+    /// where store initial [loading combination](design\docs\algorithm\part01\initial_data.md)
     pub load_comb: LoadingCombination,
-    /// value of nominal lifting speed of the mechanism
+    /// value of nominal [lifting speed of the mechanism](design\docs\algorithm\part01\initial_data.md)
     pub vhmax: f64,
-    /// value of slow lifting speed of the mechanism
+    /// value of slow [lifting speed of the mechanism](design\docs\algorithm\part01\initial_data.md)
     pub vhcs: f64,
 }
 //

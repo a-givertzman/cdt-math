@@ -1,12 +1,12 @@
 ///
 /// Enum for structurizing types of result's
-/// - 'Ok' - positive type of result
-/// - 'Err' - result type with error
-/// - 'None' - empty result
 #[derive(Debug, Clone, PartialEq)]
 pub enum CtxResult<T, E> {
+    /// positive type of result
     Ok(T),
+    /// result type with error
     Err(E),
+    /// empty result
     None,
 }
 //

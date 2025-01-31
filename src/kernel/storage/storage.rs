@@ -8,11 +8,11 @@ use std::io::BufReader;
 use std::path::{Path, PathBuf};
 ///
 /// Struct for storage data from json files
-/// - 'file_path' - path to file json
-/// - 'hash' - cash-storage
 pub struct Storage {
     dbgid: DbgId,
+    /// cash-storage
     hash: FxHashMap<String, Value>,
+    /// path to file json
     path: PathBuf,
 }
 //
