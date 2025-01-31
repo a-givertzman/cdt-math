@@ -1,6 +1,5 @@
 use std::sync::{Arc, RwLock};
 use crate::algorithm::context::{context::Context, ctx_result::CtxResult};
-
 use super::str_err::str_err::StrErr;
 ///
 /// Trate defines common evaluation function for calculations classes
