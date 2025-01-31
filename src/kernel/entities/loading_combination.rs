@@ -1,6 +1,6 @@
-use std::str::FromStr;
-use serde::{Deserialize, Serialize};
 use crate::kernel::str_err::str_err::StrErr;
+use serde::{Deserialize, Serialize};
+use std::str::FromStr;
 ///
 /// Enum for structuring loading combination types
 /// [reference to loading combination types documentation](design\docs\algorithm\part01\initial_data.md)
@@ -22,7 +22,11 @@ impl FromStr for LoadingCombination {
             "a1" => Ok(Self::A1),
             "b1" => Ok(Self::B1),
             "c1" => Ok(Self::C1),
-            _ => Err(format!("LoadingCombination.from_str | Invalid LoadingCombination: {}", s).into()),
+            _ => Err(format!(
+                "LoadingCombination.from_str | Invalid LoadingCombination: {}",
+                s
+            )
+            .into()),
         }
     }
 }

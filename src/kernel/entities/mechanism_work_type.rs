@@ -1,6 +1,6 @@
-use std::str::FromStr;
-use serde::{Deserialize, Serialize};
 use crate::kernel::str_err::str_err::StrErr;
+use serde::{Deserialize, Serialize};
+use std::str::FromStr;
 ///
 /// Enum for structuring mechanism work types
 /// [reference to mechanism work types documentation](design\docs\algorithm\part01\initial_data.md)
@@ -32,13 +32,17 @@ impl FromStr for MechanismWorkType {
             "m6" => Ok(Self::M6),
             "m7" => Ok(Self::M7),
             "m8" => Ok(Self::M8),
-            _ => Err(format!("MechanismWorkType.from_str | Invalid MechanismWorkType: {}", s).into()),
+            _ => Err(format!(
+                "MechanismWorkType.from_str | Invalid MechanismWorkType: {}",
+                s
+            )
+            .into()),
         }
     }
 }
 //
 //
-impl ToString for MechanismWorkType{
+impl ToString for MechanismWorkType {
     ///
     /// Method translates from enuming structure MechanismWorkType into string
     fn to_string(&self) -> String {

@@ -1,11 +1,21 @@
 #[cfg(test)]
 
 mod Liftingspeed {
-    use std::{sync::{Arc, Once, RwLock}, time::Duration};
+    use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
+    use std::{
+        sync::{Arc, Once, RwLock},
+        time::Duration,
+    };
     use testing::stuff::max_test_duration::TestDuration;
-    use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
 
-    use crate::{algorithm::{context::{context::Context, ctx_result::CtxResult}, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed::LiftingSpeed}, kernel::{dbgid::dbgid::DbgId, eval::Eval, storage::storage::Storage}};
+    use crate::{
+        algorithm::{
+            context::{context::Context, ctx_result::CtxResult},
+            initial_ctx::initial_ctx::InitialCtx,
+            lifting_speed::lifting_speed::LiftingSpeed,
+        },
+        kernel::{dbgid::dbgid::DbgId, eval::Eval, storage::storage::Storage},
+    };
 
     ///
     ///
@@ -35,58 +45,80 @@ mod Liftingspeed {
         let test_data = [
             (
                 1,
-                
-                InitialCtx::new(&mut Storage::new("./src/tests/unit/kernel/storage/cache/test_1")).unwrap(),
+                InitialCtx::new(&mut Storage::new(
+                    "./src/tests/unit/kernel/storage/cache/test_1",
+                ))
+                .unwrap(),
                 CtxResult::Ok(0.63),
             ),
             (
                 2,
-                InitialCtx::new(&mut Storage::new("./src/tests/unit/kernel/storage/cache/test_2")).unwrap(),
+                InitialCtx::new(&mut Storage::new(
+                    "./src/tests/unit/kernel/storage/cache/test_2",
+                ))
+                .unwrap(),
                 CtxResult::Ok(0.2),
             ),
             (
                 3,
-                
-                InitialCtx::new(&mut Storage::new("./src/tests/unit/kernel/storage/cache/test_3")).unwrap(),
+                InitialCtx::new(&mut Storage::new(
+                    "./src/tests/unit/kernel/storage/cache/test_3",
+                ))
+                .unwrap(),
                 CtxResult::Ok(0.2),
             ),
             (
                 4,
-                
-                InitialCtx::new(&mut Storage::new("./src/tests/unit/kernel/storage/cache/test_4")).unwrap(),
+                InitialCtx::new(&mut Storage::new(
+                    "./src/tests/unit/kernel/storage/cache/test_4",
+                ))
+                .unwrap(),
                 CtxResult::Ok(0.315),
             ),
             (
                 5,
-                
-                InitialCtx::new(&mut Storage::new("./src/tests/unit/kernel/storage/cache/test_5")).unwrap(),
+                InitialCtx::new(&mut Storage::new(
+                    "./src/tests/unit/kernel/storage/cache/test_5",
+                ))
+                .unwrap(),
                 CtxResult::Ok(0.0),
             ),
             (
                 6,
-                
-                InitialCtx::new(&mut Storage::new("./src/tests/unit/kernel/storage/cache/test_6")).unwrap(),
+                InitialCtx::new(&mut Storage::new(
+                    "./src/tests/unit/kernel/storage/cache/test_6",
+                ))
+                .unwrap(),
                 CtxResult::Ok(0.63),
             ),
             (
                 7,
-                
-                InitialCtx::new(&mut Storage::new("./src/tests/unit/kernel/storage/cache/test_7")).unwrap(),
+                InitialCtx::new(&mut Storage::new(
+                    "./src/tests/unit/kernel/storage/cache/test_7",
+                ))
+                .unwrap(),
                 CtxResult::Ok(0.2),
             ),
             (
                 8,
-                
-                InitialCtx::new(&mut Storage::new("./src/tests/unit/kernel/storage/cache/test_8")).unwrap(),
+                InitialCtx::new(&mut Storage::new(
+                    "./src/tests/unit/kernel/storage/cache/test_8",
+                ))
+                .unwrap(),
                 CtxResult::Ok(0.315),
             ),
-
         ];
-        for (step,initial, target) in test_data {
+        for (step, initial, target) in test_data {
             let ctx = Arc::new(RwLock::new(Context::new(initial)));
             let result = LiftingSpeed::new(ctx.clone()).eval();
             let result = result.unwrap().read().unwrap().lifting_speed.result.clone();
-            assert!(result == target,"step {} \nresult: {:?}\ntarget: {:?}", step, result, target);
+            assert!(
+                result == target,
+                "step {} \nresult: {:?}\ntarget: {:?}",
+                step,
+                result,
+                target
+            );
         }
         test_duration.exit();
     }

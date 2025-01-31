@@ -18,11 +18,12 @@ impl<T, E> CtxResult<T, E> {
     {
         match self {
             CtxResult::Ok(t) => t,
-            CtxResult::Err(err) => panic!("called `Result::unwrap()` on an `Err` value, \n\t{:?}", err),
+            CtxResult::Err(err) => {
+                panic!("called `Result::unwrap()` on an `Err` value, \n\t{:?}", err)
+            }
             CtxResult::None => panic!("called `Result::unwrap()` on an `None` value"),
         }
     }
-
 }
 //
 //

@@ -1,9 +1,13 @@
-use std::sync::{Arc, RwLock};
 use crate::{
     algorithm::context::{context::Context, ctx_result::CtxResult},
-    kernel::{dbgid::dbgid::DbgId, entities::{driver_type::DriverType, loading_combination::LoadingCombination}, eval::Eval, str_err::str_err::StrErr,
-},
+    kernel::{
+        dbgid::dbgid::DbgId,
+        entities::{driver_type::DriverType, loading_combination::LoadingCombination},
+        eval::Eval,
+        str_err::str_err::StrErr,
+    },
 };
+use std::sync::{Arc, RwLock};
 ///
 /// Сlass, that select the steady-state lifting speed of the load
 /// [reference to steady-state lifting speed documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
@@ -25,7 +29,7 @@ impl LiftingSpeed {
         Self {
             dbgid: DbgId("LiftingSpeed".to_string()),
             value: None,
-            ctx
+            ctx,
         }
     }
     ///
@@ -44,11 +48,16 @@ impl Eval for LiftingSpeed {
     /// [reference to steady-state lifting speed choice documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
     fn eval(&mut self) -> CtxResult<Arc<RwLock<Context>>, StrErr> {
         match self.value {
-            Some(_) => return CtxResult::Ok(self.ctx.clone()),
+            Some(_) => CtxResult::Ok(self.ctx.clone()),
             None => {
                 let initial = match self.ctx.read() {
                     Ok(ctx) => ctx.initial.clone(),
-                    Err(err) => return CtxResult::Err(StrErr(format!("{}.eval | Read context error: {:?}", self.dbgid, err))),
+                    Err(err) => {
+                        return CtxResult::Err(StrErr(format!(
+                            "{}.eval | Read context error: {:?}",
+                            self.dbgid, err
+                        )))
+                    }
                 };
                 let result = match initial.load_comb {
                     LoadingCombination::A1 | LoadingCombination::B1 => match initial.driver_type {
@@ -68,9 +77,12 @@ impl Eval for LiftingSpeed {
                         ctx.lifting_speed.result = CtxResult::Ok(result);
                         CtxResult::Ok(self.ctx.clone())
                     }
-                    Err(err) => CtxResult::Err(StrErr(format!("{}.eval | Read context error: {:?}", self.dbgid, err))),
+                    Err(err) => CtxResult::Err(StrErr(format!(
+                        "{}.eval | Read context error: {:?}",
+                        self.dbgid, err
+                    ))),
                 }
-            },
+            }
         }
     }
 }

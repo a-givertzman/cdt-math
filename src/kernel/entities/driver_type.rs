@@ -1,6 +1,6 @@
-use std::str::FromStr;
-use serde::{Deserialize, Serialize};
 use crate::kernel::str_err::str_err::StrErr;
+use serde::{Deserialize, Serialize};
+use std::str::FromStr;
 ///
 /// Enum for structuring driver types
 /// [reference to lifting mechanism driver type documentation](design\docs\algorithm\part01\initial_data.md)
@@ -10,7 +10,7 @@ pub enum DriverType {
     Hd2,
     Hd3,
     Hd4,
-    Hd5
+    Hd5,
 }
 //
 //

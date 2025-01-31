@@ -1,12 +1,15 @@
 #[cfg(test)]
 mod storage {
-    use core::f64;
-    use std::{collections::HashMap, fs::OpenOptions, i64, io::BufReader, path::PathBuf, sync::Once, time::Duration};
     use api_tools::debug::dbg_id::DbgId;
+    use core::f64;
+    use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
     use serde::Serialize;
     use serde_json::json;
+    use std::{
+        collections::HashMap, fs::OpenOptions, i64, io::BufReader, path::PathBuf, sync::Once,
+        time::Duration,
+    };
     use testing::{entities::test_value::Value, stuff::max_test_duration::TestDuration};
-    use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
 
     use crate::kernel::{storage::storage::Storage, str_err::str_err::StrErr};
     ///
@@ -26,15 +29,18 @@ mod storage {
     ///
     /// Returns content of JSON file
     fn read(dbgid: &DbgId, path: PathBuf) -> Result<serde_json::Value, StrErr> {
-        let file = OpenOptions::new()
-            .read(true)
-            .open(&path)
-            .map_err(|err| StrErr(format!("{}.read | Failed to open file: {:?}, error: {}", dbgid, path, err)))?;
+        let file = OpenOptions::new().read(true).open(&path).map_err(|err| {
+            StrErr(format!(
+                "{}.read | Failed to open file: {:?}, error: {}",
+                dbgid, path, err
+            ))
+        })?;
         match serde_json::from_reader::<_, serde_json::Value>(BufReader::new(file)) {
-            Ok(json_value) => {
-                Ok(json_value)
-            }
-            Err(err) => Err(StrErr(format!("{}.read | Parse error: {} in the file: {:?}", dbgid, err, path))),
+            Ok(json_value) => Ok(json_value),
+            Err(err) => Err(StrErr(format!(
+                "{}.read | Parse error: {} in the file: {:?}",
+                dbgid, err, path
+            ))),
         }
     }
     ///
@@ -67,8 +73,14 @@ mod storage {
             (14, "test.string.value-2", Value::String("value-2".into())),
         ];
         for (step, key, target) in test_data {
-            fn store_value(dbgid: &DbgId, step: usize, hooks_storage: &mut Storage, key: &str, value: impl Serialize) {
-                match hooks_storage.store(key, value){
+            fn store_value(
+                dbgid: &DbgId,
+                step: usize,
+                hooks_storage: &mut Storage,
+                key: &str,
+                value: impl Serialize,
+            ) {
+                match hooks_storage.store(key, value) {
                     Ok(_) => log::debug!("{} | step {}: Value succesfully stored", dbgid, step),
                     Err(err) => panic!("{} | step {},  Error: {:#?}", dbgid, step, err),
                 }
@@ -77,27 +89,57 @@ mod storage {
                 Value::Bool(target) => {
                     store_value(&dbgid, step, &mut hooks_storage, key, target);
                     let result = read(&dbgid, PathBuf::from(path).join(key)).unwrap();
-                    assert!(result == json!(target), "step {} \nresult: {:?}\ntarget: {:?}", step, result, target);
+                    assert!(
+                        result == json!(target),
+                        "step {} \nresult: {:?}\ntarget: {:?}",
+                        step,
+                        result,
+                        target
+                    );
                 }
                 Value::Int(target) => {
                     store_value(&dbgid, step, &mut hooks_storage, key, target);
                     let result = read(&dbgid, PathBuf::from(path).join(key)).unwrap();
-                    assert!(result == json!(target), "step {} \nresult: {:?}\ntarget: {:?}", step, result, target);
+                    assert!(
+                        result == json!(target),
+                        "step {} \nresult: {:?}\ntarget: {:?}",
+                        step,
+                        result,
+                        target
+                    );
                 }
                 Value::Real(target) => {
                     store_value(&dbgid, step, &mut hooks_storage, key, target);
                     let result = read(&dbgid, PathBuf::from(path).join(key)).unwrap();
-                    assert!(result == json!(target), "step {} \nresult: {:?}\ntarget: {:?}", step, result, target);
+                    assert!(
+                        result == json!(target),
+                        "step {} \nresult: {:?}\ntarget: {:?}",
+                        step,
+                        result,
+                        target
+                    );
                 }
                 Value::Double(target) => {
                     store_value(&dbgid, step, &mut hooks_storage, key, target);
                     let result = read(&dbgid, PathBuf::from(path).join(key)).unwrap();
-                    assert!(result == json!(target), "step {} \nresult: {:?}\ntarget: {:?}", step, result, target);
+                    assert!(
+                        result == json!(target),
+                        "step {} \nresult: {:?}\ntarget: {:?}",
+                        step,
+                        result,
+                        target
+                    );
                 }
                 Value::String(target) => {
                     store_value(&dbgid, step, &mut hooks_storage, key, target);
                     let result = read(&dbgid, PathBuf::from(path).join(key)).unwrap();
-                    assert!(result == json!(target), "step {} \nresult: {:?}\ntarget: {:?}", step, result, target);
+                    assert!(
+                        result == json!(target),
+                        "step {} \nresult: {:?}\ntarget: {:?}",
+                        step,
+                        result,
+                        target
+                    );
                 }
             }
         }
@@ -116,23 +158,24 @@ mod storage {
         test_duration.run().unwrap();
         let path = "src/tests/unit/kernel/storage/cache";
         let mut hooks_storage = Storage::new(path);
-        let test_data = [
-            (
-                1,
-                "test.map.f64",
-                HashMap::from([
-                    ("12.0", 12.0),
-                    ("-14.1", -14.1),
-                ]),
-            )
-        ];
+        let test_data = [(
+            1,
+            "test.map.f64",
+            HashMap::from([("12.0", 12.0), ("-14.1", -14.1)]),
+        )];
         for (step, key, target) in test_data {
             match hooks_storage.store(key, target.clone()) {
                 Ok(_) => log::debug!("{} | step {}: Value succesfully stored", dbgid, step),
                 Err(err) => panic!("{} | step {},  Error: {:#?}", dbgid, step, err),
             }
             let result = read(&dbgid, PathBuf::from(path).join(key)).unwrap();
-            assert!(result == json!(target), "step {} \nresult: {:?}\ntarget: {:?}", step, result, target);
+            assert!(
+                result == json!(target),
+                "step {} \nresult: {:?}\ntarget: {:?}",
+                step,
+                result,
+                target
+            );
         }
         test_duration.exit();
     }
@@ -149,23 +192,24 @@ mod storage {
         test_duration.run().unwrap();
         let path = "src/tests/unit/kernel/storage/cache";
         let mut hooks_storage = Storage::new(path);
-        let test_data = [
-            (
-                1,
-                "test.map.str_str",
-                HashMap::from([
-                    ("12.0", "Value 12.0"),
-                    ("-14.1", "Value -14.1"),
-                ]),
-            )
-        ];
-        for (step,key,target) in test_data {
+        let test_data = [(
+            1,
+            "test.map.str_str",
+            HashMap::from([("12.0", "Value 12.0"), ("-14.1", "Value -14.1")]),
+        )];
+        for (step, key, target) in test_data {
             match hooks_storage.store(key, target.clone()) {
                 Ok(_) => log::debug!("{} | step {}: Value succesfully stored", dbgid, step),
                 Err(err) => panic!("{} | step {},  Error: {:#?}", dbgid, step, err),
             }
             let result = read(&dbgid, PathBuf::from(path).join(key)).unwrap();
-            assert!(result == json!(target), "step {} \nresult: {:?}\ntarget: {:?}", step, result, target);
+            assert!(
+                result == json!(target),
+                "step {} \nresult: {:?}\ntarget: {:?}",
+                step,
+                result,
+                target
+            );
         }
         test_duration.exit();
     }
@@ -182,24 +226,20 @@ mod storage {
         test_duration.run().unwrap();
         let path = "src/tests/unit/kernel/storage/cache";
         let mut hooks_storage = Storage::new(path);
-        let test_data = [
-            (
-                1,
-                "test.vec.str",
-                vec![
-                    "Value 00",
-                    "Value 1",
-                    "Value 2",
-                ],
-            )
-        ];
-        for (step,key,target) in test_data {
+        let test_data = [(1, "test.vec.str", vec!["Value 00", "Value 1", "Value 2"])];
+        for (step, key, target) in test_data {
             match hooks_storage.store(key, target.clone()) {
                 Ok(_) => log::debug!("{} | step {}: Value succesfully stored", dbgid, step),
                 Err(err) => panic!("{} | step {},  Error: {:#?}", dbgid, step, err),
             }
             let result = read(&dbgid, PathBuf::from(path).join(key)).unwrap();
-            assert!(result == json!(target), "step {} \nresult: {:?}\ntarget: {:?}", step, result, target);
+            assert!(
+                result == json!(target),
+                "step {} \nresult: {:?}\ntarget: {:?}",
+                step,
+                result,
+                target
+            );
         }
         test_duration.exit();
     }
@@ -216,26 +256,20 @@ mod storage {
         test_duration.run().unwrap();
         let path = "src/tests/unit/kernel/storage/cache";
         let mut hooks_storage = Storage::new(path);
-        let test_data = [
-            (
-                1,
-                "test.vec.f64",
-                vec![
-                    -0.223,
-                    -0.10,
-                    0.0,
-                    0.10,
-                    0.2204,
-                ],
-            )
-        ];
-        for (step,key,target) in test_data {
-            match hooks_storage.store(key, target.clone()){
+        let test_data = [(1, "test.vec.f64", vec![-0.223, -0.10, 0.0, 0.10, 0.2204])];
+        for (step, key, target) in test_data {
+            match hooks_storage.store(key, target.clone()) {
                 Ok(_) => log::debug!("{} | step {}: Value succesfully stored", dbgid, step),
                 Err(err) => panic!("{} | step {},  Error: {:#?}", dbgid, step, err),
             }
             let result = read(&dbgid, PathBuf::from(path).join(key)).unwrap();
-            assert!(result == json!(target), "step {} \nresult: {:?}\ntarget: {:?}", step, result, target);
+            assert!(
+                result == json!(target),
+                "step {} \nresult: {:?}\ntarget: {:?}",
+                step,
+                result,
+                target
+            );
         }
         test_duration.exit();
     }
