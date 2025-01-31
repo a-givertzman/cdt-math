@@ -1,9 +1,20 @@
 #[cfg(test)]
+
 mod SelectBetPhi {
-    use std::{sync::Once, time::Duration};
+    use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
+    use std::{
+        sync::{Arc, Once, RwLock},
+        time::Duration,
+    };
     use testing::stuff::max_test_duration::TestDuration;
-    use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
-    use crate::{algorithm::select_betta_phi::select_betta_phi::SelectBettaPhi, kernel::{dbgid::dbgid::DbgId, entities::{bet_phi::BetPhi, lifting_class::LiftClass}, initial_data::{self, initial_data::InitialData}, storage::storage::Storage}};
+
+    use crate::{
+        algorithm::{
+            context::{context::Context, ctx_result::CtxResult}, entities::bet_phi::BetPhi, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed::LiftingSpeed, select_betta_phi::select_betta_phi::SelectBettaPhi
+        },
+        kernel::{dbgid::dbgid::DbgId, eval::Eval, storage::storage::Storage},
+    };
+
     ///
     ///
     static INIT: Once = Once::new();
@@ -29,18 +40,47 @@ mod SelectBetPhi {
         log::debug!("\n{}", dbgid);
         let test_duration = TestDuration::new(&dbgid, Duration::from_secs(1));
         test_duration.run().unwrap();
-        let path = "./src/tests/unit/kernel/storage/cache"; 
-        let mut storage_initial_data: Storage = Storage::new(path);
-        let test_data =[
+        let test_data = [
             (
                 1,
-                InitialData::new(&mut storage_initial_data),
-                BetPhi::new(0.17, 1.05)
+                InitialCtx::new(&mut Storage::new(
+                    "./src/tests/unit/kernel/storage/cache/test_1",
+                )).unwrap(),
+                CtxResult::Ok(BetPhi{ bet: 0.17, phi: 1.05 }),
+            ),
+            (
+                2,
+                InitialCtx::new(&mut Storage::new(
+                    "./src/tests/unit/kernel/storage/cache/test_2",
+                )).unwrap(),
+                CtxResult::Ok(BetPhi{ bet: 0.34, phi: 1.1 }),
+            ),
+            (
+                3,
+                InitialCtx::new(&mut Storage::new(
+                    "./src/tests/unit/kernel/storage/cache/test_3",
+                )).unwrap(),
+                CtxResult::Ok(BetPhi{ bet: 0.51, phi: 1.15 }),
+            ),
+            (
+                4,
+                InitialCtx::new(&mut Storage::new(
+                    "./src/tests/unit/kernel/storage/cache/test_4",
+                )).unwrap(),
+                CtxResult::Ok(BetPhi{ bet: 0.68, phi: 1.2 }),
             ),
         ];
-        for (step,initial_data,target) in test_data {
-            let result = SelectBettaPhi::new(initial_data.expect(&format!("{} | step {}, Error of initial data",dbgid, step))).eval();
-            assert_eq!(result, target,"step {} \nresult: {:?}\ntarget: {:?}", step, result, target);
+        for (step, initial, target) in test_data {
+            let ctx = Arc::new(RwLock::new(Context::new(initial)));
+            let result = SelectBettaPhi::new(ctx.clone()).eval();
+            let result = result.unwrap().read().unwrap().bet_phi.result.clone();
+            assert!(
+                result == target,
+                "step {} \nresult: {:?}\ntarget: {:?}",
+                step,
+                result,
+                target
+            );
         }
         test_duration.exit();
     }

@@ -10,7 +10,12 @@
 //! ```rust
 //! use crate::algorithm::select_betta_phi::select_betta_phi::SelectBettaPhi
 //! use crate::kernel::initial_data::initial_data::InitialData;
-//! let bet_phi = SelectBettaPhi::new(InitialData::new()).eval();
+//! let path = "..."
+//! let bet_phi = SelectBettaPhi::new(Arc::new(
+//!                                 RwLock::new(
+//!                                     Context::new(
+//!                                     InitialCtx::new(&mut Storage::new(path,)).unwrap())).clone()).eval()
 //! println!("Betta and Phi coefficients: {}", total);
 //! ```
 pub mod select_betta_phi;
+pub mod select_betta_phi_ctx;

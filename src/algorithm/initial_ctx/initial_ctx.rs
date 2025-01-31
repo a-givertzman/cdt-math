@@ -1,4 +1,4 @@
-use crate::{algorithm::entities::{driver_type::DriverType, loading_combination::LoadingCombination}, kernel::{
+use crate::{algorithm::entities::{driver_type::DriverType, lifting_class::LiftClass, loading_combination::LoadingCombination}, kernel::{
     dbgid::dbgid::DbgId,
     storage::storage::Storage,
     str_err::str_err::StrErr,
@@ -17,6 +17,8 @@ pub struct InitialCtx {
     pub vhmax: f64,
     /// value of slow [lifting speed of the mechanism](design\docs\algorithm\part01\initial_data.md)
     pub vhcs: f64,
+    /// value of [lifting class](design\docs\algorithm\part02\chapter_01_choose_hook.md)
+    pub lift_class: LiftClass,
 }
 //
 //
@@ -41,6 +43,10 @@ impl InitialCtx {
             .map_err(|err| StrErr(format!("{}.filter | Error {:?}", dbg, err)))?,
             vhcs: serde_json::from_value::<f64>(
                 storage_initial_data.load("test.user_characteristics.vhcs")?,
+            )
+            .map_err(|err| StrErr(format!("{}.filter | Error {:?}", dbg, err)))?,
+            lift_class: serde_json::from_value::<LiftClass>(
+                storage_initial_data.load("test.user_characteristics.lifting_class")?,
             )
             .map_err(|err| StrErr(format!("{}.filter | Error {:?}", dbg, err)))?,
             // dbgid: dbg,
