@@ -7,7 +7,7 @@ use crate::algorithm::{
 /// - R/W access to the isoleted data of each step of computations
 #[derive(Debug, Clone)]
 pub struct Context {
-    /// where store initial data
+    /// where store [initial data](design\docs\algorithm\part01\initial_data.md)
     pub initial: InitialCtx,
     /// where store info about result of algorithm [LiftingSpeedCtx]
     pub lifting_speed: LiftingSpeedCtx,
