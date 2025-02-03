@@ -11,8 +11,12 @@
 //! use crate::algorithm::lifting_speed::lifting_speed::LiftingSpeed;
 //! use crate::kernel::initial_data::initial_data::InitialData;
 //! let path = "./src/tests/unit/kernel/storage/cache";
-//! let dynamic_coefficient = DynamicCoefficient::new(
-//!                             SelectBettaPhi::new(InitialData::new(&mut Storage::new(path)).expect(&format!("{} | Error of initial data",dbgid))), LiftingSpeed::new(InitialData::new(&mut Storage::new(path)).expect(&format!("{} | Error of initial data",dbgid))).eval();
+//! let dynamic_coefficient = let result = DynamicCoefficient::new(
+//!                                             Arc::new(
+//!                                                 RwLock::new(
+//!                                                     Context::new(\
+//!                                                         InitialCtx::new(
+//!                                                             &mut Storage::new("./src/tests/unit/kernel/storage/cache/test_8")).unwrap()))))).eval();
 //! println!("dynamic coefficient: {}", dynamic_coefficient);
 //! ```
 pub mod dynamic_coefficient;
