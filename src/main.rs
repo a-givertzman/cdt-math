@@ -5,7 +5,11 @@ mod kernel;
 mod tests;
 use std::sync::{Arc, RwLock};
 
-use algorithm::{context::context::Context, dynamic_coefficient::dynamic_coefficient::DynamicCoefficient, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed::LiftingSpeed, select_betta_phi::select_betta_phi::SelectBettaPhi};
+use algorithm::{
+    context::context::Context, dynamic_coefficient::dynamic_coefficient::DynamicCoefficient,
+    initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed::LiftingSpeed,
+    select_betta_phi::select_betta_phi::SelectBettaPhi,
+};
 //
 use api_tools::debug::dbg_id::DbgId;
 use app::app::App;
@@ -23,13 +27,18 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
     let dynamic_coefficient = DynamicCoefficient::new(
         SelectBettaPhi::new(
-            LiftingSpeed::new(
-                Arc::new(
-                    RwLock::new(
-                        Context::new(
-                            InitialCtx::new(
-                                &mut Storage::new(
-                                                    "./src/tests/unit/kernel/storage/cache/test_8",))
-            .unwrap())))).eval().unwrap()).eval().unwrap()).eval();
+            LiftingSpeed::new(Arc::new(RwLock::new(Context::new(
+                InitialCtx::new(&mut Storage::new(
+                    "./src/tests/unit/kernel/storage/cache/test_8",
+                ))
+                .unwrap(),
+            ))))
+            .eval()
+            .unwrap(),
+        )
+        .eval()
+        .unwrap(),
+    )
+    .eval();
     Ok(())
 }

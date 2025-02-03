@@ -10,7 +10,15 @@ mod DynamicCoefficient {
 
     use crate::{
         algorithm::{
-            context::{context::Context, ctx_result::CtxResult}, dynamic_coefficient::{dynamic_coefficient::DynamicCoefficient, dynamic_coefficient_ctx::DynamicCoefficientCtx}, entities::bet_phi::BetPhi, initial_ctx::initial_ctx::InitialCtx, lifting_speed::{lifting_speed::LiftingSpeed, lifting_speed_ctx::LiftingSpeedCtx}, select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx
+            context::{context::Context, ctx_result::CtxResult},
+            dynamic_coefficient::{
+                dynamic_coefficient::DynamicCoefficient,
+                dynamic_coefficient_ctx::DynamicCoefficientCtx,
+            },
+            entities::bet_phi::BetPhi,
+            initial_ctx::initial_ctx::InitialCtx,
+            lifting_speed::{lifting_speed::LiftingSpeed, lifting_speed_ctx::LiftingSpeedCtx},
+            select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx,
         },
         kernel::{dbgid::dbgid::DbgId, eval::Eval, storage::storage::Storage},
     };
@@ -52,7 +60,10 @@ mod DynamicCoefficient {
                         result: CtxResult::Ok(50.0),
                     },
                     bet_phi: SelectBetPhiCtx {
-                        result: CtxResult::Ok(BetPhi{bet: 0.50, phi: 0.64}),
+                        result: CtxResult::Ok(BetPhi {
+                            bet: 0.50,
+                            phi: 0.64,
+                        }),
                     },
                     dynamic_coefficient: DynamicCoefficientCtx {
                         result: CtxResult::None,
@@ -71,7 +82,10 @@ mod DynamicCoefficient {
                         result: CtxResult::Ok(660.0),
                     },
                     bet_phi: SelectBetPhiCtx {
-                        result: CtxResult::Ok(BetPhi{bet: 0.120, phi: 0.64}),
+                        result: CtxResult::Ok(BetPhi {
+                            bet: 0.120,
+                            phi: 0.64,
+                        }),
                     },
                     dynamic_coefficient: DynamicCoefficientCtx {
                         result: CtxResult::None,
@@ -90,7 +104,10 @@ mod DynamicCoefficient {
                         result: CtxResult::Ok(60.0),
                     },
                     bet_phi: SelectBetPhiCtx {
-                        result: CtxResult::Ok(BetPhi{bet: 0.125, phi: 0.24}),
+                        result: CtxResult::Ok(BetPhi {
+                            bet: 0.125,
+                            phi: 0.24,
+                        }),
                     },
                     dynamic_coefficient: DynamicCoefficientCtx {
                         result: CtxResult::None,
@@ -102,7 +119,13 @@ mod DynamicCoefficient {
         for (step, contex, target) in test_data {
             let ctx = Arc::new(RwLock::new(contex));
             let result = DynamicCoefficient::new(ctx.clone()).eval();
-            let result = result.unwrap().read().unwrap().dynamic_coefficient.result.clone();
+            let result = result
+                .unwrap()
+                .read()
+                .unwrap()
+                .dynamic_coefficient
+                .result
+                .clone();
             assert!(
                 result == target,
                 "step {} \nresult: {:?}\ntarget: {:?}",
