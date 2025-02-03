@@ -13,7 +13,6 @@ mod SelectBetPhi {
             context::{context::Context, ctx_result::CtxResult},
             entities::bet_phi::BetPhi,
             initial_ctx::initial_ctx::InitialCtx,
-            lifting_speed::lifting_speed::LiftingSpeed,
             select_betta_phi::select_betta_phi::SelectBettaPhi,
         },
         kernel::{dbgid::dbgid::DbgId, eval::Eval, storage::storage::Storage},

@@ -17,7 +17,7 @@ mod DynamicCoefficient {
             },
             entities::bet_phi::BetPhi,
             initial_ctx::initial_ctx::InitialCtx,
-            lifting_speed::{lifting_speed::LiftingSpeed, lifting_speed_ctx::LiftingSpeedCtx},
+            lifting_speed::lifting_speed_ctx::LiftingSpeedCtx,
             select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx,
         },
         kernel::{dbgid::dbgid::DbgId, eval::Eval, storage::storage::Storage},

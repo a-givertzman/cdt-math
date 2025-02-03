@@ -74,7 +74,7 @@ impl Eval for DynamicCoefficient {
                     }
                 }
                 Err(err) => {
-                    return CtxResult::Err(StrErr(format!(
+                    CtxResult::Err(StrErr(format!(
                         "{}.eval | Read context error: {:?}",
                         self.dbgid, err
                     )))
