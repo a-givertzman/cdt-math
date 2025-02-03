@@ -11,7 +11,6 @@
 //! ```rust
 //! use crate::algorithm::lifting_speed::lifting_speed::LiftingSpeed;
 //! use crate::kernel::initial_data::initial_data::InitialData;
-//! let lifting_speed = LiftingSpeed::new(InitialData::new()).eval();
 //! let path = "....";
 //! let lifting_speed = LiftingSpeed::new(Context::new(InitialCtx::new(&mut Storage::new(path)).expect("Error to create InitialCtx"))).eval();
 //! println!("Steady state lifiting speed: {}", lifting_speed);
