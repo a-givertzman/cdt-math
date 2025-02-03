@@ -1,6 +1,6 @@
 #[cfg(test)]
 
-mod lifting_speed {
+mod Liftingspeed {
     use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
     use std::{
         sync::{Arc, Once, RwLock},
@@ -47,64 +47,56 @@ mod lifting_speed {
                 1,
                 InitialCtx::new(&mut Storage::new(
                     "./src/tests/unit/kernel/storage/cache/test_1",
-                ))
-                .unwrap(),
+                )).unwrap(),
                 CtxResult::Ok(0.63),
             ),
             (
                 2,
                 InitialCtx::new(&mut Storage::new(
                     "./src/tests/unit/kernel/storage/cache/test_2",
-                ))
-                .unwrap(),
+                )).unwrap(),
                 CtxResult::Ok(0.2),
             ),
             (
                 3,
                 InitialCtx::new(&mut Storage::new(
                     "./src/tests/unit/kernel/storage/cache/test_3",
-                ))
-                .unwrap(),
+                )).unwrap(),
                 CtxResult::Ok(0.2),
             ),
             (
                 4,
                 InitialCtx::new(&mut Storage::new(
                     "./src/tests/unit/kernel/storage/cache/test_4",
-                ))
-                .unwrap(),
+                )).unwrap(),
                 CtxResult::Ok(0.315),
             ),
             (
                 5,
                 InitialCtx::new(&mut Storage::new(
                     "./src/tests/unit/kernel/storage/cache/test_5",
-                ))
-                .unwrap(),
+                )).unwrap(),
                 CtxResult::Ok(0.0),
             ),
             (
                 6,
                 InitialCtx::new(&mut Storage::new(
                     "./src/tests/unit/kernel/storage/cache/test_6",
-                ))
-                .unwrap(),
+                )).unwrap(),
                 CtxResult::Ok(0.63),
             ),
             (
                 7,
                 InitialCtx::new(&mut Storage::new(
                     "./src/tests/unit/kernel/storage/cache/test_7",
-                ))
-                .unwrap(),
+                )).unwrap(),
                 CtxResult::Ok(0.2),
             ),
             (
                 8,
                 InitialCtx::new(&mut Storage::new(
                     "./src/tests/unit/kernel/storage/cache/test_8",
-                ))
-                .unwrap(),
+                )).unwrap(),
                 CtxResult::Ok(0.315),
             ),
         ];

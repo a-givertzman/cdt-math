@@ -1,6 +1,5 @@
 use crate::algorithm::{
     initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed_ctx::LiftingSpeedCtx,
-    select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx,
 };
 ///
 /// # Calculation context
@@ -12,8 +11,6 @@ pub struct Context {
     pub initial: InitialCtx,
     /// where store info about result of algorithm [LiftingSpeedCtx]
     pub lifting_speed: LiftingSpeedCtx,
-    /// where store info about result of algorithm [SelectBetPhiCtx]
-    pub bet_phi: SelectBetPhiCtx,
 }
 //
 //
@@ -25,7 +22,6 @@ impl Context {
         Self {
             initial,
             lifting_speed: LiftingSpeedCtx::default(),
-            bet_phi: SelectBetPhiCtx::default(),
         }
     }
 }
