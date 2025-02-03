@@ -1,9 +1,12 @@
 #[cfg(test)]
 
 mod app {
-    use std::{sync::Once, time::{Duration, Instant}};
+    use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
+    use std::{
+        sync::Once,
+        time::{Duration, Instant},
+    };
     use testing::stuff::max_test_duration::TestDuration;
-    use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
 
     use crate::{app::app::App, kernel::run::Run};
     ///
@@ -19,7 +22,7 @@ mod app {
     ///
     /// returns:
     ///  - ...
-    fn init_each() -> () {}
+    fn init_each() {}
     ///
     /// Testing such functionality / behavior
     #[test]
@@ -40,7 +43,13 @@ mod app {
         let result = app.run();
         let elapsed = time.elapsed();
         log::debug!("{}.new | elapsed: {:?}", dbg_id, elapsed);
-        assert!(result == target, "step {} \nresult: {:?}\ntarget: {:?}", step, result, target);
+        assert!(
+            result == target,
+            "step {} \nresult: {:?}\ntarget: {:?}",
+            step,
+            result,
+            target
+        );
         test_duration.exit();
     }
 }
