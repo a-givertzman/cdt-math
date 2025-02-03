@@ -1,45 +1,73 @@
-use crate::kernel::{dbgid::dbgid::DbgId, entities::{bet_phi::BetPhi, lifting_class::LiftClass}, initial_data::initial_data::InitialData, str_err::str_err::StrErr};
+use crate::{
+    algorithm::{
+        context::{context::Context, ctx_result::CtxResult},
+        entities::{bet_phi::BetPhi, lifting_class::LiftClass},
+    },
+    kernel::{dbgid::dbgid::DbgId, eval::Eval, str_err::str_err::StrErr},
+};
+use std::sync::{Arc, RwLock};
 ///
-/// Struct, that make choice β2 and ϕ2 coefficients, based on user lifting class
-/// [reference to betta and phi coefficients documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
-/// - 'value' - [BetPhi] instance
-/// - 'initial_data' - [InitialData] instance, where store initial data
+/// Struct, that make choice β2 and ϕ2 coefficients, based on user [lifting class](design\docs\algorithm\part01\initial_data.md)
+/// [reference to β2 and ϕ2 coefficients documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
 #[derive(Debug, Clone)]
 pub struct SelectBettaPhi {
     dbgid: DbgId,
+    /// [BetPhi] instance, where store value of coefficients β2 and ϕ2
     value: Option<BetPhi>,
-    initial_data: InitialData
+    /// [Context] instance, where store all info about initial data and each algorithm result's
+    ctx: Arc<RwLock<Context>>,
 }
 //
 //
 impl SelectBettaPhi {
     ///
     /// Class Constructor
-    /// - 'initial_data' - [InitialData] instance, where store initial data
-    pub fn new(initial_data: InitialData) -> Self {
+    /// - 'ctx' - [Context] instance, where store all info about initial data and each algorithm result's
+    pub fn new(ctx: Arc<RwLock<Context>>) -> Self {
         Self {
             dbgid: DbgId("SelectBetPhi".to_string()),
             value: None,
-            initial_data: initial_data
+            ctx,
         }
     }
+}
+//
+//
+impl Eval for SelectBettaPhi {
     ///
-    /// Method make choice β2 and ϕ2 coefficients, based on user lifting class
-    /// [reference to betta and phi table-choice documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
-    /// - 'lift_class' - user lifting class (enum [LiftClass]) 
-    pub fn eval(&mut self) -> BetPhi {
+    /// Method make choice β2 and ϕ2 coefficients, based on user [lifting class](design\docs\algorithm\part01\initial_data.md)
+    /// [reference to β2 and ϕ2 coefficients documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
+    fn eval(&mut self) -> CtxResult<Arc<RwLock<Context>>, StrErr> {
         match &self.value {
-            Some(bet_phi) => return bet_phi.clone(),
+            Some(_) => CtxResult::Ok(self.ctx.clone()),
             None => {
-                let result = match self.initial_data.lift_class {
+                let initial = match self.ctx.read() {
+                    Ok(ctx) => ctx.initial.clone(),
+                    Err(err) => {
+                        return CtxResult::Err(StrErr(format!(
+                            "{}.eval | Read context error: {:?}",
+                            self.dbgid, err
+                        )))
+                    }
+                };
+                let result = match initial.lift_class {
                     LiftClass::Hc1 => BetPhi::new(0.17, 1.05),
                     LiftClass::Hc2 => BetPhi::new(0.34, 1.10),
                     LiftClass::Hc3 => BetPhi::new(0.51, 1.15),
                     LiftClass::Hc4 => BetPhi::new(0.68, 1.20),
                 };
                 self.value = Some(result.clone());
-                return result
-            },
+                match self.ctx.write() {
+                    Ok(mut ctx) => {
+                        ctx.bet_phi.result = CtxResult::Ok(result);
+                        CtxResult::Ok(self.ctx.clone())
+                    }
+                    Err(err) => CtxResult::Err(StrErr(format!(
+                        "{}.eval | Read context error: {:?}",
+                        self.dbgid, err
+                    ))),
+                }
+            }
         }
     }
 }

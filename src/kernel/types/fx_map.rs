@@ -1,6 +1,6 @@
-use std::{collections::HashMap, hash::BuildHasherDefault};
 use indexmap::IndexMap;
 use rustc_hash::FxHasher;
+use std::{collections::HashMap, hash::BuildHasherDefault};
 ///
 /// Lightweght faster HashMap
 pub type FxHashMap<K, V> = HashMap<K, V, BuildHasherDefault<FxHasher>>;
