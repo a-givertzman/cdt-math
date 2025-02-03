@@ -15,4 +15,5 @@
 //!                             SelectBettaPhi::new(InitialData::new(&mut Storage::new(path)).expect(&format!("{} | Error of initial data",dbgid))), LiftingSpeed::new(InitialData::new(&mut Storage::new(path)).expect(&format!("{} | Error of initial data",dbgid))).eval();
 //! println!("dynamic coefficient: {}", dynamic_coefficient);
 //! ```
+pub mod dynamic_coefficient_ctx;
 pub mod dynamic_coefficient;

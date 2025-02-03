@@ -1,6 +1,5 @@
 use crate::algorithm::{
-    initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed_ctx::LiftingSpeedCtx,
-    select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx,
+    dynamic_coefficient::dynamic_coefficient_ctx::DynamicCoefficientCtx, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed_ctx::LiftingSpeedCtx, select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx
 };
 ///
 /// # Calculation context
@@ -14,6 +13,8 @@ pub struct Context {
     pub lifting_speed: LiftingSpeedCtx,
     /// where store info about result of algorithm [SelectBetPhiCtx]
     pub bet_phi: SelectBetPhiCtx,
+    /// where store info about result of algorithm [DynamicCoefficientCtx]
+    pub dynamic_coefficient: DynamicCoefficientCtx,
 }
 //
 //
@@ -26,6 +27,8 @@ impl Context {
             initial,
             lifting_speed: LiftingSpeedCtx::default(),
             bet_phi: SelectBetPhiCtx::default(),
+            dynamic_coefficient: DynamicCoefficientCtx::default(),
+
         }
     }
 }
