@@ -10,15 +10,10 @@ mod DynamicCoefficient {
 
     use crate::{
         algorithm::{
-            context::{context::Context, ctx_result::CtxResult},
-            dynamic_coefficient::{
+            context::{context::Context, ctx_result::CtxResult}, dynamic_coefficient::{
                 dynamic_coefficient::DynamicCoefficient,
                 dynamic_coefficient_ctx::DynamicCoefficientCtx,
-            },
-            entities::bet_phi::BetPhi,
-            initial_ctx::initial_ctx::InitialCtx,
-            lifting_speed::lifting_speed_ctx::LiftingSpeedCtx,
-            select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx,
+            }, entities::bet_phi::BetPhi, hook_filter::hook_filter_ctx::HookFilterCtx, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed_ctx::LiftingSpeedCtx, select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx
         },
         kernel::{dbgid::dbgid::DbgId, eval::Eval, storage::storage::Storage},
     };
@@ -68,6 +63,9 @@ mod DynamicCoefficient {
                     dynamic_coefficient: DynamicCoefficientCtx {
                         result: CtxResult::None,
                     },
+                    filtered_hooks: HookFilterCtx {
+                        result: CtxResult::None,
+                    },
                 },
                 CtxResult::Ok(25.64),
             ),
@@ -90,6 +88,9 @@ mod DynamicCoefficient {
                     dynamic_coefficient: DynamicCoefficientCtx {
                         result: CtxResult::None,
                     },
+                    filtered_hooks: HookFilterCtx {
+                        result: CtxResult::None,
+                    },
                 },
                 CtxResult::Ok(79.84),
             ),
@@ -110,6 +111,9 @@ mod DynamicCoefficient {
                         }),
                     },
                     dynamic_coefficient: DynamicCoefficientCtx {
+                        result: CtxResult::None,
+                    },
+                    filtered_hooks: HookFilterCtx {
                         result: CtxResult::None,
                     },
                 },

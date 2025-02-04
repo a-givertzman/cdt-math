@@ -1,0 +1,114 @@
+#[cfg(test)]
+
+mod HookFilter {
+    use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
+    use std::{
+        sync::{Arc, Once, RwLock},
+        time::Duration,
+    };
+    use testing::stuff::max_test_duration::TestDuration;
+
+    use crate::{
+        algorithm::{
+            context::{context::Context, ctx_result::CtxResult}, entities::hook::Hook, hook_filter::hook_filter::HookFilter, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed::LiftingSpeed
+        },
+        kernel::{dbgid::dbgid::DbgId, eval::Eval, storage::storage::Storage},
+    };
+
+    ///
+    ///
+    static INIT: Once = Once::new();
+    ///
+    /// once called initialisation
+    fn init_once() {
+        INIT.call_once(|| {
+            // implement your initialisation code to be called only once for current test file
+        })
+    }
+    ///
+    /// returns:
+    ///  - ...
+    fn init_each() {}
+    ///
+    /// Testing to 'eval()' method
+    #[test]
+    fn eval() {
+        DebugSession::init(LogLevel::Info, Backtrace::Short);
+        init_once();
+        init_each();
+        let dbgid = DbgId("eval".into());
+        log::debug!("\n{}", dbgid);
+        let test_duration = TestDuration::new(&dbgid, Duration::from_secs(1));
+        test_duration.run().unwrap();
+        let test_data = [
+            (
+                1,
+                InitialCtx::new(&mut Storage::new(
+                    "./src/tests/unit/kernel/storage/cache/test_1",
+                )).unwrap(),
+                CtxResult::None,
+            ),
+            (
+                2,
+                InitialCtx::new(&mut Storage::new(
+                    "./src/tests/unit/kernel/storage/cache/test_2",
+                )).unwrap(),
+                CtxResult::Ok(vec![
+                    Hook { 
+                        gost: "GOST 18442-81".to_string(), 
+                        r#type: "Double".to_string(), 
+                        load_capacity_m13: 12.0, 
+                        load_capacity_m46: 11.0, 
+                        load_capacity_m78: 10.0, 
+                        shank_diameter: 55.0 
+                    },
+                    Hook { 
+                        gost: "GOST 23858-79".to_string(), 
+                        r#type: "Forged".to_string(), 
+                        load_capacity_m13: 22.0, 
+                        load_capacity_m46: 20.0, 
+                        load_capacity_m78: 18.5, 
+                        shank_diameter: 80.0 
+                    },
+                    Hook { 
+                        gost: "GOST 31272-92".to_string(), 
+                        r#type: "Laminated".to_string(), 
+                        load_capacity_m13: 17.0, 
+                        load_capacity_m46: 16.0, 
+                        load_capacity_m78: 14.0, 
+                        shank_diameter: 65.0 
+                    }
+                ]),
+            ),
+            (
+                3,
+                InitialCtx::new(&mut Storage::new(
+                    "./src/tests/unit/kernel/storage/cache/test_3",
+                )).unwrap(),
+                CtxResult::Ok(vec![
+                    Hook { 
+                        gost: "GOST 34567-85".to_string(), 
+                        r#type: "Forged".to_string(), 
+                        load_capacity_m13: 25.0, 
+                        load_capacity_m46: 23.0, 
+                        load_capacity_m78: 21.0, 
+                        shank_diameter: 85.0 
+                    }
+                ]),
+            ),
+        ];
+        for (step, initial, target) in test_data {
+            let ctx = Arc::new(RwLock::new(Context::new(initial)));
+            let result = HookFilter::new(ctx.clone()).eval();
+            let result = result.unwrap().read().unwrap().filtered_hooks.result.clone();
+            assert!(
+                result == target,
+                "step {} \nresult: {:?}\ntarget: {:?}",
+                step,
+                result,
+                target
+            );
+        }
+        test_duration.exit();
+    }
+}

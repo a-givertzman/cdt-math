@@ -1,5 +1,5 @@
 use crate::algorithm::{
-    dynamic_coefficient::dynamic_coefficient_ctx::DynamicCoefficientCtx, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed_ctx::LiftingSpeedCtx, select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx
+    dynamic_coefficient::dynamic_coefficient_ctx::DynamicCoefficientCtx, hook_filter::hook_filter_ctx::HookFilterCtx, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed_ctx::LiftingSpeedCtx, select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx
 };
 ///
 /// # Calculation context
@@ -15,6 +15,8 @@ pub struct Context {
     pub bet_phi: SelectBetPhiCtx,
     /// result of calculation [dynamic coefficient](design\docs\algorithm\part02\chapter_01_choose_hook.md)
     pub dynamic_coefficient: DynamicCoefficientCtx,
+    /// result of [filtering hooks](design\docs\algorithm\part02\chapter_01_choose_hook.md)
+    pub filtered_hooks: HookFilterCtx,
 }
 //
 //
@@ -28,6 +30,8 @@ impl Context {
             lifting_speed: LiftingSpeedCtx::default(),
             bet_phi: SelectBetPhiCtx::default(),
             dynamic_coefficient: DynamicCoefficientCtx::default(),
+            filtered_hooks: HookFilterCtx::default(),
+
         }
     }
 }
