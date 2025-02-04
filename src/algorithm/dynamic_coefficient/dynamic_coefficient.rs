@@ -19,7 +19,7 @@ pub struct DynamicCoefficient {
 impl DynamicCoefficient {
     ///
     /// Class Constructor
-    /// - 'ctx' - [Context] instance, where store all info about initial data and each algorithm result's
+    /// - `ctx` - [Context]
     pub fn new(ctx: Arc<RwLock<Context>>) -> Self {
         Self {
             dbgid: DbgId("DynamicCoefficient".to_string()),
