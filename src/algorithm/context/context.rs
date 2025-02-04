@@ -1,6 +1,5 @@
 use crate::algorithm::{
-    initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed_ctx::LiftingSpeedCtx,
-    select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx,
+    dynamic_coefficient::dynamic_coefficient_ctx::DynamicCoefficientCtx, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed_ctx::LiftingSpeedCtx, select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx
 };
 ///
 /// # Calculation context
@@ -10,10 +9,12 @@ use crate::algorithm::{
 pub struct Context {
     /// where store [initial data](design\docs\algorithm\part01\initial_data.md)
     pub initial: InitialCtx,
-    /// where store info about result of algorithm [LiftingSpeedCtx]
+    /// result of calculation [steady-state-lifting-speed](design\docs\algorithm\part02\chapter_01_choose_hook.md)
     pub lifting_speed: LiftingSpeedCtx,
-    /// where store info about result of algorithm [SelectBetPhiCtx]
+    /// result of calculation [ϕ2(phi) and β2(betta) coefficients](design\docs\algorithm\part02\chapter_01_choose_hook.md)
     pub bet_phi: SelectBetPhiCtx,
+    /// result of calculation [dynamic coefficient](design\docs\algorithm\part02\chapter_01_choose_hook.md)
+    pub dynamic_coefficient: DynamicCoefficientCtx,
 }
 //
 //
@@ -26,6 +27,7 @@ impl Context {
             initial,
             lifting_speed: LiftingSpeedCtx::default(),
             bet_phi: SelectBetPhiCtx::default(),
+            dynamic_coefficient: DynamicCoefficientCtx::default(),
         }
     }
 }
