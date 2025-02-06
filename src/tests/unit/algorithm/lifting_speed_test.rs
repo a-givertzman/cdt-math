@@ -1,6 +1,6 @@
 #[cfg(test)]
 
-mod Liftingspeed {
+mod lifting_speed {
     use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
     use std::{
         sync::{Arc, Once, RwLock},
@@ -101,8 +101,8 @@ mod Liftingspeed {
             ),
         ];
         for (step, initial, target) in test_data {
-            let ctx = Arc::new(RwLock::new(Context::new(initial)));
-            let result = LiftingSpeed::new(ctx.clone()).eval();
+            let ctx = MocEval { ctx: Context::new(initial) };
+            let result = LiftingSpeed::new(ctx).eval();
             let result = result.unwrap().read().unwrap().lifting_speed.result.clone();
             assert!(
                 result == target,
@@ -113,5 +113,18 @@ mod Liftingspeed {
             );
         }
         test_duration.exit();
+    }
+    ///
+    /// 
+    #[derive(Debug)]
+    struct MocEval {
+        pub ctx: Context
+    }
+    //
+    //
+    impl Eval for MocEval {
+        fn eval(&mut self) -> CtxResult<Arc<RwLock<Context>>, crate::kernel::str_err::str_err::StrErr> {
+            CtxResult::Ok(Arc::new(RwLock::new(self.ctx.clone())))
+        }
     }
 }

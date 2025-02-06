@@ -7,16 +7,17 @@ use crate::{
     },
 };
 use std::sync::{Arc, RwLock};
+
+use super::lifting_speed_ctx::LiftingSpeedCtx;
 ///
 /// Сlass, that select the steady-state lifting speed of the load
 /// [reference to steady-state lifting speed documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
-#[derive(Debug, Clone)]
 pub struct LiftingSpeed {
     dbgid: DbgId,
     /// value of [steady-state lifting speed](design\docs\algorithm\part02\chapter_01_choose_hook.md)
-    value: Option<f64>,
+    value: Option<LiftingSpeedCtx>,
     /// [Context] instance, where store all info about initial data and each algorithm result's
-    ctx: Arc<RwLock<Context>>,
+    ctx: Box<dyn Eval>,
 }
 //
 //
@@ -24,11 +25,11 @@ impl LiftingSpeed {
     ///
     /// Class Constructor
     /// - 'ctx' - [Context] instance, where store all info about initial data and each algorithm result's
-    pub fn new(ctx: Arc<RwLock<Context>>) -> Self {
+    pub fn new(ctx: impl Eval + 'static) -> Self {
         Self {
             dbgid: DbgId("LiftingSpeed".to_string()),
             value: None,
-            ctx,
+            ctx: Box::new(ctx),
         }
     }
     ///
@@ -46,18 +47,9 @@ impl Eval for LiftingSpeed {
     /// Method of calculating the steady-state lifting speed of the load
     /// [reference to steady-state lifting speed choice documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
     fn eval(&mut self) -> CtxResult<Arc<RwLock<Context>>, StrErr> {
-        match self.value {
-            Some(_) => CtxResult::Ok(self.ctx.clone()),
-            None => {
-                let initial = match self.ctx.read() {
-                    Ok(ctx) => ctx.initial.clone(),
-                    Err(err) => {
-                        return CtxResult::Err(StrErr(format!(
-                            "{}.eval | Read context error: {:?}",
-                            self.dbgid, err
-                        )))
-                    }
-                };
+        match self.ctx.eval() {
+            CtxResult::Ok(ctx) => {
+                let initial = ctx.read().unwrap().initial.clone();
                 let result = match initial.load_comb {
                     LoadingCombination::A1 | LoadingCombination::B1 => match initial.driver_type {
                         DriverType::Hd1 => initial.vhmax,
@@ -70,18 +62,29 @@ impl Eval for LiftingSpeed {
                         DriverType::Hd3 | DriverType::Hd5 => Self::vhmax_half(initial.vhmax),
                     },
                 };
-                self.value = Some(result);
-                match self.ctx.write() {
-                    Ok(mut ctx) => {
-                        ctx.lifting_speed.result = CtxResult::Ok(result);
-                        CtxResult::Ok(self.ctx.clone())
-                    }
-                    Err(err) => CtxResult::Err(StrErr(format!(
-                        "{}.eval | Read context error: {:?}",
-                        self.dbgid, err
-                    ))),
-                }
+                let result = LiftingSpeedCtx { result: CtxResult::Ok(result)};
+                self.value = Some(result.clone());
+                ctx.write().unwrap().lifting_speed = result;
+                CtxResult::Ok(ctx)
+            },
+            CtxResult::Err(err) => {
+                CtxResult::Err(StrErr(format!(
+                    "{}.eval | Read context error: {:?}",
+                    self.dbgid, err
+                )))
             }
+            CtxResult::None => CtxResult::None,
         }
+    }
+}
+//
+//
+impl std::fmt::Debug for LiftingSpeed {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("LiftingSpeed")
+            .field("dbgid", &self.dbgid)
+            .field("value", &self.value)
+            // .field("ctx", &self.ctx)
+            .finish()
     }
 }

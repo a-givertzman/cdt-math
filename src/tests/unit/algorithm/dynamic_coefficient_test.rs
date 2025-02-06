@@ -1,6 +1,6 @@
 #[cfg(test)]
 
-mod DynamicCoefficient {
+mod dynamic_coefficient {
     use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
     use std::{
         sync::{Arc, Once, RwLock},
@@ -10,10 +10,7 @@ mod DynamicCoefficient {
 
     use crate::{
         algorithm::{
-            context::{context::Context, ctx_result::CtxResult}, dynamic_coefficient::{
-                dynamic_coefficient::DynamicCoefficient,
-                dynamic_coefficient_ctx::DynamicCoefficientCtx,
-            }, entities::bet_phi::BetPhi, hook_filter::hook_filter_ctx::HookFilterCtx, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed_ctx::LiftingSpeedCtx, select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx
+            context::{context::Context, ctx_result::CtxResult}, dynamic_coefficient::dynamic_coefficient::DynamicCoefficient, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed::LiftingSpeed, select_betta_phi::select_betta_phi::SelectBettaPhi
         },
         kernel::{dbgid::dbgid::DbgId, eval::Eval, storage::storage::Storage},
     };
@@ -46,90 +43,33 @@ mod DynamicCoefficient {
         let test_data = [
             (
                 1,
-                Context {
-                    initial: InitialCtx::new(&mut Storage::new(
-                        "./src/tests/unit/kernel/storage/cache/test_1",
-                    ))
-                    .unwrap(),
-                    lifting_speed: LiftingSpeedCtx {
-                        result: CtxResult::Ok(50.0),
-                    },
-                    bet_phi: SelectBetPhiCtx {
-                        result: CtxResult::Ok(BetPhi {
-                            bet: 0.50,
-                            phi: 0.64,
-                        }),
-                    },
-                    dynamic_coefficient: DynamicCoefficientCtx {
-                        result: CtxResult::None,
-                    },
-                    hook_filter: HookFilterCtx {
-                        result: CtxResult::None,
-                    },
-                },
-                CtxResult::Ok(25.64),
+                InitialCtx::new(&mut Storage::new(
+                    "./src/tests/unit/kernel/storage/cache/test_1",
+                )).unwrap(),
+                CtxResult::Ok(1.1571),
             ),
             (
                 2,
-                Context {
-                    initial: InitialCtx::new(&mut Storage::new(
-                        "./src/tests/unit/kernel/storage/cache/test_1",
-                    ))
-                    .unwrap(),
-                    lifting_speed: LiftingSpeedCtx {
-                        result: CtxResult::Ok(660.0),
-                    },
-                    bet_phi: SelectBetPhiCtx {
-                        result: CtxResult::Ok(BetPhi {
-                            bet: 0.120,
-                            phi: 0.64,
-                        }),
-                    },
-                    dynamic_coefficient: DynamicCoefficientCtx {
-                        result: CtxResult::None,
-                    },
-                    hook_filter: HookFilterCtx {
-                        result: CtxResult::None,
-                    },
-                },
-                CtxResult::Ok(79.84),
+                InitialCtx::new(&mut Storage::new(
+                    "./src/tests/unit/kernel/storage/cache/test_2",
+                )).unwrap(),
+                CtxResult::Ok(1.1680000000000001),
             ),
             (
                 3,
-                Context {
-                    initial: InitialCtx::new(&mut Storage::new(
-                        "./src/tests/unit/kernel/storage/cache/test_1",
-                    ))
-                    .unwrap(),
-                    lifting_speed: LiftingSpeedCtx {
-                        result: CtxResult::Ok(60.0),
-                    },
-                    bet_phi: SelectBetPhiCtx {
-                        result: CtxResult::Ok(BetPhi {
-                            bet: 0.125,
-                            phi: 0.24,
-                        }),
-                    },
-                    dynamic_coefficient: DynamicCoefficientCtx {
-                        result: CtxResult::None,
-                    },
-                    hook_filter: HookFilterCtx {
-                        result: CtxResult::None,
-                    },
-                },
-                CtxResult::Ok(7.74),
+                InitialCtx::new(&mut Storage::new(
+                    "./src/tests/unit/kernel/storage/cache/test_3",
+                )).unwrap(),
+                CtxResult::Ok(1.252),
             ),
         ];
-        for (step, contex, target) in test_data {
-            let ctx = Arc::new(RwLock::new(contex));
-            let result = DynamicCoefficient::new(ctx.clone()).eval();
-            let result = result
-                .unwrap()
-                .read()
-                .unwrap()
-                .dynamic_coefficient
-                .result
-                .clone();
+        for (step, initial, target) in test_data {
+            let ctx = MocEval { ctx: Context::new(initial) };
+            let result = DynamicCoefficient::new(
+                SelectBettaPhi::new(
+                    LiftingSpeed::new(ctx)))
+            .eval();
+            let result = result.unwrap().read().unwrap().dynamic_coefficient.result.clone();
             assert!(
                 result == target,
                 "step {} \nresult: {:?}\ntarget: {:?}",
@@ -139,5 +79,18 @@ mod DynamicCoefficient {
             );
         }
         test_duration.exit();
+    }
+    ///
+    /// 
+    #[derive(Debug)]
+    struct MocEval {
+        pub ctx: Context
+    }
+    //
+    //
+    impl Eval for MocEval {
+        fn eval(&mut self) -> CtxResult<Arc<RwLock<Context>>, crate::kernel::str_err::str_err::StrErr> {
+            CtxResult::Ok(Arc::new(RwLock::new(self.ctx.clone())))
+        }
     }
 }

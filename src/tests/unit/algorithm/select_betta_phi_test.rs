@@ -90,9 +90,9 @@ mod select_bet_phi {
             ),
         ];
         for (step, initial, target) in test_data {
-            let ctx = Arc::new(RwLock::new(Context::new(initial)));
-            let result = SelectBettaPhi::new(ctx.clone()).eval();
-            let result = result.unwrap().read().unwrap().bet_phi.result.clone();
+            let ctx = MocEval { ctx: Context::new(initial) };
+            let result = SelectBettaPhi::new(ctx).eval();
+            let result = result.unwrap().read().unwrap().select_bet_phi.result.clone();
             assert!(
                 result == target,
                 "step {} \nresult: {:?}\ntarget: {:?}",
@@ -102,5 +102,18 @@ mod select_bet_phi {
             );
         }
         test_duration.exit();
+    }
+        ///
+    /// 
+    #[derive(Debug)]
+    struct MocEval {
+        pub ctx: Context
+    }
+    //
+    //
+    impl Eval for MocEval {
+        fn eval(&mut self) -> CtxResult<Arc<RwLock<Context>>, crate::kernel::str_err::str_err::StrErr> {
+            CtxResult::Ok(Arc::new(RwLock::new(self.ctx.clone())))
+        }
     }
 }

@@ -12,7 +12,7 @@ pub struct Context {
     /// result of calculation [steady-state-lifting-speed](design\docs\algorithm\part02\chapter_01_choose_hook.md)
     pub lifting_speed: LiftingSpeedCtx,
     /// result of calculation [ϕ2(phi) and β2(betta) coefficients](design\docs\algorithm\part02\chapter_01_choose_hook.md)
-    pub bet_phi: SelectBetPhiCtx,
+    pub select_bet_phi: SelectBetPhiCtx,
     /// result of calculation [dynamic coefficient](design\docs\algorithm\part02\chapter_01_choose_hook.md)
     pub dynamic_coefficient: DynamicCoefficientCtx,
     /// result of [filtering hooks](design\docs\algorithm\part02\chapter_01_choose_hook.md)
@@ -28,7 +28,7 @@ impl Context {
         Self {
             initial,
             lifting_speed: LiftingSpeedCtx::default(),
-            bet_phi: SelectBetPhiCtx::default(),
+            select_bet_phi: SelectBetPhiCtx::default(),
             dynamic_coefficient: DynamicCoefficientCtx::default(),
             hook_filter: HookFilterCtx::default(),
 
