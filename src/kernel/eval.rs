@@ -3,7 +3,7 @@ use crate::algorithm::context::{context::Context, ctx_result::CtxResult};
 use std::sync::{Arc, RwLock};
 ///
 /// Trate defines common evaluation function for calculations classes
-pub trait Eval {
+pub trait Eval: std::fmt::Debug {
     ///
     /// Pervorms a calculation
     /// - Returns [Context] contains result inside

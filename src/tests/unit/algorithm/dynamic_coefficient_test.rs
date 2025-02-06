@@ -63,7 +63,7 @@ mod DynamicCoefficient {
                     dynamic_coefficient: DynamicCoefficientCtx {
                         result: CtxResult::None,
                     },
-                    filtered_hooks: HookFilterCtx {
+                    hook_filter: HookFilterCtx {
                         result: CtxResult::None,
                     },
                 },
@@ -88,7 +88,7 @@ mod DynamicCoefficient {
                     dynamic_coefficient: DynamicCoefficientCtx {
                         result: CtxResult::None,
                     },
-                    filtered_hooks: HookFilterCtx {
+                    hook_filter: HookFilterCtx {
                         result: CtxResult::None,
                     },
                 },
@@ -113,7 +113,7 @@ mod DynamicCoefficient {
                     dynamic_coefficient: DynamicCoefficientCtx {
                         result: CtxResult::None,
                     },
-                    filtered_hooks: HookFilterCtx {
+                    hook_filter: HookFilterCtx {
                         result: CtxResult::None,
                     },
                 },

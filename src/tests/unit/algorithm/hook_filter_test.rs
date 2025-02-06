@@ -100,7 +100,7 @@ mod HookFilter {
         for (step, initial, target) in test_data {
             let ctx = Arc::new(RwLock::new(Context::new(initial)));
             let result = HookFilter::new(ctx.clone()).eval();
-            let result = result.unwrap().read().unwrap().filtered_hooks.result.clone();
+            let result = result.unwrap().read().unwrap().hook_filter.result.clone();
             assert!(
                 result == target,
                 "step {} \nresult: {:?}\ntarget: {:?}",

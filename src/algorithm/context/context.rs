@@ -16,7 +16,7 @@ pub struct Context {
     /// result of calculation [dynamic coefficient](design\docs\algorithm\part02\chapter_01_choose_hook.md)
     pub dynamic_coefficient: DynamicCoefficientCtx,
     /// result of [filtering hooks](design\docs\algorithm\part02\chapter_01_choose_hook.md)
-    pub filtered_hooks: HookFilterCtx,
+    pub hook_filter: HookFilterCtx,
 }
 //
 //
@@ -30,7 +30,7 @@ impl Context {
             lifting_speed: LiftingSpeedCtx::default(),
             bet_phi: SelectBetPhiCtx::default(),
             dynamic_coefficient: DynamicCoefficientCtx::default(),
-            filtered_hooks: HookFilterCtx::default(),
+            hook_filter: HookFilterCtx::default(),
 
         }
     }
