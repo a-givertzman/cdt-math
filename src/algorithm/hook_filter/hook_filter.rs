@@ -54,27 +54,19 @@ impl Eval for HookFilter {
                         };
                         let user_loading_capacity = initial.load_capacity.clone();
                         let user_mech_work_type = initial.mechanism_work_type.clone();
-                        let hooks = initial.hooks.clone();
-                        let mut result: Vec<Hook> = Vec::new();
-                        for hook in hooks.iter() {
+                        let result: Vec<Hook> = initial.hooks.into_iter().filter(|hook| {
                             match user_mech_work_type {
                                 MechanismWorkType::M1 | MechanismWorkType::M2 | MechanismWorkType::M3 => {
-                                    if hook.load_capacity_m13 >= user_loading_capacity {
-                                        result.push(hook.clone())
-                                    }
+                                    hook.load_capacity_m13 >= user_loading_capacity
                                 }
                                 MechanismWorkType::M4 | MechanismWorkType::M5 | MechanismWorkType::M6 => {
-                                    if hook.load_capacity_m46 >= user_loading_capacity {
-                                        result.push(hook.clone())
-                                    }
+                                    hook.load_capacity_m46 >= user_loading_capacity
                                 }
                                 MechanismWorkType::M7 | MechanismWorkType::M8 => {
-                                    if hook.load_capacity_m78 >= user_loading_capacity {
-                                        result.push(hook.clone())
-                                    }
+                                    hook.load_capacity_m78 >= user_loading_capacity
                                 }
                             }
-                        }
+                        }).collect();
                         let result = if result.is_empty() {
                             CtxResult::Err(StrErr(format!(
                                 "{}.eval | No available variants of hook for specified requirements",
