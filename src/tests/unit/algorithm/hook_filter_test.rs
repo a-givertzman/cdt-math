@@ -1,6 +1,6 @@
 #[cfg(test)]
 
-mod HookFilter {
+mod hook_filter {
     use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
     use std::{
         sync::{Arc, Once, RwLock},
@@ -10,7 +10,7 @@ mod HookFilter {
 
     use crate::{
         algorithm::{
-            context::{context::Context, ctx_result::CtxResult}, entities::hook::Hook, hook_filter::hook_filter::HookFilter, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed::LiftingSpeed
+            context::{context::Context, ctx_result::CtxResult}, entities::hook::Hook, hook_filter::hook_filter::HookFilter, initial_ctx::initial_ctx::InitialCtx,
         },
         kernel::{dbgid::dbgid::DbgId, eval::Eval, storage::storage::Storage},
     };
@@ -98,8 +98,8 @@ mod HookFilter {
             ),
         ];
         for (step, initial, target) in test_data {
-            let ctx = Arc::new(RwLock::new(Context::new(initial)));
-            let result = HookFilter::new(ctx.clone()).eval();
+            let ctx = MocEval { ctx: Context::new(initial) };
+            let result = HookFilter::new(ctx).eval();
             let result = result.unwrap().read().unwrap().hook_filter.result.clone();
             assert!(
                 result == target,
@@ -110,5 +110,18 @@ mod HookFilter {
             );
         }
         test_duration.exit();
+    }
+    ///
+    /// 
+    #[derive(Debug)]
+    struct MocEval {
+        pub ctx: Context
+    }
+    //
+    //
+    impl Eval for MocEval {
+        fn eval(&mut self) -> CtxResult<Arc<RwLock<Context>>, crate::kernel::str_err::str_err::StrErr> {
+            CtxResult::Ok(Arc::new(RwLock::new(self.ctx.clone())))
+        }
     }
 }
