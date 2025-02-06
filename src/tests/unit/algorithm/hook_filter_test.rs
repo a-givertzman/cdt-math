@@ -15,7 +15,7 @@ mod hook_filter {
             hook_filter::hook_filter::HookFilter,
             initial_ctx::initial_ctx::InitialCtx,
         },
-        kernel::{dbgid::dbgid::DbgId, eval::Eval, storage::storage::Storage},
+        kernel::{dbgid::dbgid::DbgId, eval::Eval, storage::storage::Storage, str_err::str_err::StrErr},
     };
 
     ///
@@ -50,7 +50,7 @@ mod hook_filter {
                     "./src/tests/unit/kernel/storage/cache/test_1",
                 ))
                 .unwrap(),
-                CtxResult::None,
+                CtxResult::Err(StrErr(format!("HookFilter.{} | No available variants of hook for specified requirements",dbgid))),
             ),
             (
                 2,
