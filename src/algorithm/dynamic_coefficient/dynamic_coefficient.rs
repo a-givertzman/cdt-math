@@ -41,21 +41,22 @@ impl Eval for DynamicCoefficient {
                 let result = match self.value.clone() {
                     Some(dynamic_coefficient) => dynamic_coefficient,
                     None => {
-                        let lifting_speed = ctx.read().unwrap().lifting_speed.result.clone().unwrap();
+                        let lifting_speed =
+                            ctx.read().unwrap().lifting_speed.result.clone().unwrap();
                         let bet_phi = ctx.read().unwrap().select_bet_phi.result.clone().unwrap();
-                        DynamicCoefficientCtx { result: CtxResult::Ok(bet_phi.phi + bet_phi.bet * lifting_speed) }
+                        DynamicCoefficientCtx {
+                            result: CtxResult::Ok(bet_phi.phi + bet_phi.bet * lifting_speed),
+                        }
                     }
                 };
                 self.value = Some(result.clone());
                 ctx.write().unwrap().dynamic_coefficient = result;
                 CtxResult::Ok(ctx)
             }
-            CtxResult::Err(err) => {
-                CtxResult::Err(StrErr(format!(
-                    "{}.eval | Read context error: {:?}",
-                    self.dbgid, err
-                )))
-            }
+            CtxResult::Err(err) => CtxResult::Err(StrErr(format!(
+                "{}.eval | Read context error: {:?}",
+                self.dbgid, err
+            ))),
             CtxResult::None => CtxResult::None,
         }
     }

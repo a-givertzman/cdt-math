@@ -48,17 +48,17 @@ impl Eval for SelectBettaPhi {
                     LiftClass::Hc3 => BetPhi::new(0.51, 1.15),
                     LiftClass::Hc4 => BetPhi::new(0.68, 1.20),
                 };
-                let result = SelectBetPhiCtx { result: CtxResult::Ok(result)};
+                let result = SelectBetPhiCtx {
+                    result: CtxResult::Ok(result),
+                };
                 self.value = Some(result.clone());
                 ctx.write().unwrap().select_bet_phi = result;
                 CtxResult::Ok(ctx)
-            },
-            CtxResult::Err(err) => {
-                CtxResult::Err(StrErr(format!(
-                    "{}.eval | Read context error: {:?}",
-                    self.dbgid, err
-                )))
-            },
+            }
+            CtxResult::Err(err) => CtxResult::Err(StrErr(format!(
+                "{}.eval | Read context error: {:?}",
+                self.dbgid, err
+            ))),
             CtxResult::None => CtxResult::None,
         }
     }

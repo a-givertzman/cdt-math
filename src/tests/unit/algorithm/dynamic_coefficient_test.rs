@@ -10,7 +10,11 @@ mod dynamic_coefficient {
 
     use crate::{
         algorithm::{
-            context::{context::Context, ctx_result::CtxResult}, dynamic_coefficient::dynamic_coefficient::DynamicCoefficient, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed::LiftingSpeed, select_betta_phi::select_betta_phi::SelectBettaPhi
+            context::{context::Context, ctx_result::CtxResult},
+            dynamic_coefficient::dynamic_coefficient::DynamicCoefficient,
+            initial_ctx::initial_ctx::InitialCtx,
+            lifting_speed::lifting_speed::LiftingSpeed,
+            select_betta_phi::select_betta_phi::SelectBettaPhi,
         },
         kernel::{dbgid::dbgid::DbgId, eval::Eval, storage::storage::Storage},
     };
@@ -45,31 +49,40 @@ mod dynamic_coefficient {
                 1,
                 InitialCtx::new(&mut Storage::new(
                     "./src/tests/unit/kernel/storage/cache/test_1",
-                )).unwrap(),
+                ))
+                .unwrap(),
                 CtxResult::Ok(1.1571),
             ),
             (
                 2,
                 InitialCtx::new(&mut Storage::new(
                     "./src/tests/unit/kernel/storage/cache/test_2",
-                )).unwrap(),
+                ))
+                .unwrap(),
                 CtxResult::Ok(1.1680000000000001),
             ),
             (
                 3,
                 InitialCtx::new(&mut Storage::new(
                     "./src/tests/unit/kernel/storage/cache/test_3",
-                )).unwrap(),
+                ))
+                .unwrap(),
                 CtxResult::Ok(1.252),
             ),
         ];
         for (step, initial, target) in test_data {
-            let ctx = MocEval { ctx: Context::new(initial) };
-            let result = DynamicCoefficient::new(
-                SelectBettaPhi::new(
-                    LiftingSpeed::new(ctx)))
-            .eval();
-            let result = result.unwrap().read().unwrap().dynamic_coefficient.result.clone();
+            let ctx = MocEval {
+                ctx: Context::new(initial),
+            };
+            let result =
+                DynamicCoefficient::new(SelectBettaPhi::new(LiftingSpeed::new(ctx))).eval();
+            let result = result
+                .unwrap()
+                .read()
+                .unwrap()
+                .dynamic_coefficient
+                .result
+                .clone();
             assert!(
                 result == target,
                 "step {} \nresult: {:?}\ntarget: {:?}",
@@ -81,15 +94,17 @@ mod dynamic_coefficient {
         test_duration.exit();
     }
     ///
-    /// 
+    ///
     #[derive(Debug)]
     struct MocEval {
-        pub ctx: Context
+        pub ctx: Context,
     }
     //
     //
     impl Eval for MocEval {
-        fn eval(&mut self) -> CtxResult<Arc<RwLock<Context>>, crate::kernel::str_err::str_err::StrErr> {
+        fn eval(
+            &mut self,
+        ) -> CtxResult<Arc<RwLock<Context>>, crate::kernel::str_err::str_err::StrErr> {
             CtxResult::Ok(Arc::new(RwLock::new(self.ctx.clone())))
         }
     }

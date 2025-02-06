@@ -47,61 +47,71 @@ mod lifting_speed {
                 1,
                 InitialCtx::new(&mut Storage::new(
                     "./src/tests/unit/kernel/storage/cache/test_1",
-                )).unwrap(),
+                ))
+                .unwrap(),
                 CtxResult::Ok(0.63),
             ),
             (
                 2,
                 InitialCtx::new(&mut Storage::new(
                     "./src/tests/unit/kernel/storage/cache/test_2",
-                )).unwrap(),
+                ))
+                .unwrap(),
                 CtxResult::Ok(0.2),
             ),
             (
                 3,
                 InitialCtx::new(&mut Storage::new(
                     "./src/tests/unit/kernel/storage/cache/test_3",
-                )).unwrap(),
+                ))
+                .unwrap(),
                 CtxResult::Ok(0.2),
             ),
             (
                 4,
                 InitialCtx::new(&mut Storage::new(
                     "./src/tests/unit/kernel/storage/cache/test_4",
-                )).unwrap(),
+                ))
+                .unwrap(),
                 CtxResult::Ok(0.315),
             ),
             (
                 5,
                 InitialCtx::new(&mut Storage::new(
                     "./src/tests/unit/kernel/storage/cache/test_5",
-                )).unwrap(),
+                ))
+                .unwrap(),
                 CtxResult::Ok(0.0),
             ),
             (
                 6,
                 InitialCtx::new(&mut Storage::new(
                     "./src/tests/unit/kernel/storage/cache/test_6",
-                )).unwrap(),
+                ))
+                .unwrap(),
                 CtxResult::Ok(0.63),
             ),
             (
                 7,
                 InitialCtx::new(&mut Storage::new(
                     "./src/tests/unit/kernel/storage/cache/test_7",
-                )).unwrap(),
+                ))
+                .unwrap(),
                 CtxResult::Ok(0.2),
             ),
             (
                 8,
                 InitialCtx::new(&mut Storage::new(
                     "./src/tests/unit/kernel/storage/cache/test_8",
-                )).unwrap(),
+                ))
+                .unwrap(),
                 CtxResult::Ok(0.315),
             ),
         ];
         for (step, initial, target) in test_data {
-            let ctx = MocEval { ctx: Context::new(initial) };
+            let ctx = MocEval {
+                ctx: Context::new(initial),
+            };
             let result = LiftingSpeed::new(ctx).eval();
             let result = result.unwrap().read().unwrap().lifting_speed.result.clone();
             assert!(
@@ -115,15 +125,17 @@ mod lifting_speed {
         test_duration.exit();
     }
     ///
-    /// 
+    ///
     #[derive(Debug)]
     struct MocEval {
-        pub ctx: Context
+        pub ctx: Context,
     }
     //
     //
     impl Eval for MocEval {
-        fn eval(&mut self) -> CtxResult<Arc<RwLock<Context>>, crate::kernel::str_err::str_err::StrErr> {
+        fn eval(
+            &mut self,
+        ) -> CtxResult<Arc<RwLock<Context>>, crate::kernel::str_err::str_err::StrErr> {
             CtxResult::Ok(Arc::new(RwLock::new(self.ctx.clone())))
         }
     }

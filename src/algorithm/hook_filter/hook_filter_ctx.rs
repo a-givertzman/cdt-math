@@ -1,4 +1,7 @@
-use crate::{algorithm::{context::ctx_result::CtxResult, entities::hook::Hook}, kernel::str_err::str_err::StrErr};
+use crate::{
+    algorithm::{context::ctx_result::CtxResult, entities::hook::Hook},
+    kernel::str_err::str_err::StrErr,
+};
 ///
 /// Struct to store result of algorithm, that filter hooks by user loading capacity
 #[derive(Debug, Clone, Default)]

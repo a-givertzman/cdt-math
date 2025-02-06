@@ -10,7 +10,10 @@ mod hook_filter {
 
     use crate::{
         algorithm::{
-            context::{context::Context, ctx_result::CtxResult}, entities::hook::Hook, hook_filter::hook_filter::HookFilter, initial_ctx::initial_ctx::InitialCtx,
+            context::{context::Context, ctx_result::CtxResult},
+            entities::hook::Hook,
+            hook_filter::hook_filter::HookFilter,
+            initial_ctx::initial_ctx::InitialCtx,
         },
         kernel::{dbgid::dbgid::DbgId, eval::Eval, storage::storage::Storage},
     };
@@ -45,60 +48,63 @@ mod hook_filter {
                 1,
                 InitialCtx::new(&mut Storage::new(
                     "./src/tests/unit/kernel/storage/cache/test_1",
-                )).unwrap(),
+                ))
+                .unwrap(),
                 CtxResult::None,
             ),
             (
                 2,
                 InitialCtx::new(&mut Storage::new(
                     "./src/tests/unit/kernel/storage/cache/test_2",
-                )).unwrap(),
+                ))
+                .unwrap(),
                 CtxResult::Ok(vec![
-                    Hook { 
-                        gost: "GOST 18442-81".to_string(), 
-                        r#type: "Double".to_string(), 
-                        load_capacity_m13: 12.0, 
-                        load_capacity_m46: 11.0, 
-                        load_capacity_m78: 10.0, 
-                        shank_diameter: 55.0 
+                    Hook {
+                        gost: "GOST 18442-81".to_string(),
+                        r#type: "Double".to_string(),
+                        load_capacity_m13: 12.0,
+                        load_capacity_m46: 11.0,
+                        load_capacity_m78: 10.0,
+                        shank_diameter: 55.0,
                     },
-                    Hook { 
-                        gost: "GOST 23858-79".to_string(), 
-                        r#type: "Forged".to_string(), 
-                        load_capacity_m13: 22.0, 
-                        load_capacity_m46: 20.0, 
-                        load_capacity_m78: 18.5, 
-                        shank_diameter: 80.0 
+                    Hook {
+                        gost: "GOST 23858-79".to_string(),
+                        r#type: "Forged".to_string(),
+                        load_capacity_m13: 22.0,
+                        load_capacity_m46: 20.0,
+                        load_capacity_m78: 18.5,
+                        shank_diameter: 80.0,
                     },
-                    Hook { 
-                        gost: "GOST 31272-92".to_string(), 
-                        r#type: "Laminated".to_string(), 
-                        load_capacity_m13: 17.0, 
-                        load_capacity_m46: 16.0, 
-                        load_capacity_m78: 14.0, 
-                        shank_diameter: 65.0 
-                    }
+                    Hook {
+                        gost: "GOST 31272-92".to_string(),
+                        r#type: "Laminated".to_string(),
+                        load_capacity_m13: 17.0,
+                        load_capacity_m46: 16.0,
+                        load_capacity_m78: 14.0,
+                        shank_diameter: 65.0,
+                    },
                 ]),
             ),
             (
                 3,
                 InitialCtx::new(&mut Storage::new(
                     "./src/tests/unit/kernel/storage/cache/test_3",
-                )).unwrap(),
-                CtxResult::Ok(vec![
-                    Hook { 
-                        gost: "GOST 34567-85".to_string(), 
-                        r#type: "Forged".to_string(), 
-                        load_capacity_m13: 25.0, 
-                        load_capacity_m46: 23.0, 
-                        load_capacity_m78: 21.0, 
-                        shank_diameter: 85.0 
-                    }
-                ]),
+                ))
+                .unwrap(),
+                CtxResult::Ok(vec![Hook {
+                    gost: "GOST 34567-85".to_string(),
+                    r#type: "Forged".to_string(),
+                    load_capacity_m13: 25.0,
+                    load_capacity_m46: 23.0,
+                    load_capacity_m78: 21.0,
+                    shank_diameter: 85.0,
+                }]),
             ),
         ];
         for (step, initial, target) in test_data {
-            let ctx = MocEval { ctx: Context::new(initial) };
+            let ctx = MocEval {
+                ctx: Context::new(initial),
+            };
             let result = HookFilter::new(ctx).eval();
             let result = result.unwrap().read().unwrap().hook_filter.result.clone();
             assert!(
@@ -112,15 +118,17 @@ mod hook_filter {
         test_duration.exit();
     }
     ///
-    /// 
+    ///
     #[derive(Debug)]
     struct MocEval {
-        pub ctx: Context
+        pub ctx: Context,
     }
     //
     //
     impl Eval for MocEval {
-        fn eval(&mut self) -> CtxResult<Arc<RwLock<Context>>, crate::kernel::str_err::str_err::StrErr> {
+        fn eval(
+            &mut self,
+        ) -> CtxResult<Arc<RwLock<Context>>, crate::kernel::str_err::str_err::StrErr> {
             CtxResult::Ok(Arc::new(RwLock::new(self.ctx.clone())))
         }
     }

@@ -1,6 +1,7 @@
 use crate::{
     algorithm::entities::{
-        driver_type::DriverType, hook::Hook, lifting_class::LiftClass, loading_combination::LoadingCombination, mechanism_work_type::MechanismWorkType
+        driver_type::DriverType, hook::Hook, lifting_class::LiftClass,
+        loading_combination::LoadingCombination, mechanism_work_type::MechanismWorkType,
     },
     kernel::{dbgid::dbgid::DbgId, storage::storage::Storage, str_err::str_err::StrErr},
 };

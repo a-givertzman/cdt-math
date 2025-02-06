@@ -1,3 +1,4 @@
+use super::hook_filter_ctx::HookFilterCtx;
 use crate::{
     algorithm::{
         context::{context::Context, ctx_result::CtxResult},
@@ -6,7 +7,6 @@ use crate::{
     kernel::{dbgid::dbgid::DbgId, eval::Eval, str_err::str_err::StrErr},
 };
 use std::sync::{Arc, RwLock};
-use super::hook_filter_ctx::HookFilterCtx;
 ///
 /// Сlass, that filter hooks by user loading capacity
 /// [reference to filtering documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
@@ -46,19 +46,26 @@ impl Eval for HookFilter {
                         let initial = &ctx.read().unwrap().initial;
                         let user_loading_capacity = initial.load_capacity.clone();
                         let user_mech_work_type = initial.mechanism_work_type.clone();
-                        let result: Vec<Hook> = initial.hooks.iter().cloned().filter(|hook| {
-                            match user_mech_work_type {
-                                MechanismWorkType::M1 | MechanismWorkType::M2 | MechanismWorkType::M3 => {
+                        let result: Vec<Hook> = initial
+                            .hooks
+                            .iter()
+                            .cloned()
+                            .filter(|hook| match user_mech_work_type {
+                                MechanismWorkType::M1
+                                | MechanismWorkType::M2
+                                | MechanismWorkType::M3 => {
                                     hook.load_capacity_m13 >= user_loading_capacity
                                 }
-                                MechanismWorkType::M4 | MechanismWorkType::M5 | MechanismWorkType::M6 => {
+                                MechanismWorkType::M4
+                                | MechanismWorkType::M5
+                                | MechanismWorkType::M6 => {
                                     hook.load_capacity_m46 >= user_loading_capacity
                                 }
                                 MechanismWorkType::M7 | MechanismWorkType::M8 => {
                                     hook.load_capacity_m78 >= user_loading_capacity
                                 }
-                            }
-                        }).collect();
+                            })
+                            .collect();
                         let result = if result.is_empty() {
                             CtxResult::Err(StrErr(format!(
                                 "{}.eval | No available variants of hook for specified requirements",
@@ -67,14 +74,17 @@ impl Eval for HookFilter {
                         } else {
                             CtxResult::Ok(result)
                         };
-                        HookFilterCtx {result}
+                        HookFilterCtx { result }
                     }
                 };
                 self.value = Some(result.clone());
                 ctx.write().unwrap().hook_filter = result;
                 CtxResult::Ok(ctx)
             }
-            CtxResult::Err(err) => CtxResult::Err(StrErr(format!("{}.eval | Read context error: {:?}", self.dbgid, err))),
+            CtxResult::Err(err) => CtxResult::Err(StrErr(format!(
+                "{}.eval | Read context error: {:?}",
+                self.dbgid, err
+            ))),
             CtxResult::None => CtxResult::None,
         }
     }

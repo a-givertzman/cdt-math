@@ -1,10 +1,9 @@
 use crate::{
-    algorithm::{context::{context::Context, ctx_result::CtxResult}, entities::{driver_type::DriverType, loading_combination::LoadingCombination}},
-    kernel::{
-        dbgid::dbgid::DbgId,
-        eval::Eval,
-        str_err::str_err::StrErr,
+    algorithm::{
+        context::{context::Context, ctx_result::CtxResult},
+        entities::{driver_type::DriverType, loading_combination::LoadingCombination},
     },
+    kernel::{dbgid::dbgid::DbgId, eval::Eval, str_err::str_err::StrErr},
 };
 use std::sync::{Arc, RwLock};
 
@@ -62,17 +61,17 @@ impl Eval for LiftingSpeed {
                         DriverType::Hd3 | DriverType::Hd5 => Self::vhmax_half(initial.vhmax),
                     },
                 };
-                let result = LiftingSpeedCtx { result: CtxResult::Ok(result)};
+                let result = LiftingSpeedCtx {
+                    result: CtxResult::Ok(result),
+                };
                 self.value = Some(result.clone());
                 ctx.write().unwrap().lifting_speed = result;
                 CtxResult::Ok(ctx)
-            },
-            CtxResult::Err(err) => {
-                CtxResult::Err(StrErr(format!(
-                    "{}.eval | Read context error: {:?}",
-                    self.dbgid, err
-                )))
             }
+            CtxResult::Err(err) => CtxResult::Err(StrErr(format!(
+                "{}.eval | Read context error: {:?}",
+                self.dbgid, err
+            ))),
             CtxResult::None => CtxResult::None,
         }
     }
