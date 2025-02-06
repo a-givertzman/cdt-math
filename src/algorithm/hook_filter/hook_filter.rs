@@ -43,18 +43,10 @@ impl Eval for HookFilter {
                 let result = match self.value.clone() {
                     Some(hook_filter) => hook_filter,
                     None => {
-                        let initial = match ctx.read() {
-                            Ok(ctx) => ctx.initial.clone(),
-                            Err(err) => {
-                                return CtxResult::Err(StrErr(format!(
-                                    "{}.eval | Read context error: {:?}",
-                                    self.dbgid, err
-                                )))
-                            }
-                        };
+                        let initial = &ctx.read().unwrap().initial;
                         let user_loading_capacity = initial.load_capacity.clone();
                         let user_mech_work_type = initial.mechanism_work_type.clone();
-                        let result: Vec<Hook> = initial.hooks.into_iter().filter(|hook| {
+                        let result: Vec<Hook> = initial.hooks.iter().cloned().filter(|hook| {
                             match user_mech_work_type {
                                 MechanismWorkType::M1 | MechanismWorkType::M2 | MechanismWorkType::M3 => {
                                     hook.load_capacity_m13 >= user_loading_capacity
