@@ -5,8 +5,6 @@ use crate::{
     },
     kernel::{dbgid::dbgid::DbgId, eval::Eval, str_err::str_err::StrErr},
 };
-use std::sync::{Arc, RwLock};
-
 use super::select_betta_phi_ctx::SelectBetPhiCtx;
 ///
 /// Struct, that make choice β2 and ϕ2 coefficients, based on user [lifting class](design\docs\algorithm\part01\initial_data.md)
@@ -38,10 +36,10 @@ impl Eval for SelectBettaPhi {
     ///
     /// Method make choice β2 and ϕ2 coefficients, based on user [lifting class](design\docs\algorithm\part01\initial_data.md)
     /// [reference to β2 and ϕ2 coefficients documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
-    fn eval(&mut self) -> CtxResult<Arc<RwLock<Context>>, StrErr> {
+    fn eval(&mut self) -> CtxResult<Context, StrErr> {
         match self.ctx.eval() {
-            CtxResult::Ok(ctx) => {
-                let initial = ctx.read().unwrap().initial.clone();
+            CtxResult::Ok(mut ctx) => {
+                let initial = ctx.initial.clone();
                 let result = match initial.lift_class {
                     LiftClass::Hc1 => BetPhi::new(0.17, 1.05),
                     LiftClass::Hc2 => BetPhi::new(0.34, 1.10),
@@ -52,7 +50,7 @@ impl Eval for SelectBettaPhi {
                     result: CtxResult::Ok(result),
                 };
                 self.value = Some(result.clone());
-                ctx.write().unwrap().select_bet_phi = result;
+                ctx.select_bet_phi = result;
                 CtxResult::Ok(ctx)
             }
             CtxResult::Err(err) => CtxResult::Err(StrErr(format!(

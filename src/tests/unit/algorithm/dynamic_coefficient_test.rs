@@ -3,7 +3,7 @@
 mod dynamic_coefficient {
     use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
     use std::{
-        sync::{Arc, Once, RwLock},
+        sync::Once,
         time::Duration,
     };
     use testing::stuff::max_test_duration::TestDuration;
@@ -78,8 +78,6 @@ mod dynamic_coefficient {
                 DynamicCoefficient::new(SelectBettaPhi::new(LiftingSpeed::new(ctx))).eval();
             let result = result
                 .unwrap()
-                .read()
-                .unwrap()
                 .dynamic_coefficient
                 .result
                 .clone();
@@ -104,8 +102,8 @@ mod dynamic_coefficient {
     impl Eval for MocEval {
         fn eval(
             &mut self,
-        ) -> CtxResult<Arc<RwLock<Context>>, crate::kernel::str_err::str_err::StrErr> {
-            CtxResult::Ok(Arc::new(RwLock::new(self.ctx.clone())))
+        ) -> CtxResult<Context, crate::kernel::str_err::str_err::StrErr> {
+            CtxResult::Ok(self.ctx.clone())
         }
     }
 }

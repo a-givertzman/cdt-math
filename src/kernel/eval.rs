@@ -7,5 +7,5 @@ pub trait Eval: std::fmt::Debug {
     ///
     /// Pervorms a calculation
     /// - Returns [Context] contains result inside
-    fn eval(&mut self) -> CtxResult<Arc<RwLock<Context>>, StrErr>;
+    fn eval(&mut self) -> CtxResult<Context, StrErr>;
 }

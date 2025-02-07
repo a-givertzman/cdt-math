@@ -2,8 +2,6 @@ use crate::{
     algorithm::context::{context::Context, ctx_result::CtxResult},
     kernel::{dbgid::dbgid::DbgId, eval::Eval, str_err::str_err::StrErr},
 };
-use std::sync::{Arc, RwLock};
-
 use super::dynamic_coefficient_ctx::DynamicCoefficientCtx;
 ///
 /// Сlass, that calculate dynamic coefficient
@@ -35,22 +33,22 @@ impl Eval for DynamicCoefficient {
     ///
     /// Method of calculating the dynamic coefficient
     /// [reference to dynamic coefficient documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
-    fn eval(&mut self) -> CtxResult<Arc<RwLock<Context>>, StrErr> {
+    fn eval(&mut self) -> CtxResult<Context, StrErr> {
         match self.ctx.eval() {
-            CtxResult::Ok(ctx) => {
+            CtxResult::Ok(mut ctx) => {
                 let result = match self.value.clone() {
                     Some(dynamic_coefficient) => dynamic_coefficient,
                     None => {
                         let lifting_speed =
-                            ctx.read().unwrap().lifting_speed.result.clone().unwrap();
-                        let bet_phi = ctx.read().unwrap().select_bet_phi.result.clone().unwrap();
+                            ctx.lifting_speed.result.clone().unwrap();
+                        let bet_phi = ctx.select_bet_phi.result.clone().unwrap();
                         DynamicCoefficientCtx {
                             result: CtxResult::Ok(bet_phi.phi + bet_phi.bet * lifting_speed),
                         }
                     }
                 };
                 self.value = Some(result.clone());
-                ctx.write().unwrap().dynamic_coefficient = result;
+                ctx.dynamic_coefficient = result;
                 CtxResult::Ok(ctx)
             }
             CtxResult::Err(err) => CtxResult::Err(StrErr(format!(

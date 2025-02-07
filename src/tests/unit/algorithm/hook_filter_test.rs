@@ -3,7 +3,7 @@
 mod hook_filter {
     use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
     use std::{
-        sync::{Arc, Once, RwLock},
+        sync::Once,
         time::Duration,
     };
     use testing::stuff::max_test_duration::TestDuration;
@@ -106,7 +106,7 @@ mod hook_filter {
                 ctx: Context::new(initial),
             };
             let result = HookFilter::new(ctx).eval();
-            let result = result.unwrap().read().unwrap().hook_filter.result.clone();
+            let result = result.unwrap().hook_filter.result.clone();
             assert!(
                 result == target,
                 "step {} \nresult: {:?}\ntarget: {:?}",
@@ -128,8 +128,8 @@ mod hook_filter {
     impl Eval for MocEval {
         fn eval(
             &mut self,
-        ) -> CtxResult<Arc<RwLock<Context>>, crate::kernel::str_err::str_err::StrErr> {
-            CtxResult::Ok(Arc::new(RwLock::new(self.ctx.clone())))
+        ) -> CtxResult<Context, crate::kernel::str_err::str_err::StrErr> {
+            CtxResult::Ok(self.ctx.clone())
         }
     }
 }

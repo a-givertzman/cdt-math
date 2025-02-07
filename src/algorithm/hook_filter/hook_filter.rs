@@ -6,7 +6,6 @@ use crate::{
     },
     kernel::{dbgid::dbgid::DbgId, eval::Eval, str_err::str_err::StrErr},
 };
-use std::sync::{Arc, RwLock};
 ///
 /// Сlass, that filter hooks by user loading capacity
 /// [reference to filtering documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
@@ -37,13 +36,13 @@ impl Eval for HookFilter {
     ///
     /// Method of filtering hooks by user loading capacity
     /// [reference to filtering documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
-    fn eval(&mut self) -> CtxResult<Arc<RwLock<Context>>, StrErr> {
+    fn eval(&mut self) -> CtxResult<Context, StrErr> {
         match self.ctx.eval() {
-            CtxResult::Ok(ctx) => {
+            CtxResult::Ok(mut ctx) => {
                 let result = match self.value.clone() {
                     Some(hook_filter) => hook_filter,
                     None => {
-                        let initial = &ctx.read().unwrap().initial;
+                        let initial = &ctx.initial;
                         let user_loading_capacity = initial.load_capacity.clone();
                         let user_mech_work_type = initial.mechanism_work_type.clone();
                         let result: Vec<Hook> = initial
@@ -78,7 +77,7 @@ impl Eval for HookFilter {
                     }
                 };
                 self.value = Some(result.clone());
-                ctx.write().unwrap().hook_filter = result;
+                ctx.hook_filter = result;
                 CtxResult::Ok(ctx)
             }
             CtxResult::Err(err) => CtxResult::Err(StrErr(format!(

@@ -96,8 +96,6 @@ mod select_bet_phi {
             let result = SelectBettaPhi::new(ctx).eval();
             let result = result
                 .unwrap()
-                .read()
-                .unwrap()
                 .select_bet_phi
                 .result
                 .clone();
@@ -122,8 +120,8 @@ mod select_bet_phi {
     impl Eval for MocEval {
         fn eval(
             &mut self,
-        ) -> CtxResult<Arc<RwLock<Context>>, crate::kernel::str_err::str_err::StrErr> {
-            CtxResult::Ok(Arc::new(RwLock::new(self.ctx.clone())))
+        ) -> CtxResult<Context, crate::kernel::str_err::str_err::StrErr> {
+            CtxResult::Ok(self.ctx.clone())
         }
     }
 }

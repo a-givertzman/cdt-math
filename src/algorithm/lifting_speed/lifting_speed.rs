@@ -5,8 +5,6 @@ use crate::{
     },
     kernel::{dbgid::dbgid::DbgId, eval::Eval, str_err::str_err::StrErr},
 };
-use std::sync::{Arc, RwLock};
-
 use super::lifting_speed_ctx::LiftingSpeedCtx;
 ///
 /// Сlass, that select the steady-state lifting speed of the load
@@ -45,10 +43,10 @@ impl Eval for LiftingSpeed {
     ///
     /// Method of calculating the steady-state lifting speed of the load
     /// [reference to steady-state lifting speed choice documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
-    fn eval(&mut self) -> CtxResult<Arc<RwLock<Context>>, StrErr> {
+    fn eval(&mut self) -> CtxResult<Context, StrErr> {
         match self.ctx.eval() {
-            CtxResult::Ok(ctx) => {
-                let initial = ctx.read().unwrap().initial.clone();
+            CtxResult::Ok(mut ctx) => {
+                let initial = ctx.initial.clone();
                 let result = match initial.load_comb {
                     LoadingCombination::A1 | LoadingCombination::B1 => match initial.driver_type {
                         DriverType::Hd1 => initial.vhmax,
@@ -65,7 +63,7 @@ impl Eval for LiftingSpeed {
                     result: CtxResult::Ok(result),
                 };
                 self.value = Some(result.clone());
-                ctx.write().unwrap().lifting_speed = result;
+                ctx.lifting_speed = result;
                 CtxResult::Ok(ctx)
             }
             CtxResult::Err(err) => CtxResult::Err(StrErr(format!(
