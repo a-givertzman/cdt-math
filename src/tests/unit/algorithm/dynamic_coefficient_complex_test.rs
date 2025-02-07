@@ -16,7 +16,7 @@ mod dynamic_coefficient {
             lifting_speed::lifting_speed::LiftingSpeed,
             select_betta_phi::select_betta_phi::SelectBettaPhi,
         },
-        kernel::{dbgid::dbgid::DbgId, eval::Eval, storage::storage::Storage},
+        kernel::{dbgid::dbgid::DbgId, eval::Eval, storage::storage::Storage, str_err::str_err::StrErr},
     };
 
     ///
@@ -44,7 +44,7 @@ mod dynamic_coefficient {
         log::debug!("\n{}", dbgid);
         let test_duration = TestDuration::new(&dbgid, Duration::from_secs(1));
         test_duration.run().unwrap();
-        let test_data = [
+        let test_data: [(i32, InitialCtx, CtxResult<f64, StrErr>); 3] = [
             (
                 1,
                 InitialCtx::new(&mut Storage::new(
@@ -71,23 +71,32 @@ mod dynamic_coefficient {
             ),
         ];
         for (step, initial, target) in test_data {
-            let ctx = MocEval {
-                ctx: Context::new(initial),
-            };
-            let result =
-                DynamicCoefficient::new(SelectBettaPhi::new(LiftingSpeed::new(ctx))).eval();
-            let result = result
-                .unwrap()
-                .dynamic_coefficient
-                .result
-                .clone();
-            assert!(
-                result == target,
-                "step {} \nresult: {:?}\ntarget: {:?}",
-                step,
-                result,
-                target
-            );
+            let result = DynamicCoefficient::new(
+                SelectBettaPhi::new(
+                    LiftingSpeed::new(
+                        MocEval {
+                            ctx: Context::new(initial),
+                        },
+                    ),
+                ),
+            ).eval();
+            match (&result, &target) {
+                (CtxResult::Ok(result), CtxResult::Ok(target)) => {
+                    let result = result
+                        .dynamic_coefficient
+                        .result;
+                    assert!(
+                        result == *target,
+                        "step {} \nresult: {:?}\ntarget: {:?}",
+                        step,
+                        result,
+                        target
+                    );
+                }
+                (CtxResult::Err(_), CtxResult::Err(_)) => {},
+                (CtxResult::None, CtxResult::None) => {},
+                _ => panic!("step {} \nresult: {:?}\ntarget: {:?}", step, result, target),
+            }
         }
         test_duration.exit();
     }

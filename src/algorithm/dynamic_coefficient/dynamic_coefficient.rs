@@ -1,5 +1,5 @@
 use crate::{
-    algorithm::context::{context::Context, context_write::ContextWrite, ctx_result::CtxResult},
+    algorithm::context::{context::Context, context_access::ContextWrite, ctx_result::CtxResult},
     kernel::{dbgid::dbgid::DbgId, eval::Eval, str_err::str_err::StrErr},
 };
 use super::dynamic_coefficient_ctx::DynamicCoefficientCtx;
@@ -39,8 +39,8 @@ impl Eval for DynamicCoefficient {
                 let result = match self.value.clone() {
                     Some(dynamic_coefficient) => dynamic_coefficient,
                     None => {
-                        let lifting_speed = ctx.lifting_speed.result.clone();
-                        let bet_phi = ctx.select_bet_phi.result.clone().unwrap();
+                        let lifting_speed = ctx.lifting_speed.result;
+                        let bet_phi = ctx.select_bet_phi.result;
                         DynamicCoefficientCtx {
                             result: bet_phi.phi + bet_phi.bet * lifting_speed,
                         }
@@ -65,13 +65,5 @@ impl std::fmt::Debug for DynamicCoefficient {
             .field("value", &self.value)
             // .field("ctx", &self.ctx)
             .finish()
-    }
-}
-//
-//
-impl ContextWrite<DynamicCoefficientCtx> for Context {
-    fn write(mut self, value: DynamicCoefficientCtx) -> CtxResult<Self, StrErr> {
-        self.dynamic_coefficient = value;
-        CtxResult::Ok(self)
     }
 }
