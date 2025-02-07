@@ -11,5 +11,6 @@
 //! let context = Contex::new(InitialCtx::new(Storage::new(path))).eval();
 //! println!("Initial data: {}", context.initial);
 //! ```
+pub mod context_write;
 pub mod context;
 pub mod ctx_result;

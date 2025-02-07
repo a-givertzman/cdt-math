@@ -39,9 +39,3 @@ impl Context {
         }
     }
 }
-
-///
-/// Provides restricted write access to the [Context] members
-pub trait ContextWrite<T> {
-    fn write(self, value: T) -> CtxResult<Context, StrErr>;
-}

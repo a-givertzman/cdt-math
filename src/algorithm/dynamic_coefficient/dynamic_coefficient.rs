@@ -1,5 +1,5 @@
 use crate::{
-    algorithm::context::{context::{Context, ContextWrite}, ctx_result::CtxResult},
+    algorithm::context::{context::Context, context_write::ContextWrite, ctx_result::CtxResult},
     kernel::{dbgid::dbgid::DbgId, eval::Eval, str_err::str_err::StrErr},
 };
 use super::dynamic_coefficient_ctx::DynamicCoefficientCtx;
