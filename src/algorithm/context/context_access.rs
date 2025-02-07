@@ -1,6 +1,6 @@
 use super::{context::Context, ctx_result::CtxResult};
 use crate::{
-    algorithm::dynamic_coefficient::dynamic_coefficient_ctx::DynamicCoefficientCtx,
+    algorithm::{dynamic_coefficient::dynamic_coefficient_ctx::DynamicCoefficientCtx, lifting_speed::lifting_speed_ctx::LiftingSpeedCtx, select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx},
     kernel::str_err::str_err::StrErr,
 };
 ///
@@ -24,5 +24,31 @@ impl ContextWrite<DynamicCoefficientCtx> for Context {
 impl ContextRead<DynamicCoefficientCtx> for Context {
     fn read(&self) -> DynamicCoefficientCtx {
         self.dynamic_coefficient.clone()
+    }
+}
+//
+//
+impl ContextWrite<LiftingSpeedCtx> for Context {
+    fn write(mut self, value: LiftingSpeedCtx) -> CtxResult<Self, StrErr> {
+        self.lifting_speed = value;
+        CtxResult::Ok(self)
+    }
+}
+impl ContextRead<LiftingSpeedCtx> for Context {
+    fn read(&self) -> LiftingSpeedCtx {
+        self.lifting_speed.clone()
+    }
+}
+//
+//
+impl ContextWrite<SelectBetPhiCtx> for Context {
+    fn write(mut self, value: SelectBetPhiCtx) -> CtxResult<Self, StrErr> {
+        self.select_bet_phi = value;
+        CtxResult::Ok(self)
+    }
+}
+impl ContextRead<SelectBetPhiCtx> for Context {
+    fn read(&self) -> SelectBetPhiCtx {
+        self.select_bet_phi.clone()
     }
 }

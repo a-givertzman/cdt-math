@@ -1,5 +1,5 @@
 use crate::{
-    algorithm::context::{context::Context, context_access::ContextWrite, ctx_result::CtxResult},
+    algorithm::{context::{context::Context, context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult}, lifting_speed::lifting_speed_ctx::LiftingSpeedCtx, select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx},
     kernel::{dbgid::dbgid::DbgId, eval::Eval, str_err::str_err::StrErr},
 };
 use super::dynamic_coefficient_ctx::DynamicCoefficientCtx;
@@ -39,8 +39,8 @@ impl Eval for DynamicCoefficient {
                 let result = match self.value.clone() {
                     Some(dynamic_coefficient) => dynamic_coefficient,
                     None => {
-                        let lifting_speed = ctx.lifting_speed.result;
-                        let bet_phi = ctx.select_bet_phi.result;
+                        let lifting_speed = ContextRead::<LiftingSpeedCtx>::read(&ctx).result;
+                        let bet_phi = ContextRead::<SelectBetPhiCtx>::read(&ctx).result;
                         DynamicCoefficientCtx {
                             result: bet_phi.phi + bet_phi.bet * lifting_speed,
                         }
