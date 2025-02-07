@@ -12,13 +12,13 @@ use crate::algorithm::{
 pub struct Context {
     /// where store [initial data](design\docs\algorithm\part01\initial_data.md)
     pub initial: InitialCtx,
-    /// result of calculation [steady-state-lifting-speed](design\docs\algorithm\part02\chapter_01_choose_hook.md)
+    /// result of calculation [steady-state-lifting-speed](design/docs/algorithm/part02/chapter_01_choose_hook.md)
     pub lifting_speed: LiftingSpeedCtx,
-    /// result of calculation [ϕ2(phi) and β2(betta) coefficients](design\docs\algorithm\part02\chapter_01_choose_hook.md)
+    /// result of calculation [ϕ2(phi) and β2(betta) coefficients](design/docs/algorithm/part02/chapter_01_choose_hook.md)
     pub select_bet_phi: SelectBetPhiCtx,
-    /// result of calculation [dynamic coefficient](design\docs\algorithm\part02\chapter_01_choose_hook.md)
+    /// result of calculation [dynamic coefficient](design/docs/algorithm/part02/chapter_01_choose_hook.md)
     pub dynamic_coefficient: DynamicCoefficientCtx,
-    /// result of [filtering hooks](design\docs\algorithm\part02\chapter_01_choose_hook.md)
+    /// result of [filtering hooks](design/docs/algorithm/part02/chapter_01_choose_hook.md)
     pub hook_filter: HookFilterCtx,
 }
 //
