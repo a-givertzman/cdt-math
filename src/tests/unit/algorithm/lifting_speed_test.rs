@@ -1,9 +1,9 @@
 #[cfg(test)]
 
-mod Liftingspeed {
+mod lifting_speed {
     use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
     use std::{
-        sync::{Arc, Once, RwLock},
+        sync::Once,
         time::Duration,
     };
     use testing::stuff::max_test_duration::TestDuration;
@@ -47,63 +47,73 @@ mod Liftingspeed {
                 1,
                 InitialCtx::new(&mut Storage::new(
                     "./src/tests/unit/kernel/storage/cache/test_1",
-                )).unwrap(),
+                ))
+                .unwrap(),
                 CtxResult::Ok(0.63),
             ),
             (
                 2,
                 InitialCtx::new(&mut Storage::new(
                     "./src/tests/unit/kernel/storage/cache/test_2",
-                )).unwrap(),
+                ))
+                .unwrap(),
                 CtxResult::Ok(0.2),
             ),
             (
                 3,
                 InitialCtx::new(&mut Storage::new(
                     "./src/tests/unit/kernel/storage/cache/test_3",
-                )).unwrap(),
+                ))
+                .unwrap(),
                 CtxResult::Ok(0.2),
             ),
             (
                 4,
                 InitialCtx::new(&mut Storage::new(
                     "./src/tests/unit/kernel/storage/cache/test_4",
-                )).unwrap(),
+                ))
+                .unwrap(),
                 CtxResult::Ok(0.315),
             ),
             (
                 5,
                 InitialCtx::new(&mut Storage::new(
                     "./src/tests/unit/kernel/storage/cache/test_5",
-                )).unwrap(),
+                ))
+                .unwrap(),
                 CtxResult::Ok(0.0),
             ),
             (
                 6,
                 InitialCtx::new(&mut Storage::new(
                     "./src/tests/unit/kernel/storage/cache/test_6",
-                )).unwrap(),
+                ))
+                .unwrap(),
                 CtxResult::Ok(0.63),
             ),
             (
                 7,
                 InitialCtx::new(&mut Storage::new(
                     "./src/tests/unit/kernel/storage/cache/test_7",
-                )).unwrap(),
+                ))
+                .unwrap(),
                 CtxResult::Ok(0.2),
             ),
             (
                 8,
                 InitialCtx::new(&mut Storage::new(
                     "./src/tests/unit/kernel/storage/cache/test_8",
-                )).unwrap(),
+                ))
+                .unwrap(),
                 CtxResult::Ok(0.315),
             ),
         ];
         for (step, initial, target) in test_data {
-            let ctx = Arc::new(RwLock::new(Context::new(initial)));
-            let result = LiftingSpeed::new(ctx.clone()).eval();
-            let result = result.unwrap().read().unwrap().lifting_speed.result.clone();
+            let ctx = MocEval {
+                ctx: Context::new(initial),
+            };
+            let result = LiftingSpeed::new(ctx).eval();
+            let result = result.unwrap().lifting_speed.result.clone();
             assert!(
                 result == target,
                 "step {} \nresult: {:?}\ntarget: {:?}",
@@ -113,5 +123,20 @@ mod Liftingspeed {
             );
         }
         test_duration.exit();
+    }
+    ///
+    ///
+    #[derive(Debug)]
+    struct MocEval {
+        pub ctx: Context,
+    }
+    //
+    //
+    impl Eval for MocEval {
+        fn eval(
+            &mut self,
+        ) -> CtxResult<Context, crate::kernel::str_err::str_err::StrErr> {
+            CtxResult::Ok(self.ctx.clone())
+        }
     }
 }

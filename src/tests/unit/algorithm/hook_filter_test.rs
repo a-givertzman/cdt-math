@@ -1,6 +1,6 @@
 #[cfg(test)]
 
-mod dynamic_coefficient {
+mod hook_filter {
     use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
     use std::{
         sync::Once,
@@ -11,12 +11,11 @@ mod dynamic_coefficient {
     use crate::{
         algorithm::{
             context::{context::Context, ctx_result::CtxResult},
-            dynamic_coefficient::dynamic_coefficient::DynamicCoefficient,
+            entities::hook::Hook,
+            hook_filter::hook_filter::HookFilter,
             initial_ctx::initial_ctx::InitialCtx,
-            lifting_speed::lifting_speed::LiftingSpeed,
-            select_betta_phi::select_betta_phi::SelectBettaPhi,
         },
-        kernel::{dbgid::dbgid::DbgId, eval::Eval, storage::storage::Storage},
+        kernel::{dbgid::dbgid::DbgId, eval::Eval, storage::storage::Storage, str_err::str_err::StrErr},
     };
 
     ///
@@ -51,7 +50,7 @@ mod dynamic_coefficient {
                     "./src/tests/unit/kernel/storage/cache/test_1",
                 ))
                 .unwrap(),
-                CtxResult::Ok(1.1571),
+                CtxResult::Err(StrErr(format!("HookFilter.{} | No available variants of hook for specified requirements",dbgid))),
             ),
             (
                 2,
@@ -59,7 +58,32 @@ mod dynamic_coefficient {
                     "./src/tests/unit/kernel/storage/cache/test_2",
                 ))
                 .unwrap(),
-                CtxResult::Ok(1.1680000000000001),
+                CtxResult::Ok(vec![
+                    Hook {
+                        gost: "GOST 18442-81".to_string(),
+                        r#type: "Double".to_string(),
+                        load_capacity_m13: 12.0,
+                        load_capacity_m46: 11.0,
+                        load_capacity_m78: 10.0,
+                        shank_diameter: 55.0,
+                    },
+                    Hook {
+                        gost: "GOST 23858-79".to_string(),
+                        r#type: "Forged".to_string(),
+                        load_capacity_m13: 22.0,
+                        load_capacity_m46: 20.0,
+                        load_capacity_m78: 18.5,
+                        shank_diameter: 80.0,
+                    },
+                    Hook {
+                        gost: "GOST 31272-92".to_string(),
+                        r#type: "Laminated".to_string(),
+                        load_capacity_m13: 17.0,
+                        load_capacity_m46: 16.0,
+                        load_capacity_m78: 14.0,
+                        shank_diameter: 65.0,
+                    },
+                ]),
             ),
             (
                 3,
@@ -67,20 +91,22 @@ mod dynamic_coefficient {
                     "./src/tests/unit/kernel/storage/cache/test_3",
                 ))
                 .unwrap(),
-                CtxResult::Ok(1.252),
+                CtxResult::Ok(vec![Hook {
+                    gost: "GOST 34567-85".to_string(),
+                    r#type: "Forged".to_string(),
+                    load_capacity_m13: 25.0,
+                    load_capacity_m46: 23.0,
+                    load_capacity_m78: 21.0,
+                    shank_diameter: 85.0,
+                }]),
             ),
         ];
         for (step, initial, target) in test_data {
             let ctx = MocEval {
                 ctx: Context::new(initial),
             };
-            let result =
-                DynamicCoefficient::new(SelectBettaPhi::new(LiftingSpeed::new(ctx))).eval();
-            let result = result
-                .unwrap()
-                .dynamic_coefficient
-                .result
-                .clone();
+            let result = HookFilter::new(ctx).eval();
+            let result = result.unwrap().hook_filter.result.clone();
             assert!(
                 result == target,
                 "step {} \nresult: {:?}\ntarget: {:?}",
