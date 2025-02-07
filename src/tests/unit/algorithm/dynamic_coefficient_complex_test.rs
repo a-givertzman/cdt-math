@@ -10,8 +10,8 @@ mod dynamic_coefficient {
 
     use crate::{
         algorithm::{
-            context::{context::Context, ctx_result::CtxResult},
-            dynamic_coefficient::dynamic_coefficient::DynamicCoefficient,
+            context::{context::Context, context_access::ContextRead, ctx_result::CtxResult},
+            dynamic_coefficient::{dynamic_coefficient::DynamicCoefficient, dynamic_coefficient_ctx::DynamicCoefficientCtx},
             initial_ctx::initial_ctx::InitialCtx,
             lifting_speed::lifting_speed::LiftingSpeed,
             select_betta_phi::select_betta_phi::SelectBettaPhi,
@@ -82,8 +82,7 @@ mod dynamic_coefficient {
             ).eval();
             match (&result, &target) {
                 (CtxResult::Ok(result), CtxResult::Ok(target)) => {
-                    let result = result
-                        .dynamic_coefficient
+                    let result = ContextRead::<DynamicCoefficientCtx>::read(result)
                         .result;
                     assert!(
                         result == *target,

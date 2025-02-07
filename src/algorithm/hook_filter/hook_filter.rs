@@ -1,7 +1,7 @@
 use super::hook_filter_ctx::HookFilterCtx;
 use crate::{
     algorithm::{
-        context::{context::Context, ctx_result::CtxResult},
+        context::{context::Context, context_access::ContextWrite, ctx_result::CtxResult},
         entities::{hook::Hook, mechanism_work_type::MechanismWorkType},
     },
     kernel::{dbgid::dbgid::DbgId, eval::Eval, str_err::str_err::StrErr},
@@ -38,9 +38,9 @@ impl Eval for HookFilter {
     /// [reference to filtering documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
     fn eval(&mut self) -> CtxResult<Context, StrErr> {
         match self.ctx.eval() {
-            CtxResult::Ok(mut ctx) => {
-                let result = match self.value.clone() {
-                    Some(hook_filter) => hook_filter,
+            CtxResult::Ok(ctx) => {
+                match self.value.clone() {
+                    Some(hook_filter) => ctx.write(hook_filter),
                     None => {
                         let initial = &ctx.initial;
                         let user_loading_capacity = initial.load_capacity.clone();
@@ -65,20 +65,18 @@ impl Eval for HookFilter {
                                 }
                             })
                             .collect();
-                        let result = if result.is_empty() {
+                        if result.is_empty() {
                             CtxResult::Err(StrErr(format!(
                                 "{}.eval | No available variants of hook for specified requirements",
                                 self.dbgid,
                             )))
                         } else {
-                            CtxResult::Ok(result)
-                        };
-                        HookFilterCtx { result }
+                            let result = HookFilterCtx { result };
+                            self.value = Some(result.clone());
+                            ctx.write(result)
+                        }
                     }
-                };
-                self.value = Some(result.clone());
-                ctx.hook_filter = result;
-                CtxResult::Ok(ctx)
+                }
             }
             CtxResult::Err(err) => CtxResult::Err(StrErr(format!(
                 "{}.eval | Read context error: {:?}",

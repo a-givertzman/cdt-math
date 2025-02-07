@@ -10,9 +10,9 @@ mod hook_filter {
 
     use crate::{
         algorithm::{
-            context::{context::Context, ctx_result::CtxResult},
+            context::{context::Context, context_access::ContextRead, ctx_result::CtxResult},
             entities::hook::Hook,
-            hook_filter::hook_filter::HookFilter,
+            hook_filter::{hook_filter::HookFilter, hook_filter_ctx::HookFilterCtx},
             initial_ctx::initial_ctx::InitialCtx,
         },
         kernel::{dbgid::dbgid::DbgId, eval::Eval, storage::storage::Storage, str_err::str_err::StrErr},
@@ -106,14 +106,22 @@ mod hook_filter {
                 ctx: Context::new(initial),
             };
             let result = HookFilter::new(ctx).eval();
-            let result = result.unwrap().hook_filter.result.clone();
-            assert!(
-                result == target,
-                "step {} \nresult: {:?}\ntarget: {:?}",
-                step,
-                result,
-                target
-            );
+            match (&result, &target) {
+                (CtxResult::Ok(result), CtxResult::Ok(target)) => {
+                    let result = ContextRead::<HookFilterCtx>::read(result)
+                        .result;
+                    assert!(
+                        result == *target,
+                        "step {} \nresult: {:?}\ntarget: {:?}",
+                        step,
+                        result,
+                        target
+                    );
+                }
+                (CtxResult::Err(_), CtxResult::Err(_)) => {},
+                (CtxResult::None, CtxResult::None) => {},
+                _ => panic!("step {} \nresult: {:?}\ntarget: {:?}", step, result, target),
+            }
         }
         test_duration.exit();
     }

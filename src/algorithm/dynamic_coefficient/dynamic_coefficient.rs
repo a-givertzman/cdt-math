@@ -46,6 +46,7 @@ impl Eval for DynamicCoefficient {
                         }
                     }
                 };
+                self.value = Some(result.clone());
                 ctx.write(result)
             }
             CtxResult::Err(err) => CtxResult::Err(StrErr(format!(

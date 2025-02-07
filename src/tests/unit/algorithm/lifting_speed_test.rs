@@ -11,9 +11,9 @@ mod lifting_speed {
 
     use crate::{
         algorithm::{
-            context::{context::Context, ctx_result::CtxResult},
+            context::{context::Context, context_access::ContextRead, ctx_result::CtxResult},
             initial_ctx::initial_ctx::InitialCtx,
-            lifting_speed::lifting_speed::LiftingSpeed,
+            lifting_speed::{lifting_speed::LiftingSpeed, lifting_speed_ctx::LiftingSpeedCtx},
         },
         kernel::{dbgid::dbgid::DbgId, eval::Eval, storage::storage::Storage},
     };
@@ -116,7 +116,8 @@ mod lifting_speed {
             let result = LiftingSpeed::new(ctx).eval();
             match (&result, &target) {
                 (CtxResult::Ok(result), CtxResult::Ok(target)) => {
-                    let result = result.lifting_speed.result;
+                    let result = ContextRead::<LiftingSpeedCtx>::read(result)
+                        .result;
                     assert!(
                         result == *target,
                         "step {} \nresult: {:?}\ntarget: {:?}",

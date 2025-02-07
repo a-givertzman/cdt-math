@@ -9,10 +9,10 @@ mod select_bet_phi {
     use testing::stuff::max_test_duration::TestDuration;
     use crate::{
         algorithm::{
-            context::{context::Context, ctx_result::CtxResult},
+            context::{context::Context, context_access::ContextRead, ctx_result::CtxResult},
             entities::bet_phi::BetPhi,
             initial_ctx::initial_ctx::InitialCtx,
-            select_betta_phi::select_betta_phi::SelectBettaPhi,
+            select_betta_phi::{select_betta_phi::SelectBettaPhi, select_betta_phi_ctx::SelectBetPhiCtx},
         },
         kernel::{dbgid::dbgid::DbgId, eval::Eval, storage::storage::Storage, str_err::str_err::StrErr},
     };
@@ -94,8 +94,7 @@ mod select_bet_phi {
             let result = SelectBettaPhi::new(ctx).eval();
             match (&result, &target) {
                 (CtxResult::Ok(result), CtxResult::Ok(target)) => {
-                    let result = result
-                        .select_bet_phi
+                    let result = ContextRead::<SelectBetPhiCtx>::read(result)
                         .result;
                     assert!(
                         result == *target,

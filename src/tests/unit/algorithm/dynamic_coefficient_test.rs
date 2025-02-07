@@ -9,8 +9,8 @@ mod dynamic_coefficient {
     use testing::stuff::max_test_duration::TestDuration;
     use crate::{
         algorithm::{
-            context::{context::Context, ctx_result::CtxResult},
-            dynamic_coefficient::dynamic_coefficient::DynamicCoefficient,
+            context::{context::Context, context_access::ContextRead, ctx_result::CtxResult},
+            dynamic_coefficient::{dynamic_coefficient::DynamicCoefficient, dynamic_coefficient_ctx::DynamicCoefficientCtx},
             initial_ctx::initial_ctx::InitialCtx,
         },
         kernel::{dbgid::dbgid::DbgId, eval::Eval, storage::storage::Storage, str_err::str_err::StrErr},
@@ -75,8 +75,7 @@ mod dynamic_coefficient {
                 ).eval();
                 match (&result, &target) {
                     (CtxResult::Ok(result), CtxResult::Ok(target)) => {
-                    let result = result
-                        .dynamic_coefficient
+                    let result = ContextRead::<DynamicCoefficientCtx>::read(result)
                         .result;
                     assert!(
                         result == *target,

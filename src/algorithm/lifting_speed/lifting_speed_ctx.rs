@@ -1,4 +1,3 @@
-use crate::{algorithm::context::ctx_result::CtxResult, kernel::str_err::str_err::StrErr};
 ///
 /// Struct to store result of algorithm, that calculate steady state lifting speed
 #[derive(Debug, Clone, Default)]

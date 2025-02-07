@@ -1,6 +1,6 @@
 use super::{context::Context, ctx_result::CtxResult};
 use crate::{
-    algorithm::{dynamic_coefficient::dynamic_coefficient_ctx::DynamicCoefficientCtx, lifting_speed::lifting_speed_ctx::LiftingSpeedCtx, select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx},
+    algorithm::{dynamic_coefficient::dynamic_coefficient_ctx::DynamicCoefficientCtx, hook_filter::hook_filter_ctx::HookFilterCtx, lifting_speed::lifting_speed_ctx::LiftingSpeedCtx, select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx},
     kernel::str_err::str_err::StrErr,
 };
 ///
@@ -50,5 +50,18 @@ impl ContextWrite<SelectBetPhiCtx> for Context {
 impl ContextRead<SelectBetPhiCtx> for Context {
     fn read(&self) -> SelectBetPhiCtx {
         self.select_bet_phi.clone()
+    }
+}
+//
+//
+impl ContextWrite<HookFilterCtx> for Context {
+    fn write(mut self, value: HookFilterCtx) -> CtxResult<Self, StrErr> {
+        self.hook_filter = value;
+        CtxResult::Ok(self)
+    }
+}
+impl ContextRead<HookFilterCtx> for Context {
+    fn read(&self) -> HookFilterCtx {
+        self.hook_filter.clone()
     }
 }
