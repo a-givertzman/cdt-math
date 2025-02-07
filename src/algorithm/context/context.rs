@@ -1,9 +1,11 @@
-use crate::algorithm::{
+use crate::{algorithm::{
     dynamic_coefficient::dynamic_coefficient_ctx::DynamicCoefficientCtx,
     hook_filter::hook_filter_ctx::HookFilterCtx, initial_ctx::initial_ctx::InitialCtx,
     lifting_speed::lifting_speed_ctx::LiftingSpeedCtx,
     select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx,
-};
+}, kernel::str_err::str_err::StrErr};
+
+use super::ctx_result::CtxResult;
 ///
 /// # Calculation context
 /// - Provides read/write access to initial
@@ -36,4 +38,10 @@ impl Context {
             hook_filter: HookFilterCtx::default(),
         }
     }
+}
+
+///
+/// Provides restricted write access to the [Context] members
+pub trait ContextWrite<T> {
+    fn write(self, value: T) -> CtxResult<Context, StrErr>;
 }

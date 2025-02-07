@@ -1,5 +1,5 @@
 use crate::{
-    algorithm::context::{context::Context, ctx_result::CtxResult},
+    algorithm::context::{context::{Context, ContextWrite}, ctx_result::CtxResult},
     kernel::{dbgid::dbgid::DbgId, eval::Eval, str_err::str_err::StrErr},
 };
 use super::dynamic_coefficient_ctx::DynamicCoefficientCtx;
@@ -35,21 +35,18 @@ impl Eval for DynamicCoefficient {
     /// [reference to dynamic coefficient documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
     fn eval(&mut self) -> CtxResult<Context, StrErr> {
         match self.ctx.eval() {
-            CtxResult::Ok(mut ctx) => {
+            CtxResult::Ok(ctx) => {
                 let result = match self.value.clone() {
                     Some(dynamic_coefficient) => dynamic_coefficient,
                     None => {
-                        let lifting_speed =
-                            ctx.lifting_speed.result.clone();
+                        let lifting_speed = ctx.lifting_speed.result.clone();
                         let bet_phi = ctx.select_bet_phi.result.clone().unwrap();
                         DynamicCoefficientCtx {
-                            result: CtxResult::Ok(bet_phi.phi + bet_phi.bet * lifting_speed),
+                            result: bet_phi.phi + bet_phi.bet * lifting_speed,
                         }
                     }
                 };
-                self.value = Some(result.clone());
-                ctx.dynamic_coefficient = result;
-                CtxResult::Ok(ctx)
+                ctx.write(result)
             }
             CtxResult::Err(err) => CtxResult::Err(StrErr(format!(
                 "{}.eval | Read context error: {:?}",
@@ -68,5 +65,13 @@ impl std::fmt::Debug for DynamicCoefficient {
             .field("value", &self.value)
             // .field("ctx", &self.ctx)
             .finish()
+    }
+}
+//
+//
+impl ContextWrite<DynamicCoefficientCtx> for Context {
+    fn write(mut self, value: DynamicCoefficientCtx) -> CtxResult<Self, StrErr> {
+        self.dynamic_coefficient = value;
+        CtxResult::Ok(self)
     }
 }
