@@ -109,7 +109,8 @@ mod hook_filter {
             match (&result, &target) {
                 (CtxResult::Ok(result), CtxResult::Ok(target)) => {
                     let result = ContextRead::<HookFilterCtx>::read(result)
-                        .result;
+                        .result
+                        .clone();
                     assert!(
                         result == *target,
                         "step {} \nresult: {:?}\ntarget: {:?}",

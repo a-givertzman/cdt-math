@@ -1,6 +1,11 @@
 use super::{context::Context, ctx_result::CtxResult};
 use crate::{
-    algorithm::{dynamic_coefficient::dynamic_coefficient_ctx::DynamicCoefficientCtx, hook_filter::hook_filter_ctx::HookFilterCtx, lifting_speed::lifting_speed_ctx::LiftingSpeedCtx, select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx},
+    algorithm::{
+        dynamic_coefficient::dynamic_coefficient_ctx::DynamicCoefficientCtx,
+        hook_filter::hook_filter_ctx::HookFilterCtx,
+        lifting_speed::lifting_speed_ctx::LiftingSpeedCtx,
+        select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx,
+    },
     kernel::str_err::str_err::StrErr,
 };
 ///
@@ -11,7 +16,7 @@ pub trait ContextWrite<T> {
 ///
 /// Provides simple read access to the [Context] members
 pub trait ContextRead<T> {
-    fn read(&self) -> T;
+    fn read(&self) -> &T;
 }
 //
 //
@@ -22,8 +27,8 @@ impl ContextWrite<DynamicCoefficientCtx> for Context {
     }
 }
 impl ContextRead<DynamicCoefficientCtx> for Context {
-    fn read(&self) -> DynamicCoefficientCtx {
-        self.dynamic_coefficient.clone()
+    fn read(&self) -> &DynamicCoefficientCtx {
+        &self.dynamic_coefficient
     }
 }
 //
@@ -35,8 +40,8 @@ impl ContextWrite<LiftingSpeedCtx> for Context {
     }
 }
 impl ContextRead<LiftingSpeedCtx> for Context {
-    fn read(&self) -> LiftingSpeedCtx {
-        self.lifting_speed.clone()
+    fn read(&self) -> &LiftingSpeedCtx {
+        &self.lifting_speed
     }
 }
 //
@@ -48,8 +53,8 @@ impl ContextWrite<SelectBetPhiCtx> for Context {
     }
 }
 impl ContextRead<SelectBetPhiCtx> for Context {
-    fn read(&self) -> SelectBetPhiCtx {
-        self.select_bet_phi.clone()
+    fn read(&self) -> &SelectBetPhiCtx {
+        &self.select_bet_phi
     }
 }
 //
@@ -61,7 +66,7 @@ impl ContextWrite<HookFilterCtx> for Context {
     }
 }
 impl ContextRead<HookFilterCtx> for Context {
-    fn read(&self) -> HookFilterCtx {
-        self.hook_filter.clone()
+    fn read(&self) -> &HookFilterCtx {
+        &self.hook_filter
     }
 }
