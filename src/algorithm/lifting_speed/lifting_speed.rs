@@ -60,7 +60,7 @@ impl Eval for LiftingSpeed {
                     },
                 };
                 let result = LiftingSpeedCtx {
-                    result: CtxResult::Ok(result),
+                    result: result,
                 };
                 self.value = Some(result.clone());
                 ctx.lifting_speed = result;

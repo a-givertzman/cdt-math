@@ -40,7 +40,7 @@ impl Eval for DynamicCoefficient {
                     Some(dynamic_coefficient) => dynamic_coefficient,
                     None => {
                         let lifting_speed =
-                            ctx.lifting_speed.result.clone().unwrap();
+                            ctx.lifting_speed.result.clone();
                         let bet_phi = ctx.select_bet_phi.result.clone().unwrap();
                         DynamicCoefficientCtx {
                             result: CtxResult::Ok(bet_phi.phi + bet_phi.bet * lifting_speed),

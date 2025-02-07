@@ -1,6 +1,7 @@
 #[cfg(test)]
 
 mod lifting_speed {
+    use api_tools::error::str_err::StrErr;
     use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
     use std::{
         sync::Once,
@@ -42,7 +43,7 @@ mod lifting_speed {
         log::debug!("\n{}", dbgid);
         let test_duration = TestDuration::new(&dbgid, Duration::from_secs(1));
         test_duration.run().unwrap();
-        let test_data = [
+        let test_data: [(i32, InitialCtx, CtxResult<f64, StrErr>); 8] = [
             (
                 1,
                 InitialCtx::new(&mut Storage::new(
@@ -113,20 +114,27 @@ mod lifting_speed {
                 ctx: Context::new(initial),
             };
             let result = LiftingSpeed::new(ctx).eval();
-            let result = result.unwrap().lifting_speed.result.clone();
-            assert!(
-                result == target,
-                "step {} \nresult: {:?}\ntarget: {:?}",
-                step,
-                result,
-                target
-            );
+            match (&result, &target) {
+                (CtxResult::Ok(result), CtxResult::Ok(target)) => {
+                    let result = result.lifting_speed.result;
+                    assert!(
+                        result == *target,
+                        "step {} \nresult: {:?}\ntarget: {:?}",
+                        step,
+                        result,
+                        target
+                    )
+                }
+                (CtxResult::Err(_), CtxResult::Err(_)) => {},
+                (CtxResult::None, CtxResult::None) => {},
+                _ => panic!("step {} \nresult: {:?}\ntarget: {:?}", step, result, target),
+            }
         }
         test_duration.exit();
     }
     ///
     ///
-    #[derive(Debug)]
+    #[derive(Debug, Clone)]
     struct MocEval {
         pub ctx: Context,
     }
