@@ -1,7 +1,7 @@
 ///
 /// Struct to storage β2 and ϕ2 coefficients
 /// [reference to β2 and ϕ2 coefficients documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Default)]
 pub struct BetPhi {
     /// β2 coefficient
     pub bet: f64,
