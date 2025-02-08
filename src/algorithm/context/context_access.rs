@@ -1,10 +1,7 @@
 use super::{context::Context, ctx_result::CtxResult};
 use crate::{
     algorithm::{
-        dynamic_coefficient::dynamic_coefficient_ctx::DynamicCoefficientCtx,
-        hook_filter::hook_filter_ctx::HookFilterCtx,
-        lifting_speed::lifting_speed_ctx::LiftingSpeedCtx,
-        select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx,
+        dynamic_coefficient::dynamic_coefficient_ctx::DynamicCoefficientCtx, hook_filter::hook_filter_ctx::HookFilterCtx, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed_ctx::LiftingSpeedCtx, select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx
     },
     kernel::str_err::str_err::StrErr,
 };
@@ -17,6 +14,19 @@ pub trait ContextWrite<T> {
 /// Provides simple read access to the [Context] members
 pub trait ContextRead<T> {
     fn read(&self) -> &T;
+}
+//
+//
+impl ContextWrite<InitialCtx> for Context {
+    fn write(mut self, value: InitialCtx) -> CtxResult<Self, StrErr> {
+        self.initial = value;
+        CtxResult::Ok(self)
+    }
+}
+impl ContextRead<InitialCtx> for Context {
+    fn read(&self) -> &InitialCtx {
+        &self.initial
+    }
 }
 //
 //

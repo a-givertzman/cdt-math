@@ -1,8 +1,8 @@
 use super::hook_filter_ctx::HookFilterCtx;
 use crate::{
     algorithm::{
-        context::{context::Context, context_access::ContextWrite, ctx_result::CtxResult},
-        entities::{hook::Hook, mechanism_work_type::MechanismWorkType},
+        context::{context::Context, context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult},
+        entities::{hook::Hook, mechanism_work_type::MechanismWorkType}, initial_ctx::initial_ctx::InitialCtx,
     },
     kernel::{dbgid::dbgid::DbgId, eval::Eval, str_err::str_err::StrErr},
 };
@@ -42,7 +42,7 @@ impl Eval for HookFilter {
                 match self.value.clone() {
                     Some(hook_filter) => ctx.write(hook_filter),
                     None => {
-                        let initial = &ctx.initial;
+                        let initial = ContextRead::<InitialCtx>::read(&ctx);
                         let user_loading_capacity = initial.load_capacity.clone();
                         let user_mech_work_type = initial.mechanism_work_type.clone();
                         let result: Vec<Hook> = initial

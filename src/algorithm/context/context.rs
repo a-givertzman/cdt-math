@@ -11,7 +11,7 @@ use crate::algorithm::{
 #[derive(Debug, Clone)]
 pub struct Context {
     /// where store [initial data](design\docs\algorithm\part01\initial_data.md)
-    pub initial: InitialCtx,
+    pub(super) initial: InitialCtx,
     /// result of calculation [steady-state-lifting-speed](design/docs/algorithm/part02/chapter_01_choose_hook.md)
     pub(super) lifting_speed: LiftingSpeedCtx,
     /// result of calculation [ϕ2(phi) and β2(betta) coefficients](design/docs/algorithm/part02/chapter_01_choose_hook.md)

@@ -1,7 +1,7 @@
 use crate::{
     algorithm::{
-        context::{context::Context, context_access::ContextWrite, ctx_result::CtxResult},
-        entities::{bet_phi::BetPhi, lifting_class::LiftClass},
+        context::{context::Context, context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult},
+        entities::{bet_phi::BetPhi, lifting_class::LiftClass}, initial_ctx::initial_ctx::InitialCtx,
     },
     kernel::{dbgid::dbgid::DbgId, eval::Eval, str_err::str_err::StrErr},
 };
@@ -39,7 +39,7 @@ impl Eval for SelectBettaPhi {
     fn eval(&mut self) -> CtxResult<Context, StrErr> {
         match self.ctx.eval() {
             CtxResult::Ok(ctx) => {
-                let initial = ctx.initial.clone();
+                let initial = ContextRead::<InitialCtx>::read(&ctx);
                 let result = match initial.lift_class {
                     LiftClass::Hc1 => BetPhi::new(0.17, 1.05),
                     LiftClass::Hc2 => BetPhi::new(0.34, 1.10),
