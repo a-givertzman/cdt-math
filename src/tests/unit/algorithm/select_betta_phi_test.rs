@@ -3,21 +3,19 @@
 mod select_bet_phi {
     use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
     use std::{
-        sync::{Arc, Once, RwLock},
+        sync::Once,
         time::Duration,
     };
     use testing::stuff::max_test_duration::TestDuration;
-
     use crate::{
         algorithm::{
-            context::{context::Context, ctx_result::CtxResult},
+            context::{context::Context, context_access::ContextRead, ctx_result::CtxResult},
             entities::bet_phi::BetPhi,
             initial_ctx::initial_ctx::InitialCtx,
-            select_betta_phi::select_betta_phi::SelectBettaPhi,
+            select_betta_phi::{select_betta_phi::SelectBettaPhi, select_betta_phi_ctx::SelectBetPhiCtx},
         },
-        kernel::{dbgid::dbgid::DbgId, eval::Eval, storage::storage::Storage},
+        kernel::{dbgid::dbgid::DbgId, eval::Eval, storage::storage::Storage, str_err::str_err::StrErr},
     };
-
     ///
     ///
     static INIT: Once = Once::new();
@@ -43,7 +41,7 @@ mod select_bet_phi {
         log::debug!("\n{}", dbgid);
         let test_duration = TestDuration::new(&dbgid, Duration::from_secs(1));
         test_duration.run().unwrap();
-        let test_data = [
+        let test_data: [(i32, InitialCtx, CtxResult<BetPhi, StrErr>); 4] = [
             (
                 1,
                 InitialCtx::new(&mut Storage::new(
@@ -94,18 +92,22 @@ mod select_bet_phi {
                 ctx: Context::new(initial),
             };
             let result = SelectBettaPhi::new(ctx).eval();
-            let result = result
-                .unwrap()
-                .select_bet_phi
-                .result
-                .clone();
-            assert!(
-                result == target,
-                "step {} \nresult: {:?}\ntarget: {:?}",
-                step,
-                result,
-                target
-            );
+            match (&result, &target) {
+                (CtxResult::Ok(result), CtxResult::Ok(target)) => {
+                    let result = ContextRead::<SelectBetPhiCtx>::read(result)
+                        .result;
+                    assert!(
+                        result == *target,
+                        "step {} \nresult: {:?}\ntarget: {:?}",
+                        step,
+                        result,
+                        target
+                    );
+                }
+                (CtxResult::Err(_), CtxResult::Err(_)) => {},
+                (CtxResult::None, CtxResult::None) => {},
+                _ => panic!("step {} \nresult: {:?}\ntarget: {:?}", step, result, target),
+            }
         }
         test_duration.exit();
     }

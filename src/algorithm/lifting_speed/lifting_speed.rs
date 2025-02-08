@@ -1,7 +1,7 @@
 use crate::{
     algorithm::{
-        context::{context::Context, ctx_result::CtxResult},
-        entities::{driver_type::DriverType, loading_combination::LoadingCombination},
+        context::{context::Context, context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult},
+        entities::{driver_type::DriverType, loading_combination::LoadingCombination}, initial_ctx::initial_ctx::InitialCtx,
     },
     kernel::{dbgid::dbgid::DbgId, eval::Eval, str_err::str_err::StrErr},
 };
@@ -45,8 +45,8 @@ impl Eval for LiftingSpeed {
     /// [reference to steady-state lifting speed choice documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
     fn eval(&mut self) -> CtxResult<Context, StrErr> {
         match self.ctx.eval() {
-            CtxResult::Ok(mut ctx) => {
-                let initial = ctx.initial.clone();
+            CtxResult::Ok(ctx) => {
+                let initial = ContextRead::<InitialCtx>::read(&ctx);
                 let result = match initial.load_comb {
                     LoadingCombination::A1 | LoadingCombination::B1 => match initial.driver_type {
                         DriverType::Hd1 => initial.vhmax,
@@ -60,11 +60,10 @@ impl Eval for LiftingSpeed {
                     },
                 };
                 let result = LiftingSpeedCtx {
-                    result: CtxResult::Ok(result),
+                    result: result,
                 };
                 self.value = Some(result.clone());
-                ctx.lifting_speed = result;
-                CtxResult::Ok(ctx)
+                ctx.write(result)
             }
             CtxResult::Err(err) => CtxResult::Err(StrErr(format!(
                 "{}.eval | Read context error: {:?}",

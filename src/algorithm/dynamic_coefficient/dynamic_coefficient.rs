@@ -1,5 +1,5 @@
 use crate::{
-    algorithm::context::{context::Context, ctx_result::CtxResult},
+    algorithm::{context::{context::Context, context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult}, lifting_speed::lifting_speed_ctx::LiftingSpeedCtx, select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx},
     kernel::{dbgid::dbgid::DbgId, eval::Eval, str_err::str_err::StrErr},
 };
 use super::dynamic_coefficient_ctx::DynamicCoefficientCtx;
@@ -35,21 +35,19 @@ impl Eval for DynamicCoefficient {
     /// [reference to dynamic coefficient documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
     fn eval(&mut self) -> CtxResult<Context, StrErr> {
         match self.ctx.eval() {
-            CtxResult::Ok(mut ctx) => {
+            CtxResult::Ok(ctx) => {
                 let result = match self.value.clone() {
                     Some(dynamic_coefficient) => dynamic_coefficient,
                     None => {
-                        let lifting_speed =
-                            ctx.lifting_speed.result.clone().unwrap();
-                        let bet_phi = ctx.select_bet_phi.result.clone().unwrap();
+                        let lifting_speed = ContextRead::<LiftingSpeedCtx>::read(&ctx).result;
+                        let bet_phi = ContextRead::<SelectBetPhiCtx>::read(&ctx).result;
                         DynamicCoefficientCtx {
-                            result: CtxResult::Ok(bet_phi.phi + bet_phi.bet * lifting_speed),
+                            result: bet_phi.phi + bet_phi.bet * lifting_speed,
                         }
                     }
                 };
                 self.value = Some(result.clone());
-                ctx.dynamic_coefficient = result;
-                CtxResult::Ok(ctx)
+                ctx.write(result)
             }
             CtxResult::Err(err) => CtxResult::Err(StrErr(format!(
                 "{}.eval | Read context error: {:?}",
