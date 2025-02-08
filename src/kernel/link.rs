@@ -1,6 +1,6 @@
-use std::sync::mpsc::{self, Receiver, Sender};
-use sal_sync::services::entity::{name::Name, point::{point::Point, point_tx_id::PointTxId}};
-use serde::Serialize;
+use std::{fmt::Debug, sync::mpsc::{self, Receiver, Sender}, time::Duration};
+use sal_sync::services::{entity::{name::Name, point::{point::Point, point_tx_id::PointTxId}}, types::type_of};
+use serde::{de::DeserializeOwned, Deserialize, Serialize};
 
 use super::str_err::str_err::StrErr;
 ///
@@ -9,8 +9,10 @@ use super::str_err::str_err::StrErr;
 /// - provides request operation
 pub struct Link {
     txid: usize,
+    name: Name,
     send: Sender<Point>,
     recv: Receiver<Point>,
+    timeout: Duration,
 }
 //
 //
@@ -23,8 +25,10 @@ impl Link {
         let name = Name::new(parent, "Link");
         Self {
             txid: PointTxId::from_str(&name.join()),
+            name,
             send, 
             recv,
+            timeout: Duration::from_millis(3000),
         }
     }
     ///
@@ -36,11 +40,15 @@ impl Link {
         (
             Self { 
                 txid: PointTxId::from_str(&name.join()),
-                send: loc_send, recv: loc_recv
+                name: name.clone(),
+                send: loc_send, recv: loc_recv,
+                timeout: Duration::from_millis(3000),
             },
             Self { 
                 txid: PointTxId::from_str(&name.join()),
-                send: rem_send, recv: rem_recv
+                name,
+                send: rem_send, recv: rem_recv,
+                timeout: Duration::from_millis(3000),
             },
         )
     }
@@ -48,14 +56,30 @@ impl Link {
     /// - Sends a request, 
     /// - Await reply,
     /// - Returns parsed reply
-    pub fn req<T>(&self, query: impl Serialize) -> Result<T, StrErr> {
+    pub fn req<T: DeserializeOwned + Debug>(&self, query: impl Serialize + Debug) -> Result<T, StrErr> {
         match serde_json::to_string(&query) {
             Ok(query) => {
                 // let bytes = query.as_bytes();
-                let query = Point::new(self.tx_id, self.name, query);
-                self.
+                let query = Point::new(self.txid, &self.name.join(), query);
+                match self.send.send(query) {
+                    Ok(_) => {
+                        match self.recv.recv_timeout(self.timeout) {
+                            Ok(reply) => {
+                                let reply = reply.as_string().value;
+                                match serde_json::from_str::<T>(reply.as_str()) {
+                                    Ok(reply) => {
+                                        Ok(reply)
+                                    }
+                                    Err(err) => Err(StrErr(format!("{}.req | Deserialize error for {:?} in {}, \n\terror: {:#?}", self.name, std::any::type_name::<T>(), reply, err))),
+                                }
+                            }
+                            Err(_) => Err(StrErr(format!("{}.req | Request timeout ({:?})", self.name, self.timeout))),
+                        }
+                    },
+                    Err(err) => Err(StrErr(format!("{}.req | Send request error: {:#?}", self.name, err))),
+                }
             }
-            Err(err) => Err(StrErr(format!("..."))),
+            Err(err) => Err(StrErr(format!("{}.req | Serialize query error: {:#?}, \n\tquery: {:#?}", self.name, err, query))),
         }
     }
 }
