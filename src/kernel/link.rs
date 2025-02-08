@@ -1,7 +1,6 @@
 use std::{fmt::Debug, sync::mpsc::{self, Receiver, Sender}, time::Duration};
-use sal_sync::services::{entity::{name::Name, point::{point::Point, point_tx_id::PointTxId}}, types::type_of};
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
-
+use sal_sync::services::entity::{name::Name, point::{point::Point, point_tx_id::PointTxId}};
+use serde::{de::DeserializeOwned, Serialize};
 use super::str_err::str_err::StrErr;
 ///
 /// Contains local side `send` & `recv` of `channel`
