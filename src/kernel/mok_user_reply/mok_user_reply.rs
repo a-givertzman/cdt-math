@@ -28,7 +28,7 @@ impl MokUserReply {
         let link = self.link;
         let handle = thread::spawn(move || {
             loop {
-                if !*self.stop_signal.lock().unwrap() {
+                if *self.stop_signal.lock().unwrap() {
                     break;
                 }
                 let query: Result<QueryStruct, StrErr> = link.req(QueryStruct::new());
