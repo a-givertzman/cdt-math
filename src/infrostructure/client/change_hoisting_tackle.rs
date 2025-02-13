@@ -1,6 +1,6 @@
 use serde::{Serialize, Deserialize};
 ///
-/// TODO!: To be documented
+/// Struct to describe type of user request, that ascs user for changing hoisting tackle if it needed
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ChangeHoistingTackleQuery {
     pub data: String,

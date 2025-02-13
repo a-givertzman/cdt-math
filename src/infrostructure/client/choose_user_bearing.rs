@@ -1,6 +1,6 @@
 use serde::{Serialize, Deserialize};
 ///
-/// TODO!: To be documented
+/// Struct to describe type of user request, that ascs user for choosing bearing from filtered
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ChooseUserBearingQuery {
     pub data: String,
