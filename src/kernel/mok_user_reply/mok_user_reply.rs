@@ -1,7 +1,8 @@
 use std::{sync::{atomic::{AtomicBool, Ordering}, Arc}, thread};
-use sal_sync::services::{entity::{name::Name, object::Object}, service::{service::Service, service_handles::ServiceHandles}};
+use sal_sync::services::{
+    entity::{name::Name, object::Object}, service::{service::Service, service_handles::ServiceHandles}
+};
 use serde::{de::DeserializeOwned, Serialize};
-
 use crate::kernel::{link::Link, str_err::str_err::StrErr};
 use super::query_struct::QueryStruct;
 ///
