@@ -46,7 +46,8 @@ impl MokUserReply {
                                         TestUserReply { data: "TestUserReply".to_owned() }
                                     },
                                     //
-                                    // all possible kinds to be matched...
+                                    // all possible kinds jof queries to be matched...
+                                    // corresponding reply to have to be returned
                                     //
                                 };
                                 if let Err(err) = link.send_reply(reply) {
