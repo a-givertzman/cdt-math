@@ -1,10 +1,9 @@
-use std::{sync::{atomic::{AtomicBool, Ordering}, Arc, RwLock}, thread};
+use std::{str::FromStr, sync::{atomic::{AtomicBool, Ordering}, Arc}, thread};
 use sal_sync::services::{
     entity::{name::Name, object::Object}, service::{service::Service, service_handles::ServiceHandles}
 };
 use serde::{de::DeserializeOwned, Serialize};
-use crate::{infrostructure::client::query_kind::QueryKind, kernel::{link::Link, str_err::str_err::StrErr}};
-use super::query_struct::QueryStruct;
+use crate::{infrostructure::client::{query_kind::QueryKind, test_user_query::{TestUserQuery, TestUserReply}}, kernel::link::Link};
 ///
 /// Struct to imitate user's answer's
 pub struct MokUserReply {
@@ -31,27 +30,38 @@ impl MokUserReply {
     }
     ///
     /// Running user service
-    pub fn run(self) -> Result<thread::JoinHandle<()>, String> {
+    pub fn run(&mut self) -> Result<thread::JoinHandle<()>, String> {
+        let dbg = self.name.join();
         let link = self.link.take().unwrap_or_else(|| panic!("{}.run | Link not found", self.name));
+        let exit = self.exit.clone();
         let handle = thread::spawn(move || {
             loop {
                 match link.recv_query() {
                     Ok((kind, query)) => {
-                        match QueryKind::from_str(kind) {}
-                        let query =
-                        let response = QueryStruct {
-                            data: format!("Processed: {}", request.data),
-                        };
-                        if let Err(err) = link.send_reply(response) {
-                            log::debug!("{}.run | Send reply error: {:?}", self.name, err);
-                        };
+                        match QueryKind::from_str(&kind) {
+                            Ok(kind) => {
+                                let reply = match kind {
+                                    QueryKind::TestUserQuery => {
+                                        let query: TestUserQuery = query;
+                                        TestUserReply { data: "TestUserReply".to_owned() }
+                                    },
+                                    //
+                                    // all possible kinds to be matched...
+                                    //
+                                };
+                                if let Err(err) = link.send_reply(reply) {
+                                    log::debug!("{}.run | Send reply error: {:?}", dbg, err);
+                                };
+                            }
+                            Err(err) => log::warn!("{}.run | Error: {:?}", dbg, err),
+                        }
                     }
                     Err(err) => {
-                        log::warn!("{}.run | Error: {:?}", self.dbg, err);
+                        log::warn!("{}.run | Error: {:?}", dbg, err);
                         break;
                     }
                 }
-                if self.exit.load(Ordering::SeqCst) {
+                if exit.load(Ordering::SeqCst) {
                     break;
                 }
             }

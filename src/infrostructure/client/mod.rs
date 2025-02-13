@@ -32,3 +32,4 @@
 //! }
 //! ```
 pub mod query_kind;
+pub mod test_user_query;

@@ -1,5 +1,5 @@
 use std::{fmt::Debug, sync::mpsc::{self, Receiver, RecvTimeoutError, Sender}, time::Duration};
-use sal_sync::services::entity::{name::{self, Name}, point::{point::Point, point_tx_id::PointTxId}};
+use sal_sync::services::entity::{name::Name, point::{point::Point, point_tx_id::PointTxId}};
 use serde::{de::DeserializeOwned, Serialize};
 use super::str_err::str_err::StrErr;
 ///

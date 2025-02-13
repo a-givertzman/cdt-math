@@ -5,7 +5,7 @@ mod mok_user_reply {
     use testing::stuff::max_test_duration::TestDuration;
     use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
 
-    use crate::kernel::{link::Link, mok_user_reply::{mok_user_reply::MokUserReply, query_struct::QueryStruct}};
+    use crate::kernel::{link::Link, mok_user_reply::{mok_user_reply::MokUserReply, query_struct::TestUserQuery}};
     ///
     ///
     static INIT: Once = Once::new();
@@ -35,14 +35,14 @@ mod mok_user_reply {
         let test_data = [
             (
                 1,
-                QueryStruct::new(),
+                TestUserQuery::new(),
             )
         ];
         let (local, remote) = Link::split("TestUser");
         let user = MokUserReply::new(remote);
         let _handle = user.run().unwrap();
         for (step, target) in test_data.iter() {
-            let result: QueryStruct = local.req(target).expect("Request failed");
+            let result: TestUserQuery = local.req(target).expect("Request failed");
             assert!(result.data == target.data, "step {} \nresult: {:?}\ntarget: {:?}", step, result, target);
         }
         test_duration.exit();
