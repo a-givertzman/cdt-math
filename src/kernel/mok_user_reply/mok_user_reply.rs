@@ -3,7 +3,7 @@ use sal_sync::services::{
     entity::{name::Name, object::Object}, service::{service::Service, service_handles::ServiceHandles}
 };
 use serde::{de::DeserializeOwned, Serialize};
-use crate::kernel::{link::Link, str_err::str_err::StrErr};
+use crate::{infrostructure::client::query_kind::QueryKind, kernel::{link::Link, str_err::str_err::StrErr}};
 use super::query_struct::QueryStruct;
 ///
 /// Struct to imitate user's answer's
@@ -35,13 +35,14 @@ impl MokUserReply {
         let link = self.link.take().unwrap_or_else(|| panic!("{}.run | Link not found", self.name));
         let handle = thread::spawn(move || {
             loop {
-                match link.recv() {
-                    Ok(query) => {
+                match link.recv_query() {
+                    Ok((kind, query)) => {
+                        match QueryKind::from_str(kind) {}
                         let query =
                         let response = QueryStruct {
                             data: format!("Processed: {}", request.data),
                         };
-                        if let Err(err) = link.reply(response) {
+                        if let Err(err) = link.send_reply(response) {
                             log::debug!("{}.run | Send reply error: {:?}", self.name, err);
                         };
                     }

@@ -83,7 +83,7 @@ impl Link {
     }
     ///
     /// Receiving incomong events
-    pub fn  recv<T: DeserializeOwned + Debug>(&self) -> Result<(String, T), StrErr> {
+    pub fn  recv_query<T: DeserializeOwned + Debug>(&self) -> Result<(String, T), StrErr> {
         loop {
             match self.recv.recv_timeout(self.timeout) {
                 Ok(quyru) => {
@@ -114,7 +114,7 @@ impl Link {
     }
     ///
     /// Sending event
-    pub fn reply(&self, reply: impl Serialize + Debug) -> Result<(), StrErr> {
+    pub fn send_reply(&self, reply: impl Serialize + Debug) -> Result<(), StrErr> {
         match serde_json::to_string(&reply) {
             Ok(reply) => {
                 let reply = Point::new(self.txid, &self.name.join(), reply);
