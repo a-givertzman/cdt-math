@@ -40,7 +40,9 @@ impl MokUserReply {
                         let response = QueryStruct {
                             data: format!("Processed: {}", request.data),
                         };
-                        let answer: Result<QueryStruct, StrErr> = link.req(response);
+                        if let Err(err) = link.reply(response) {
+                            log::debug!("{}.run | Send reply error: {:?}", self.name, err);
+                        };
                     }
                     Err(err) => {
                         log::warn!("{}.run | Error: {:?}", self.dbg, err);
