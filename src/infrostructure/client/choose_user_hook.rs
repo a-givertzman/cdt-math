@@ -2,30 +2,30 @@ use serde::{Serialize, Deserialize};
 ///
 /// TODO!: To be documented
 #[derive(Debug, Serialize, Deserialize)]
-pub struct TestUserQuery1 {
+pub struct ChooseUserHookQuery {
     pub data: String,
 }
 //
 //
-impl TestUserQuery1 {
+impl ChooseUserHookQuery {
     pub fn new() -> Self {
         Self {
-            data: "TestUserQuery1".to_string(),
+            data: "ChooseUserHookQuery".to_string(),
         }
     }
 }
 ///
-/// Reply to [TestUserQuery]
+/// Reply to [ChooseUserHookQuery]
 #[derive(Debug, Serialize, Deserialize)]
-pub struct TestUserReply1 {
+pub struct ChooseUserHookReply {
     pub data:String
 }
 //
 //
-impl TestUserReply1 {
+impl ChooseUserHookReply {
     pub fn new() -> Self {
         Self {
-            data: "TestUserReply1".to_string(),
+            data: "ChooseUserHookReply".to_string(),
         }
     }
 }

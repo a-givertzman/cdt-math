@@ -7,11 +7,17 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Serialize, Deserialize)]
 pub enum QueryKind {
     ///
-    /// Used for example only, to be deleted
-    TestUserQuery1,
+    /// Request for choosing hook from filtered hooks
+    ChooseUserHook,
     ///
-    /// Used for example only, to be deleted
-    TestUserQuery2,
+    /// Request for choosing bearing from filtered bearings
+    ChooseUserBearing,
+    ///
+    /// Request for choosing hoisting rope
+    ChooseHoistingRope,
+    ///
+    /// Request for changing hoisting tackle
+    ChangeHoistingTackle,
 }
 //
 //
@@ -21,11 +27,17 @@ impl FromStr for QueryKind {
     //
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
-            "test-user-query-1" => {
-                Ok(QueryKind::TestUserQuery1)
+            "choose-user-hook" => {
+                Ok(QueryKind::ChooseUserHook)
             }
-            "test-user-query-2" => {
-                Ok(QueryKind::TestUserQuery2)
+            "choose-user-bearing" => {
+                Ok(QueryKind::ChooseUserBearing)
+            }
+            "choose-hoisting-rope" => {
+                Ok(QueryKind::ChooseHoistingRope)
+            }
+            "change-hoisting-tackle" => {
+                Ok(QueryKind::ChangeHoistingTackle)
             }
             _ => Err(StrErr(
                 format!("{}.run | Unknown kind of query: {}", std::any::type_name::<Self>(), s),
