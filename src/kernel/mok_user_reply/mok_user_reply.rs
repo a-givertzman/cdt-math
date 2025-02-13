@@ -1,4 +1,4 @@
-use std::{str::FromStr, sync::{atomic::{AtomicBool, Ordering}, Arc}, thread};
+use std::{fmt::Debug, str::FromStr, sync::{atomic::{AtomicBool, Ordering}, Arc}, thread};
 use sal_sync::services::{
     entity::{error::str_err::StrErr, name::Name, object::Object}, service::{service::Service, service_handles::ServiceHandles}
 };
@@ -38,19 +38,14 @@ impl MokUserReply {
             loop {
                 match link.recv_query() {
                     Ok((kind, query)) => {
-                        match QueryKind::from_str(&kind) {
-                            Ok(kind) => {
-                                match Self::build_reply(kind, query) {
-                                    Ok(reply) => {
-                                        if let Err(err) = link.send_reply(reply) {
-                                            log::debug!("{}.run | Send reply error: {:?}", dbg, err);
-                                        };
-                                    }
-                                    Err(_) => todo!(),
+                        match Self::build_reply(&dbg, &kind, query) {
+                            Ok(reply) => {
+                                if let Err(err) = link.send_reply(reply) {
+                                    log::debug!("{}.run | Send reply error: {:?}", dbg, err);
                                 };
                             }
-                            Err(err) => log::warn!("{}.run | Error: {:?}", dbg, err),
-                        }
+                            Err(_) => todo!(),
+                        };
                     }
                     Err(err) => {
                         log::warn!("{}.run | Error: {:?}", dbg, err);
@@ -67,7 +62,7 @@ impl MokUserReply {
     ///
     /// Match exact kind of query
     /// Returns corresponding reply as [Serialize]
-    fn build_reply(dbg:&str, kind: &str, query: impl DeserializeOwned) -> Result<impl Serialize, StrErr> {
+    fn build_reply(dbg:&str, kind: &str, query: impl DeserializeOwned) -> Result<impl Serialize + Debug, StrErr> {
         match QueryKind::from_str(&kind) {
             Ok(kind) => {
                 match kind {
