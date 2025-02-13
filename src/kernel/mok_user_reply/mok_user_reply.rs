@@ -1,4 +1,5 @@
-use std::{sync::{Arc, Mutex}, thread};
+use std::{sync::{atomic::AtomicBool, Arc, Mutex}, thread};
+use sal_sync::services::service::service::Service;
 use serde::{de::DeserializeOwned, Serialize};
 
 use crate::kernel::{link::Link, str_err::str_err::StrErr};
@@ -6,10 +7,10 @@ use super::query_struct::QueryStruct;
 ///
 /// Struct to imitate user's answer's
 pub struct MokUserReply {
-    /// where store info about recieve and sender channel's
+    /// recieve and sender channel's
     link: Link,
     /// value to stop thread that await request's
-    stop_signal: Arc<Mutex<bool>>,
+    exit: Arc<AtomicBool<bool>>,
 }
 //
 //
@@ -19,7 +20,7 @@ impl MokUserReply {
     pub fn new(link: Link) -> Self {
         Self { 
             link,
-            stop_signal: Arc::new(Mutex::new(false)), 
+            exit: Arc::new(AtomicBool::new(false)), 
         }
     }
     ///
@@ -28,7 +29,7 @@ impl MokUserReply {
         let link = self.link;
         let handle = thread::spawn(move || {
             loop {
-                if *self.stop_signal.lock().unwrap() {
+                if *self.exit.lock().unwrap() {
                     break;
                 }
                 let query: Result<QueryStruct, StrErr> = link.req(QueryStruct::new());
@@ -53,10 +54,14 @@ impl MokUserReply {
     fn handle_request<T: Serialize + DeserializeOwned>(request: T) -> T {
         request // just echo-answer
     }
-    ///
-    /// Stoping thread
-    pub fn exit(&self) {
-        let mut stop = self.stop_signal.lock().unwrap();
-        *stop = true;
+    //
+    //
+    fn exit(&self) {
+        self.exit.store(true, Ordering::SeqCst);
+        debug!("{}.run | Exit: {}", self.id, self.exit.load(Ordering::SeqCst));
     }
+}
+
+impl Service for MokUserReply {
+    
 }
