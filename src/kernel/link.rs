@@ -82,3 +82,4 @@ impl Link {
         }
     }
 }
+unsafe impl Sync for Link {}

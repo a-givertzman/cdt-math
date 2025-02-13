@@ -1,4 +1,4 @@
-use std::{sync::{atomic::{AtomicBool, Ordering}, Arc}, thread};
+use std::{sync::{atomic::{AtomicBool, Ordering}, Arc, RwLock}, thread};
 use sal_sync::services::{
     entity::{name::Name, object::Object}, service::{service::Service, service_handles::ServiceHandles}
 };
@@ -8,10 +8,10 @@ use super::query_struct::QueryStruct;
 ///
 /// Struct to imitate user's answer's
 pub struct MokUserReply {
-    id: String,
+    dbg: String,
     name: Name,
     /// recieve and sender channel's
-    link: Link,
+    link: Option<Link>,
     /// value to stop thread that await request's
     exit: Arc<AtomicBool>,
 }
@@ -23,20 +23,19 @@ impl MokUserReply {
     pub fn new(parent: impl Into<String>, link: Link) -> Self {
         let name = Name::new(parent, "MokUserReply");
         Self { 
-            id: name.join(),
+            dbg: name.join(),
             name: name,
-            link,
+            link: Some(link),
             exit: Arc::new(AtomicBool::new(false)), 
         }
     }
     ///
     /// Running user service
     pub fn run(self) -> Result<thread::JoinHandle<()>, String> {
-        let link = self.link;
+        let link = self.link.take().unwrap_or_else(|| {});
         let handle = thread::spawn(move || {
             loop {
-                let query: Result<QueryStruct, StrErr> = link.req(QueryStruct::new());
-                match query {
+                match link.req(QueryStruct::new()) {
                     Ok(request) => {
                         let response = QueryStruct {
                             data: format!("Processed: {}", request.data),
@@ -44,7 +43,7 @@ impl MokUserReply {
                         let answer: Result<QueryStruct, StrErr> = link.req(response);
                     }
                     Err(err) => {
-                        println!("Error receiving request: {:?}", err);
+                        log::warn!("{}.run | Error: {:?}", self.dbg, err);
                         break;
                     }
                 }
@@ -65,7 +64,7 @@ impl MokUserReply {
 //
 impl Object for MokUserReply {
     fn id(&self) -> &str {
-        &self.id
+        &self.dbg
     }
 
     fn name(&self) -> Name {
