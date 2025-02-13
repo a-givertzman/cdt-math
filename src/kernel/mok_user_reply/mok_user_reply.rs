@@ -1,5 +1,5 @@
-use std::{sync::{atomic::AtomicBool, Arc}, thread};
-use sal_sync::services::service::service::Service;
+use std::{sync::{atomic::{AtomicBool, Ordering}, Arc}, thread};
+use sal_sync::services::{entity::{name::Name, object::Object}, service::{service::Service, service_handles::ServiceHandles}};
 use serde::{de::DeserializeOwned, Serialize};
 
 use crate::kernel::{link::Link, str_err::str_err::StrErr};
@@ -7,6 +7,8 @@ use super::query_struct::QueryStruct;
 ///
 /// Struct to imitate user's answer's
 pub struct MokUserReply {
+    id: String,
+    name: Name,
     /// recieve and sender channel's
     link: Link,
     /// value to stop thread that await request's
@@ -17,8 +19,11 @@ pub struct MokUserReply {
 impl MokUserReply {
     ///
     /// Struct constructor
-    pub fn new(link: Link) -> Self {
+    pub fn new(parent: impl Into<String>, link: Link) -> Self {
+        let name = Name::new(parent, "MokUserReply");
         Self { 
+            id: name.join(),
+            name: name,
             link,
             exit: Arc::new(AtomicBool::new(false)), 
         }
@@ -29,9 +34,6 @@ impl MokUserReply {
         let link = self.link;
         let handle = thread::spawn(move || {
             loop {
-                if *self.exit.lock().unwrap() {
-                    break;
-                }
                 let query: Result<QueryStruct, StrErr> = link.req(QueryStruct::new());
                 match query {
                     Ok(request) => {
@@ -44,6 +46,9 @@ impl MokUserReply {
                         println!("Error receiving request: {:?}", err);
                         break;
                     }
+                }
+                if self.exit.load(Ordering::SeqCst) {
+                    break;
                 }
             }
         });
@@ -58,7 +63,18 @@ impl MokUserReply {
     //
     fn exit(&self) {
         self.exit.store(true, Ordering::SeqCst);
-        debug!("{}.run | Exit: {}", self.id, self.exit.load(Ordering::SeqCst));
+        log::debug!("{}.run | Exit: {}", self.name, self.exit.load(Ordering::SeqCst));
+    }
+}
+//
+//
+impl Object for MokUserReply {
+    fn id(&self) -> &str {
+        &self.id
+    }
+
+    fn name(&self) -> Name {
+        self.name.clone()
     }
 }
 //
@@ -66,12 +82,23 @@ impl MokUserReply {
 impl Service for MokUserReply {
     //
     //
-    fn run(&mut self) -> Result<sal_sync::services::service::service_handles::ServiceHandles<()>, String> {
+    fn run(&mut self) -> Result<ServiceHandles<()>, String> {
         todo!()
     }
     //
     //
     fn exit(&self) {
         todo!()
+    }
+}
+//
+//
+impl std::fmt::Debug for MokUserReply {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("MokUserReply")
+        .field("name", &self.name)
+        // .field("link", &self.link)
+        // .field("exit", &self.exit)
+        .finish()
     }
 }
