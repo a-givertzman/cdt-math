@@ -1,4 +1,4 @@
-use std::{sync::{atomic::AtomicBool, Arc, Mutex}, thread};
+use std::{sync::{atomic::AtomicBool, Arc}, thread};
 use sal_sync::services::service::service::Service;
 use serde::{de::DeserializeOwned, Serialize};
 
@@ -10,7 +10,7 @@ pub struct MokUserReply {
     /// recieve and sender channel's
     link: Link,
     /// value to stop thread that await request's
-    exit: Arc<AtomicBool<bool>>,
+    exit: Arc<AtomicBool>,
 }
 //
 //
@@ -61,7 +61,17 @@ impl MokUserReply {
         debug!("{}.run | Exit: {}", self.id, self.exit.load(Ordering::SeqCst));
     }
 }
-
+//
+//
 impl Service for MokUserReply {
-    
+    //
+    //
+    fn run(&mut self) -> Result<sal_sync::services::service::service_handles::ServiceHandles<()>, String> {
+        todo!()
+    }
+    //
+    //
+    fn exit(&self) {
+        todo!()
+    }
 }
