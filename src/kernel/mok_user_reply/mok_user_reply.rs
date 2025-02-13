@@ -60,12 +60,6 @@ impl MokUserReply {
     fn handle_request<T: Serialize + DeserializeOwned>(request: T) -> T {
         request // just echo-answer
     }
-    //
-    //
-    fn exit(&self) {
-        self.exit.store(true, Ordering::SeqCst);
-        log::debug!("{}.run | Exit: {}", self.name, self.exit.load(Ordering::SeqCst));
-    }
 }
 //
 //
@@ -89,7 +83,8 @@ impl Service for MokUserReply {
     //
     //
     fn exit(&self) {
-        todo!()
+        self.exit.store(true, Ordering::SeqCst);
+        log::debug!("{}.run | Exit: {}", self.name, self.exit.load(Ordering::SeqCst));
     }
 }
 //
