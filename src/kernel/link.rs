@@ -1,5 +1,5 @@
 use std::{fmt::Debug, sync::mpsc::{self, Receiver, RecvTimeoutError, Sender}, time::Duration};
-use sal_sync::services::entity::{name::Name, point::{point::Point, point_tx_id::PointTxId}};
+use sal_sync::services::entity::{name::{self, Name}, point::{point::Point, point_tx_id::PointTxId}};
 use serde::{de::DeserializeOwned, Serialize};
 use super::str_err::str_err::StrErr;
 ///
@@ -83,14 +83,15 @@ impl Link {
     }
     ///
     /// Receiving incomong events
-    pub fn recv<T: DeserializeOwned + Debug>(&self) -> Result<T, StrErr> {
+    pub fn  recv<T: DeserializeOwned + Debug>(&self) -> Result<(String, T), StrErr> {
         loop {
             match self.recv.recv_timeout(self.timeout) {
                 Ok(quyru) => {
+                    let name = quyru.name();
                     let quyru = quyru.as_string().value;
                     match serde_json::from_str::<T>(quyru.as_str()) {
-                        Ok(quyru) => {
-                            return Ok(quyru)
+                        Ok(query) => {
+                            return Ok((name, query))
                         }
                         Err(err) => return Err(
                             StrErr(
