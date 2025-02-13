@@ -35,7 +35,7 @@ impl MokUserReply {
         let link = self.link.take().unwrap_or_else(|| {});
         let handle = thread::spawn(move || {
             loop {
-                match link.req(QueryStruct::new()) {
+                match link.recv() {
                     Ok(request) => {
                         let response = QueryStruct {
                             data: format!("Processed: {}", request.data),

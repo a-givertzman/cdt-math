@@ -111,6 +111,20 @@ impl Link {
             }
         }
     }
+    ///
+    /// Sending event
+    pub fn reply(&self, reply: impl Serialize + Debug) -> Result<(), StrErr> {
+        match serde_json::to_string(&reply) {
+            Ok(reply) => {
+                let reply = Point::new(self.txid, &self.name.join(), reply);
+                match self.send.send(reply) {
+                    Ok(_) => Ok(()),
+                    Err(err) => Err(StrErr(format!("{}.teply | Send request error: {:#?}", self.name, err))),
+                }
+            }
+            Err(err) => Err(StrErr(format!("{}.reply | Serialize reply error: {:#?}, \n\tquery: {:#?}", self.name, err, reply))),
+        }
+    }
 }
 //
 //
