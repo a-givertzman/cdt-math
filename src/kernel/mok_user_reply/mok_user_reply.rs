@@ -1,9 +1,9 @@
 use std::{str::FromStr, sync::{atomic::{AtomicBool, Ordering}, Arc}, thread};
 use sal_sync::services::{
-    entity::{name::Name, object::Object}, service::{service::Service, service_handles::ServiceHandles}
+    entity::{error::str_err::StrErr, name::Name, object::Object}, service::{service::Service, service_handles::ServiceHandles}
 };
-use serde::{de::DeserializeOwned, Serialize};
-use crate::{infrostructure::client::{query_kind::QueryKind, test_user_query::{TestUserQuery, TestUserReply}}, kernel::link::Link};
+use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use crate::{infrostructure::client::{query_kind::QueryKind, test_user_query1::{TestUserQuery1, TestUserReply1}, test_user_query2::{TestUserQuery2, TestUserReply2}}, kernel::link::Link};
 ///
 /// Struct to imitate user's answer's
 pub struct MokUserReply {
@@ -40,18 +40,13 @@ impl MokUserReply {
                     Ok((kind, query)) => {
                         match QueryKind::from_str(&kind) {
                             Ok(kind) => {
-                                let reply = match kind {
-                                    QueryKind::TestUserQuery => {
-                                        let query: TestUserQuery = query;
-                                        TestUserReply { data: "TestUserReply".to_owned() }
-                                    },
-                                    //
-                                    // all possible kinds jof queries to be matched...
-                                    // corresponding reply to have to be returned
-                                    //
-                                };
-                                if let Err(err) = link.send_reply(reply) {
-                                    log::debug!("{}.run | Send reply error: {:?}", dbg, err);
+                                match Self::build_reply(kind, query) {
+                                    Ok(reply) => {
+                                        if let Err(err) = link.send_reply(reply) {
+                                            log::debug!("{}.run | Send reply error: {:?}", dbg, err);
+                                        };
+                                    }
+                                    Err(_) => todo!(),
                                 };
                             }
                             Err(err) => log::warn!("{}.run | Error: {:?}", dbg, err),
@@ -68,6 +63,30 @@ impl MokUserReply {
             }
         });
         Ok(handle)
+    }
+    ///
+    /// Match exact kind of query
+    /// Returns corresponding reply as [Serialize]
+    fn build_reply(dbg:&str, kind: &str, query: impl DeserializeOwned) -> Result<impl Serialize, StrErr> {
+        match QueryKind::from_str(&kind) {
+            Ok(kind) => {
+                match kind {
+                    QueryKind::TestUserQuery1 => {
+                        let query: TestUserQuery1 = query;
+                        Ok(TestUserReply1::new())
+                    },
+                    QueryKind::TestUserQuery2 => {
+                        let query: TestUserQuery2 = query;
+                        Ok(TestUserReply2::new())
+                    },
+                    //
+                    // all possible kinds jof queries to be matched...
+                    // corresponding reply to have to be returned
+                    //
+                }
+            }
+            Err(err) => Err(StrErr(format!("{}.build_reply | Error: {:?}", dbg, err))),
+        }
     }
     ///
     /// Processesing request

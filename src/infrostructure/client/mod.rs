@@ -32,4 +32,5 @@
 //! }
 //! ```
 pub mod query_kind;
-pub mod test_user_query;
+pub mod test_user_query1;
+pub mod test_user_query2;

@@ -8,7 +8,10 @@ use serde::{Deserialize, Serialize};
 pub enum QueryKind {
     ///
     /// Used for example only, to be deleted
-    TestUserQuery,
+    TestUserQuery1,
+    ///
+    /// Used for example only, to be deleted
+    TestUserQuery2,
 }
 //
 //
@@ -18,8 +21,11 @@ impl FromStr for QueryKind {
     //
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
-            "test-user-query" => {
-                Ok(QueryKind::TestUserQuery)
+            "test-user-query-1" => {
+                Ok(QueryKind::TestUserQuery1)
+            }
+            "test-user-query-2" => {
+                Ok(QueryKind::TestUserQuery2)
             }
             _ => Err(StrErr(
                 format!("{}.run | Unknown kind of query: {}", std::any::type_name::<Self>(), s),
