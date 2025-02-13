@@ -32,11 +32,12 @@ impl MokUserReply {
     ///
     /// Running user service
     pub fn run(self) -> Result<thread::JoinHandle<()>, String> {
-        let link = self.link.take().unwrap_or_else(|| {});
+        let link = self.link.take().unwrap_or_else(|| panic!("{}.run | Link not found", self.name));
         let handle = thread::spawn(move || {
             loop {
                 match link.recv() {
-                    Ok(request) => {
+                    Ok(query) => {
+                        let query =
                         let response = QueryStruct {
                             data: format!("Processed: {}", request.data),
                         };

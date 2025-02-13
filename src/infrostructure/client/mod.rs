@@ -31,3 +31,4 @@
 //!     "error": "Error description"
 //! }
 //! ```
+pub mod query_kind;
