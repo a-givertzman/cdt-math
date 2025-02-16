@@ -1,16 +1,19 @@
 use serde::{Serialize, Deserialize};
+
+use crate::algorithm::entities::bearing::Bearing;
 ///
 /// Struct to describe type of user request, that ascs user for choosing bearing from filtered
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ChooseUserBearingQuery {
-    pub data: String,
+    /// bearings filtered by user characteristics
+    pub filtered_bearings: Vec<Bearing>,
 }
 //
 //
 impl ChooseUserBearingQuery {
-    pub fn new() -> Self {
+    pub fn new(filtered_bearings: Vec<Bearing>) -> Self {
         Self {
-            data: "ChooseUserBearingQuery".to_string(),
+            filtered_bearings,
         }
     }
 }
@@ -18,14 +21,14 @@ impl ChooseUserBearingQuery {
 /// Reply to [ChooseUserBearingQuery]
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ChooseUserBearingReply {
-    pub data: String
+    pub choosen_bearing: Bearing
 }
 //
 //
 impl ChooseUserBearingReply {
-    pub fn new() -> Self {
+    pub fn new(choosen_bearing: Bearing) -> Self {
         Self {
-            data: "ChooseUserBearingReply".to_string(),
+            choosen_bearing,
         }
     }
 }

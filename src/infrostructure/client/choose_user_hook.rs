@@ -1,16 +1,19 @@
 use serde::{Serialize, Deserialize};
+
+use crate::algorithm::entities::hook::Hook;
 ///
 /// Struct to describe type of user request, that ascs user for choosing hook from filtered
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ChooseUserHookQuery {
-    pub data: String,
+    /// hooks filtered by user characteristics
+    pub filtered_hooks: Vec<Hook>,
 }
 //
 //
 impl ChooseUserHookQuery {
-    pub fn new() -> Self {
+    pub fn new(filtered_hooks: Vec<Hook>) -> Self {
         Self {
-            data: "ChooseUserHookQuery".to_string(),
+            filtered_hooks,
         }
     }
 }
@@ -18,14 +21,14 @@ impl ChooseUserHookQuery {
 /// Reply to [ChooseUserHookQuery]
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ChooseUserHookReply {
-    pub data:String
+    pub choosen_hook: Hook
 }
 //
 //
 impl ChooseUserHookReply {
-    pub fn new() -> Self {
+    pub fn new(choosen_hook: Hook) -> Self {
         Self {
-            data: "ChooseUserHookReply".to_string(),
+            choosen_hook,
         }
     }
 }
