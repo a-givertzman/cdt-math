@@ -92,6 +92,7 @@ impl Service for MokUserReply {
                         },
                         Query::ChooseUserBearing(query) => {
                             let query: ChooseUserBearingQuery = query;
+                            // handle query if neccessary
                             send_reply(&dbg, &link, ChooseUserBearingReply::new(Bearing {
                                 name: todo!(),
                                 outer_diameter: todo!(),
@@ -102,6 +103,7 @@ impl Service for MokUserReply {
                         },
                         Query::ChooseHoistingRope(query) => {
                             let query: ChooseHoistingRopeQuery = query;
+                            // handle query if neccessary
                             send_reply(&dbg, &link, ChooseHoistingRopeReply::new(HoistingRope {
                                 name: todo!(),
                                 rope_diameter: todo!(),
@@ -114,6 +116,7 @@ impl Service for MokUserReply {
                         },
                         Query::ChangeHoistingTackle(query) => {
                             let query: ChangeHoistingTackleQuery = query;
+                            // handle query if neccessary
                             send_reply(&dbg, &link, ChangeHoistingTackleReply::new(
                                 0,
                             ))
