@@ -68,15 +68,27 @@ impl Service for MokUserReply {
                         //
                         Query::ChooseUserHook(query) => {
                             let query: ChooseUserHookQuery = query;
-                            let reply = match query.
-                            send_reply(&dbg, &link, ChooseUserHookReply::new(Hook {
-                                gost: "ГОСТ ???".into(),
-                                r#type: "Hook-type".into(),
-                                load_capacity_m13: 0.1,
-                                load_capacity_m46: 0.2,
-                                load_capacity_m78: 0.3,
-                                shank_diameter: 0.4,
-                            }));
+                            let reply = match query.testing {
+                                // Used for Testing puroses only
+                                true => ChooseUserHookReply::new(Hook {
+                                    gost: "ГОСТ Test".into(),
+                                    r#type: "Hook-type-Test".into(),
+                                    load_capacity_m13: 0.1,
+                                    load_capacity_m46: 0.2,
+                                    load_capacity_m78: 0.3,
+                                    shank_diameter: 0.4,
+                                }),
+                                // Real worked cases
+                                false => ChooseUserHookReply::new(Hook {
+                                    gost: "ГОСТ ???".into(),
+                                    r#type: "Hook-type-???".into(),
+                                    load_capacity_m13: 0.1,
+                                    load_capacity_m46: 0.2,
+                                    load_capacity_m78: 0.3,
+                                    shank_diameter: 0.4,
+                                }),
+                            };
+                            send_reply(&dbg, &link, reply);
                         },
                         Query::ChooseUserBearing(query) => {
                             let query: ChooseUserBearingQuery = query;

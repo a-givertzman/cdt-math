@@ -35,10 +35,10 @@ mod mok_user_reply {
         let test_data = [
             (
                 1,
-                ChooseUserHookQuery::new(vec![
+                ChooseUserHookQuery::test(vec![
                     Hook { 
                         gost: "".into(),
-                        r#type: "Hook-type".into(),
+                        r#type: "".into(),
                         load_capacity_m13: 0.1,
                         load_capacity_m46: 0.2,
                         load_capacity_m78: 0.3,
@@ -46,8 +46,8 @@ mod mok_user_reply {
                     }
                 ]),
                 ChooseUserHookReply::new(Hook {
-                    gost: "ГОСТ ???".into(),
-                    r#type: "Hook-type".into(),
+                    gost: "ГОСТ Test".into(),
+                    r#type: "Hook-type-Test".into(),
                     load_capacity_m13: 0.1,
                     load_capacity_m46: 0.2,
                     load_capacity_m78: 0.3,
