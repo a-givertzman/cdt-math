@@ -1,18 +1,18 @@
 use serde::{Deserialize, Serialize};
 use crate::algorithm::entities::hoisting_rope::hoisting_rope::HoistingRope;
 ///
-/// Struct to describe type of user request, that ascs user for choosing hoisting rope from filtered
+/// User request | Asks user for choose [HoistingRope] from filtered
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ChooseHoistingRopeQuery {
-    /// hoisting ropes filtered by user characteristics
-    pub filtered_hoisting_ropes: Vec<HoistingRope>,
+    /// vector of hoisting ropes filtered by user characteristics
+    pub variants: Vec<HoistingRope>,
 }
 //
 //
 impl ChooseHoistingRopeQuery {
-    pub fn new(filtered_hoisting_ropes: Vec<HoistingRope>) -> Self {
+    pub fn new(variants: Vec<HoistingRope>) -> Self {
         Self {
-            filtered_hoisting_ropes,
+            variants,
         }
     }
 }
@@ -20,12 +20,14 @@ impl ChooseHoistingRopeQuery {
 /// Reply to [ChooseHoistingRopeQuery]
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ChooseHoistingRopeReply {
-    pub choosen_rope: HoistingRope,
+    pub answer: HoistingRope,
 }
 //
 //
 impl ChooseHoistingRopeReply {
-    pub fn new(choosen_rope: HoistingRope) -> Self {
-        Self { choosen_rope }
+    pub fn new(choosen: HoistingRope) -> Self {
+        Self { 
+            answer: choosen
+        }
     }
 }

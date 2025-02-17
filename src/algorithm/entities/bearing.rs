@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 ///
-/// Struct to describe a bearing
+/// Struct to store characteristics of a [bearing](docs\catalogsPurchasedEquipment.xlsx)
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct Bearing {
     pub name: String,

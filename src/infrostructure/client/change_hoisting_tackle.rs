@@ -1,16 +1,17 @@
 use serde::{Serialize, Deserialize};
 ///
-/// Struct to describe type of user request, that ascs user for changing hoisting tackle if it needed
+/// User request | Asks user for change [HoistingTackle](design\docs\algorithm\part02\chapter_03_choose_hoisting_tackle.md)
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ChangeHoistingTackleQuery {
-    pub hoisting_tackle: Vec<u8>,
+    /// vector of hoisting tackle variants
+    pub variants: Vec<u8>,
 }
 //
 //
 impl ChangeHoistingTackleQuery {
     pub fn new() -> Self {
         Self {
-            hoisting_tackle: vec![1,2],
+            variants: vec![1,2],
         }
     }
 }
@@ -18,14 +19,14 @@ impl ChangeHoistingTackleQuery {
 /// Reply to [ChangeHoistingTackleQuery]
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ChangeHoistingTackleReply {
-    pub choosen_hoisting_tackle: u8
+    pub answer: u8
 }
 //
 //
 impl ChangeHoistingTackleReply {
-    pub fn new(choosen_hoisting_tackle: u8) -> Self {
+    pub fn new(choosen: u8) -> Self {
         Self {
-            choosen_hoisting_tackle,
+            answer: choosen,
         }
     }
 }

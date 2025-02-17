@@ -6,7 +6,7 @@ use sal_sync::services::{
 };
 use serde::Serialize;
 use crate::{
-    algorithm::entities::{bearing::Bearing, hoisting_rope::hoisting_rope::HoistingRope, hook::Hook}, 
+    algorithm::entities::{bearing::Bearing, hoisting_rope::{hoisting_rope::HoistingRope, rope_durability_class::RopeDurabilityClass, rope_type::RopeType}, hook::Hook}, 
     infrostructure::client::{
         change_hoisting_tackle::{ChangeHoistingTackleQuery, ChangeHoistingTackleReply},
         choose_hoisting_rope::{ChooseHoistingRopeQuery, ChooseHoistingRopeReply},
@@ -90,40 +90,40 @@ impl Service for MokUserReply {
                                 }),
                                 // Real worked cases
                                 false => ChooseUserHookReply::new(Hook {
-                                    gost: "ГОСТ ???".into(),
-                                    r#type: "Hook-type-???".into(),
-                                    load_capacity_m13: 0.2,
-                                    load_capacity_m46: 0.3,
-                                    load_capacity_m78: 0.4,
-                                    shank_diameter: 0.5,
+                                    gost: "GOST 34567-85".to_string(),
+                                    r#type: "Forged".to_string(),
+                                    load_capacity_m13: 25.0,
+                                    load_capacity_m46: 23.0,
+                                    load_capacity_m78: 21.0,
+                                    shank_diameter: 85.0,
                                 }),
                             };
                             send_reply(&dbg, &link, reply);
                         },
                         //
                         Query::ChooseUserBearing(query) => {
-                            let query: ChooseUserBearingQuery = query;
+                            let _query: ChooseUserBearingQuery = query;
                             // handle query if neccessary
                             send_reply(&dbg, &link, ChooseUserBearingReply::new(Bearing {
-                                name: todo!(),
-                                outer_diameter: todo!(),
-                                inner_diameter: todo!(),
-                                static_load_capacity: todo!(),
-                                height: todo!(),
+                                name: "8100H".to_owned(),
+                                outer_diameter: 24.0,
+                                inner_diameter: 10.0,
+                                static_load_capacity: 11800.0,
+                                height: 9.0,
                             }))
                         },
                         //
                         Query::ChooseHoistingRope(query) => {
-                            let query: ChooseHoistingRopeQuery = query;
+                            let _query: ChooseHoistingRopeQuery = query;
                             // handle query if neccessary
                             send_reply(&dbg, &link, ChooseHoistingRopeReply::new(HoistingRope {
-                                name: todo!(),
-                                rope_diameter: todo!(),
-                                r#type: todo!(),
-                                rope_durability: todo!(),
-                                rope_force: todo!(),
-                                s: todo!(),
-                                m: todo!(),
+                                name: "STO 71915393-TU 051-2014 Octopus 826K".to_owned(),
+                                rope_diameter: 12.0,
+                                r#type: RopeType::Metal,
+                                rope_durability: RopeDurabilityClass::C1770,
+                                rope_force: 112.0,
+                                s: 67.824,
+                                m: 0.688,
                             }))
                         },
                         //
@@ -131,7 +131,7 @@ impl Service for MokUserReply {
                             let query: ChangeHoistingTackleQuery = query;
                             // handle query if neccessary
                             send_reply(&dbg, &link, ChangeHoistingTackleReply::new(
-                                0,
+                                1,
                             ))
                         },
                     }
@@ -147,7 +147,7 @@ impl Service for MokUserReply {
         });
         match handle {
             Ok(handle) => {
-                info!("{}.run | Starting - ok", self.id().clone());
+                info!("{}.run | Starting - ok", self.id());
                 return Ok(ServiceHandles::new(vec![(self.id().to_string(), handle)]))
             }
             Err(err) => {

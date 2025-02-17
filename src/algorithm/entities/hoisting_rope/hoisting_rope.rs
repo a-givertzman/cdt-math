@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use super::{rope_durability_class::RopeDurabilityClass, rope_type::RopeType};
 ///
-/// Struct to describe a hoisting rope
+/// Struct to store characteristics of a [hoisting rope](docs\catalogsPurchasedEquipment.xlsx)
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
 pub struct HoistingRope {
     /// Full name of rope
