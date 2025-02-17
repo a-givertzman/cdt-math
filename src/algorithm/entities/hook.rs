@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 ///
 /// Struct to describe a hook
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Default)]
 pub struct Hook {
     /// GOST number of hook
     pub gost: String,
