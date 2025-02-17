@@ -4,7 +4,7 @@ use sal_sync::services::{
     entity::{error::str_err::StrErr, name::Name, object::Object, point::point_tx_id::PointTxId}, service::{service::Service, service_handles::ServiceHandles}
 };
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
-use crate::{algorithm::entities::{bearing::Bearing, hook::Hook}, infrostructure::client::{change_hoisting_tackle::{ChangeHoistingTackleQuery, ChangeHoistingTackleReply}, choose_hoisting_rope::{ChooseHoistingRopeQuery, ChooseHoistingRopeReply}, choose_user_bearing::{ChooseUserBearingQuery, ChooseUserBearingReply}, choose_user_hook::{ChooseUserHookQuery, ChooseUserHookReply}, query::Query}, kernel::link::Link};
+use crate::{algorithm::entities::{bearing::Bearing, hoisting_rope::hoisting_rope::HoistingRope, hook::Hook}, infrostructure::client::{change_hoisting_tackle::{ChangeHoistingTackleQuery, ChangeHoistingTackleReply}, choose_hoisting_rope::{ChooseHoistingRopeQuery, ChooseHoistingRopeReply}, choose_user_bearing::{ChooseUserBearingQuery, ChooseUserBearingReply}, choose_user_hook::{ChooseUserHookQuery, ChooseUserHookReply}, query::Query}, kernel::link::Link};
 ///
 /// Struct to imitate user's answer's
 pub struct MokUserReply {
@@ -59,49 +59,57 @@ impl Service for MokUserReply {
         let exit = self.exit.clone();
         let dbg = self.name.join().clone();
         let handle = thread::Builder::new().name(format!("{} - main", self_id)).spawn(move ||{
-            fn send_reply(dbg: &str, link: Link, reply: impl Serialize + Debug) {
+            fn send_reply(dbg: &str, link: &Link, reply: impl Serialize + Debug) {
                 if let Err(err) = link.send_reply(reply) {
                     log::debug!("{}.run | Send reply error: {:?}", dbg.clone(), err);
                 };
             }
             'main: loop {
                 match link.recv_query::<Query>() {
-                    Ok((kind, query)) => {
-                        match kind {
-                            Query::ChooseUserHook(query) => {
-                                let query: ChooseUserHookQuery = query;
-                                ChooseUserHookReply::new(Hook {
-                                    gost: todo!(),
-                                    r#type: todo!(),
-                                    load_capacity_m13: todo!(),
-                                    load_capacity_m46: todo!(),
-                                    load_capacity_m78: todo!(),
-                                    shank_diameter: todo!(),
-                                })
-                            },
-                            Query::ChooseUserBearing(query) => {
-                                let query: ChooseUserBearingQuery = query;
-                                ChooseUserBearingReply::new(Bearing {
-                                    name: todo!(),
-                                    outer_diameter: todo!(),
-                                    inner_diameter: todo!(),
-                                    static_load_capacity: todo!(),
-                                    height: todo!(),
-                                })
-                            },
-                            Query::ChooseHoistingRope(query) => {
-                                let query: ChooseHoistingRopeQuery = query;
-                                Ok(ChooseHoistingRopeReply::new())
-                            },
-                            Query::ChangeHoistingTackle(query) => {
-                                let query: ChangeHoistingTackleQuery = query;
-                                Ok(ChangeHoistingTackleReply::new())
-                            },
-                            //
-                            // all possible kinds jof queries to be matched...
-                            // corresponding reply to have to be returned
-                            //
-                        }
+                    Ok((kind, query)) => match kind {
+                        //
+                        // all possible kinds jof queries to be matched...
+                        // corresponding reply to have to be returned
+                        //
+                        Query::ChooseUserHook(query) => {
+                            let query: ChooseUserHookQuery = query;
+                            send_reply(&dbg, &link, ChooseUserHookReply::new(Hook {
+                                gost: todo!(),
+                                r#type: todo!(),
+                                load_capacity_m13: todo!(),
+                                load_capacity_m46: todo!(),
+                                load_capacity_m78: todo!(),
+                                shank_diameter: todo!(),
+                            }));
+                        },
+                        Query::ChooseUserBearing(query) => {
+                            let query: ChooseUserBearingQuery = query;
+                            send_reply(&dbg, &link, ChooseUserBearingReply::new(Bearing {
+                                name: todo!(),
+                                outer_diameter: todo!(),
+                                inner_diameter: todo!(),
+                                static_load_capacity: todo!(),
+                                height: todo!(),
+                            }))
+                        },
+                        Query::ChooseHoistingRope(query) => {
+                            let query: ChooseHoistingRopeQuery = query;
+                            send_reply(&dbg, &link, ChooseHoistingRopeReply::new(HoistingRope {
+                                name: todo!(),
+                                rope_diameter: todo!(),
+                                r#type: todo!(),
+                                rope_durability: todo!(),
+                                rope_force: todo!(),
+                                s: todo!(),
+                                m: todo!(),
+                            }))
+                        },
+                        Query::ChangeHoistingTackle(query) => {
+                            let query: ChangeHoistingTackleQuery = query;
+                            send_reply(&dbg, &link, ChangeHoistingTackleReply::new(
+                                0,
+                            ))
+                        },
                     }
                     Err(err) => {
                         log::warn!("{}.run | Error: {:?}", dbg.clone(), err);
