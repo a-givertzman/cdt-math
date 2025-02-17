@@ -1,10 +1,21 @@
 use std::{fmt::Debug, sync::{atomic::{AtomicBool, Ordering}, Arc}, thread};
 use log::{info, trace, warn};
 use sal_sync::services::{
-    entity::{name::Name, object::Object, point::point_tx_id::PointTxId}, service::{service::Service, service_handles::ServiceHandles}
+    entity::{name::Name, object::Object, point::point_tx_id::PointTxId},
+    service::{service::Service, service_handles::ServiceHandles},
 };
-use serde::{de::DeserializeOwned, Serialize};
-use crate::{algorithm::entities::{bearing::Bearing, hoisting_rope::hoisting_rope::HoistingRope, hook::Hook}, infrostructure::client::{change_hoisting_tackle::{ChangeHoistingTackleQuery, ChangeHoistingTackleReply}, choose_hoisting_rope::{ChooseHoistingRopeQuery, ChooseHoistingRopeReply}, choose_user_bearing::{ChooseUserBearingQuery, ChooseUserBearingReply}, choose_user_hook::{ChooseUserHookQuery, ChooseUserHookReply}, query::Query}, kernel::link::Link};
+use serde::Serialize;
+use crate::{
+    algorithm::entities::{bearing::Bearing, hoisting_rope::hoisting_rope::HoistingRope, hook::Hook}, 
+    infrostructure::client::{
+        change_hoisting_tackle::{ChangeHoistingTackleQuery, ChangeHoistingTackleReply},
+        choose_hoisting_rope::{ChooseHoistingRopeQuery, ChooseHoistingRopeReply},
+        choose_user_bearing::{ChooseUserBearingQuery, ChooseUserBearingReply},
+        choose_user_hook::{ChooseUserHookQuery, ChooseUserHookReply},
+        query::Query
+    },
+    kernel::link::Link,
+};
 ///
 /// Struct to imitate user's answer's
 pub struct MokUserReply {
@@ -89,6 +100,7 @@ impl Service for MokUserReply {
                             };
                             send_reply(&dbg, &link, reply);
                         },
+                        //
                         Query::ChooseUserBearing(query) => {
                             let query: ChooseUserBearingQuery = query;
                             // handle query if neccessary
@@ -100,6 +112,7 @@ impl Service for MokUserReply {
                                 height: todo!(),
                             }))
                         },
+                        //
                         Query::ChooseHoistingRope(query) => {
                             let query: ChooseHoistingRopeQuery = query;
                             // handle query if neccessary
@@ -113,6 +126,7 @@ impl Service for MokUserReply {
                                 m: todo!(),
                             }))
                         },
+                        //
                         Query::ChangeHoistingTackle(query) => {
                             let query: ChangeHoistingTackleQuery = query;
                             // handle query if neccessary
