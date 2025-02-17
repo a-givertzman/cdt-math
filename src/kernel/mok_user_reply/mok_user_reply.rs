@@ -81,10 +81,10 @@ impl Service for MokUserReply {
                                 false => ChooseUserHookReply::new(Hook {
                                     gost: "ГОСТ ???".into(),
                                     r#type: "Hook-type-???".into(),
-                                    load_capacity_m13: 0.1,
-                                    load_capacity_m46: 0.2,
-                                    load_capacity_m78: 0.3,
-                                    shank_diameter: 0.4,
+                                    load_capacity_m13: 0.2,
+                                    load_capacity_m46: 0.3,
+                                    load_capacity_m78: 0.4,
+                                    shank_diameter: 0.5,
                                 }),
                             };
                             send_reply(&dbg, &link, reply);
