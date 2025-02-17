@@ -69,12 +69,12 @@ impl Service for MokUserReply {
                         Query::ChooseUserHook(query) => {
                             let query: ChooseUserHookQuery = query;
                             send_reply(&dbg, &link, ChooseUserHookReply::new(Hook {
-                                gost: todo!(),
-                                r#type: todo!(),
-                                load_capacity_m13: todo!(),
-                                load_capacity_m46: todo!(),
-                                load_capacity_m78: todo!(),
-                                shank_diameter: todo!(),
+                                gost: "ГОСТ ???".into(),
+                                r#type: "Hook-type".into(),
+                                load_capacity_m13: 0.1,
+                                load_capacity_m46: 0.2,
+                                load_capacity_m78: 0.3,
+                                shank_diameter: 0.4,
                             }));
                         },
                         Query::ChooseUserBearing(query) => {

@@ -3,7 +3,7 @@ use serde::{Serialize, Deserialize};
 use crate::algorithm::entities::hook::Hook;
 ///
 /// Struct to describe type of user request, that ascs user for choosing hook from filtered
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ChooseUserHookQuery {
     /// hooks filtered by user characteristics
     pub filtered_hooks: Vec<Hook>,
@@ -19,7 +19,7 @@ impl ChooseUserHookQuery {
 }
 ///
 /// Reply to [ChooseUserHookQuery]
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
 pub struct ChooseUserHookReply {
     pub choosen: Hook
 }
