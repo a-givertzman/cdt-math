@@ -1,6 +1,11 @@
 use serde::{Deserialize, Serialize};
 
-use super::{choose_user_bearing::ChooseUserBearingQuery, choose_user_hook::ChooseUserHookQuery};
+use super::{
+    change_hoisting_tackle::ChangeHoistingTackleQuery,
+    choose_hoisting_rope::ChooseHoistingRopeQuery,
+    choose_user_bearing::ChooseUserBearingQuery,
+    choose_user_hook::ChooseUserHookQuery,
+};
 
 pub enum Event {
     Query(QueryKind),
@@ -19,11 +24,17 @@ pub enum QueryKind {
     ChooseUserBearing(ChooseUserBearingQuery),
     ///
     /// Request for choosing hoisting rope
-    ChooseHoistingRope,
+    ChooseHoistingRope(ChooseHoistingRopeQuery),
     ///
     /// Request for changing hoisting tackle
-    ChangeHoistingTackle,
+    ChangeHoistingTackle(ChangeHoistingTackleQuery),
 }
+///
+/// Information event
+pub enum InfKind {}
+///
+/// Diagnostoc event
+pub enum Diag {}
 //
 //
 // impl FromStr for QueryKind {

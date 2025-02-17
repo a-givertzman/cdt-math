@@ -42,11 +42,11 @@ impl MokUserReply {
                 let query: ChooseUserBearingQuery = query;
                 Ok(ChooseUserBearingReply::new())
             },
-            QueryKind::ChooseHoistingRope => {
+            QueryKind::ChooseHoistingRope(query) => {
                 let query: ChooseHoistingRopeQuery = query;
                 Ok(ChooseHoistingRopeReply::new())
             },
-            QueryKind::ChangeHoistingTackle => {
+            QueryKind::ChangeHoistingTackle(query) => {
                 let query: ChangeHoistingTackleQuery = query;
                 Ok(ChangeHoistingTackleReply::new())
             },
