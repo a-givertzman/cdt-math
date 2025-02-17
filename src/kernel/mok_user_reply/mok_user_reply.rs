@@ -68,6 +68,7 @@ impl Service for MokUserReply {
                         //
                         Query::ChooseUserHook(query) => {
                             let query: ChooseUserHookQuery = query;
+                            let reply = match query.
                             send_reply(&dbg, &link, ChooseUserHookReply::new(Hook {
                                 gost: "ГОСТ ???".into(),
                                 r#type: "Hook-type".into(),
