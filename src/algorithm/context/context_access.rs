@@ -1,7 +1,7 @@
 use super::{context::Context, ctx_result::CtxResult};
 use crate::{
     algorithm::{
-        dynamic_coefficient::dynamic_coefficient_ctx::DynamicCoefficientCtx, hook_filter::hook_filter_ctx::HookFilterCtx, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed_ctx::LiftingSpeedCtx, select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx
+        do_first::DoFirstCtx, do_second::DoSecondCtx, dynamic_coefficient::dynamic_coefficient_ctx::DynamicCoefficientCtx, hook_filter::hook_filter_ctx::HookFilterCtx, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed_ctx::LiftingSpeedCtx, select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx
     },
     kernel::str_err::str_err::StrErr,
 };
@@ -78,5 +78,32 @@ impl ContextWrite<HookFilterCtx> for Context {
 impl ContextRead<HookFilterCtx> for Context {
     fn read(&self) -> &HookFilterCtx {
         &self.hook_filter
+    }
+}
+
+//
+//
+impl ContextWrite<DoFirstCtx> for Context {
+    fn write(mut self, value: DoFirstCtx) -> CtxResult<Self, StrErr> {
+        self.do_first = value;
+        CtxResult::Ok(self)
+    }
+}
+impl ContextRead<DoFirstCtx> for Context {
+    fn read(&self) -> &DoFirstCtx {
+        &self.do_first
+    }
+}
+//
+//
+impl ContextWrite<DoSecondCtx> for Context {
+    fn write(mut self, value: DoSecondCtx) -> CtxResult<Self, StrErr> {
+        self.do_second = value;
+        CtxResult::Ok(self)
+    }
+}
+impl ContextRead<DoSecondCtx> for Context {
+    fn read(&self) -> &DoSecondCtx {
+        &self.do_second
     }
 }

@@ -32,33 +32,28 @@ impl MokUserReply {
     ///
     /// Match exact kind of query
     /// Returns corresponding reply as [Serialize]
-    fn build_reply(dbg:&str, kind: &str, query: impl DeserializeOwned) -> Result<impl Serialize + Debug, StrErr> {
-        match QueryKind::from_str(&kind) {
-            Ok(kind) => {
-                match kind {
-                    QueryKind::ChooseUserHook => {
-                        let query: ChooseUserHookQuery = query;
-                        Ok(ChooseUserHookReply::new())
-                    },
-                    QueryKind::ChooseUserBearing => {
-                        let query: ChooseUserBearingQuery = query;
-                        Ok(ChooseUserBearingReply::new())
-                    },
-                    QueryKind::ChooseHoistingRope => {
-                        let query: ChooseHoistingRopeQuery = query;
-                        Ok(ChooseHoistingRopeReply::new())
-                    },
-                    QueryKind::ChangeHoistingTackle => {
-                        let query: ChangeHoistingTackleQuery = query;
-                        Ok(ChangeHoistingTackleReply::new())
-                    },
-                    //
-                    // all possible kinds jof queries to be matched...
-                    // corresponding reply to have to be returned
-                    //
-                }
-            }
-            Err(err) => Err(StrErr(format!("{}.build_reply | Error: {:?}", dbg, err))),
+    fn build_reply(dbg:&str, kind: QueryKind, query: impl DeserializeOwned) -> Result<impl Serialize + Debug, StrErr> {
+        match kind {
+            QueryKind::ChooseUserHook(query) => {
+                let query: ChooseUserHookQuery = query;
+                Ok(ChooseUserHookReply::new())
+            },
+            QueryKind::ChooseUserBearing(query) => {
+                let query: ChooseUserBearingQuery = query;
+                Ok(ChooseUserBearingReply::new())
+            },
+            QueryKind::ChooseHoistingRope => {
+                let query: ChooseHoistingRopeQuery = query;
+                Ok(ChooseHoistingRopeReply::new())
+            },
+            QueryKind::ChangeHoistingTackle => {
+                let query: ChangeHoistingTackleQuery = query;
+                Ok(ChangeHoistingTackleReply::new())
+            },
+            //
+            // all possible kinds jof queries to be matched...
+            // corresponding reply to have to be returned
+            //
         }
     }
     ///

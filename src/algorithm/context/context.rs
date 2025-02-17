@@ -1,8 +1,5 @@
 use crate::algorithm::{
-    dynamic_coefficient::dynamic_coefficient_ctx::DynamicCoefficientCtx,
-    hook_filter::hook_filter_ctx::HookFilterCtx, initial_ctx::initial_ctx::InitialCtx,
-    lifting_speed::lifting_speed_ctx::LiftingSpeedCtx,
-    select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx,
+    do_first::DoFirstCtx, do_second::DoSecondCtx, dynamic_coefficient::dynamic_coefficient_ctx::DynamicCoefficientCtx, hook_filter::hook_filter_ctx::HookFilterCtx, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed_ctx::LiftingSpeedCtx, select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx
 };
 ///
 /// # Calculation context
@@ -20,6 +17,11 @@ pub struct Context {
     pub(super) dynamic_coefficient: DynamicCoefficientCtx,
     /// result of [filtering hooks](design/docs/algorithm/part02/chapter_01_choose_hook.md)
     pub(super) hook_filter: HookFilterCtx,
+    ///
+    /// 
+    pub zg: f64,
+    pub do_first: DoFirstCtx,
+    pub do_second: DoSecondCtx,
 }
 //
 //
@@ -34,6 +36,9 @@ impl Context {
             select_bet_phi: SelectBetPhiCtx::default(),
             dynamic_coefficient: DynamicCoefficientCtx::default(),
             hook_filter: HookFilterCtx::default(),
+            zg: 0.0,
+            do_first: DoFirstCtx { zg: 0.0 },
+            do_second: DoSecondCtx { result: 0.0 },
         }
     }
 }
