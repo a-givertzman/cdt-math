@@ -48,12 +48,11 @@ impl Service for MokUserReply {
     //
     fn run(&mut self) -> Result<ServiceHandles<()>, String> {
         let link = self.link.take().unwrap_or_else(|| panic!("{}.run | Link not found", self.name));
-        info!("{}.run | Starting...", self.id().clone());
-        trace!("{}.run | Self tx_id: {}", self.id().clone(), PointTxId::from_str(self.id().clone()));
-        let self_id = self.id().clone();
-        let exit = self.exit.clone();
         let dbg = self.name.join().clone();
-        let handle = thread::Builder::new().name(format!("{} - main", self_id)).spawn(move ||{
+        info!("{}.run | Starting...", dbg);
+        trace!("{}.run | Self tx_id: {}", dbg, PointTxId::from_str(self.id()));
+        let exit = self.exit.clone();
+        let handle = thread::Builder::new().name(format!("{} - main", dbg)).spawn(move ||{
             fn send_reply(dbg: &str, link: &Link, reply: impl Serialize + Debug) {
                 if let Err(err) = link.send_reply(reply) {
                     log::debug!("{}.run | Send reply error: {:?}", dbg, err);
