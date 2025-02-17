@@ -4,6 +4,8 @@ use crate::algorithm::{
     lifting_speed::lifting_speed_ctx::LiftingSpeedCtx,
     select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx,
 };
+
+use super::testing_ctx::TestingCtx;
 ///
 /// # Calculation context
 /// - Provides read/write access to initial
@@ -20,6 +22,9 @@ pub struct Context {
     pub(super) dynamic_coefficient: DynamicCoefficientCtx,
     /// result of [filtering hooks](design/docs/algorithm/part02/chapter_01_choose_hook.md)
     pub(super) hook_filter: HookFilterCtx,
+    ///
+    /// Uset for testing only
+    pub testing: Option<TestingCtx>,
 }
 //
 //
@@ -34,6 +39,7 @@ impl Context {
             select_bet_phi: SelectBetPhiCtx::default(),
             dynamic_coefficient: DynamicCoefficientCtx::default(),
             hook_filter: HookFilterCtx::default(),
+            testing: None,
         }
     }
 }
