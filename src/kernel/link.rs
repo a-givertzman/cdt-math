@@ -87,7 +87,6 @@ impl Link {
         loop {
             match self.recv.recv_timeout(self.timeout) {
                 Ok(quyru) => {
-                    let name = quyru.name();
                     let quyru = quyru.as_string().value;
                     match serde_json::from_str::<T>(quyru.as_str()) {
                         Ok(query) => {
