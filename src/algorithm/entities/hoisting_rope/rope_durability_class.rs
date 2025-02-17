@@ -1,5 +1,7 @@
 use serde::{Deserialize, Serialize};
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+///
+/// Represents a [hoisting rope class durability](docs\catalogsPurchasedEquipment.xlsx)
 pub enum RopeDurabilityClass {
     C1370,
     C1470,

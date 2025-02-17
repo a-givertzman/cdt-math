@@ -2,8 +2,7 @@ use crate::kernel::str_err::str_err::StrErr;
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 ///
-/// Enum for structuring mechanism work types
-/// [reference to mechanism work types documentation](design\docs\algorithm\part01\initial_data.md)
+/// Represents [loading combination types](design\docs\algorithm\part02\initial_data.md)
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum MechanismWorkType {
     M1,

@@ -2,8 +2,7 @@ use crate::kernel::str_err::str_err::StrErr;
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 ///
-/// Enum for structuring driver types
-/// [reference to lifting mechanism driver type documentation](design\docs\algorithm\part01\initial_data.md)
+/// Represents [lifting mechanism driver types](design\docs\algorithm\part01\initial_data.md)
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum DriverType {
     Hd1,
