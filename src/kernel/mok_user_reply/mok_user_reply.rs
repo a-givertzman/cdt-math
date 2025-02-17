@@ -4,7 +4,7 @@ use sal_sync::services::{
     entity::{error::str_err::StrErr, name::Name, object::Object, point::point_tx_id::PointTxId}, service::{service::Service, service_handles::ServiceHandles}
 };
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
-use crate::{infrostructure::client::{change_hoisting_tackle::{ChangeHoistingTackleQuery, ChangeHoistingTackleReply}, choose_hoisting_rope::{ChooseHoistingRopeQuery, ChooseHoistingRopeReply}, choose_user_bearing::{ChooseUserBearingQuery, ChooseUserBearingReply}, choose_user_hook::{ChooseUserHookQuery, ChooseUserHookReply}, query::Query}, kernel::link::Link};
+use crate::{algorithm::entities::hook::Hook, infrostructure::client::{change_hoisting_tackle::{ChangeHoistingTackleQuery, ChangeHoistingTackleReply}, choose_hoisting_rope::{ChooseHoistingRopeQuery, ChooseHoistingRopeReply}, choose_user_bearing::{ChooseUserBearingQuery, ChooseUserBearingReply}, choose_user_hook::{ChooseUserHookQuery, ChooseUserHookReply}, query::Query}, kernel::link::Link};
 ///
 /// Struct to imitate user's answer's
 pub struct MokUserReply {
@@ -36,7 +36,14 @@ impl MokUserReply {
         match kind {
             Query::ChooseUserHook(query) => {
                 let query: ChooseUserHookQuery = query;
-                Ok(ChooseUserHookReply::new())
+                Ok(ChooseUserHookReply::new(Hook {
+                    gost: todo!(),
+                    r#type: todo!(),
+                    load_capacity_m13: todo!(),
+                    load_capacity_m46: todo!(),
+                    load_capacity_m78: todo!(),
+                    shank_diameter: todo!(),
+                }))
             },
             Query::ChooseUserBearing(query) => {
                 let query: ChooseUserBearingQuery = query;
