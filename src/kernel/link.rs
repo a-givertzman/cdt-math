@@ -83,7 +83,7 @@ impl Link {
     }
     ///
     /// Receiving incomong events
-    pub fn  recv_query<T: DeserializeOwned + Debug>(&self) -> Result<(String, T), StrErr> {
+    pub fn  recv_query<T: DeserializeOwned + Debug>(&self) -> Result<T, StrErr> {
         loop {
             match self.recv.recv_timeout(self.timeout) {
                 Ok(quyru) => {
@@ -91,7 +91,7 @@ impl Link {
                     let quyru = quyru.as_string().value;
                     match serde_json::from_str::<T>(quyru.as_str()) {
                         Ok(query) => {
-                            return Ok((name, query))
+                            return Ok(query)
                         }
                         Err(err) => return Err(
                             StrErr(

@@ -1,9 +1,9 @@
-use std::{fmt::Debug, str::FromStr, sync::{atomic::{AtomicBool, Ordering}, Arc}, thread};
+use std::{fmt::Debug, sync::{atomic::{AtomicBool, Ordering}, Arc}, thread};
 use log::{info, trace, warn};
 use sal_sync::services::{
-    entity::{error::str_err::StrErr, name::Name, object::Object, point::point_tx_id::PointTxId}, service::{service::Service, service_handles::ServiceHandles}
+    entity::{name::Name, object::Object, point::point_tx_id::PointTxId}, service::{service::Service, service_handles::ServiceHandles}
 };
-use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use serde::{de::DeserializeOwned, Serialize};
 use crate::{algorithm::entities::{bearing::Bearing, hoisting_rope::hoisting_rope::HoistingRope, hook::Hook}, infrostructure::client::{change_hoisting_tackle::{ChangeHoistingTackleQuery, ChangeHoistingTackleReply}, choose_hoisting_rope::{ChooseHoistingRopeQuery, ChooseHoistingRopeReply}, choose_user_bearing::{ChooseUserBearingQuery, ChooseUserBearingReply}, choose_user_hook::{ChooseUserHookQuery, ChooseUserHookReply}, query::Query}, kernel::link::Link};
 ///
 /// Struct to imitate user's answer's
@@ -28,11 +28,6 @@ impl MokUserReply {
             link: Some(link),
             exit: Arc::new(AtomicBool::new(false)), 
         }
-    }
-    ///
-    /// Processesing request
-    fn handle_request<T: Serialize + DeserializeOwned>(request: T) -> T {
-        request // just echo-answer
     }
 }
 //
@@ -61,12 +56,12 @@ impl Service for MokUserReply {
         let handle = thread::Builder::new().name(format!("{} - main", self_id)).spawn(move ||{
             fn send_reply(dbg: &str, link: &Link, reply: impl Serialize + Debug) {
                 if let Err(err) = link.send_reply(reply) {
-                    log::debug!("{}.run | Send reply error: {:?}", dbg.clone(), err);
+                    log::debug!("{}.run | Send reply error: {:?}", dbg, err);
                 };
             }
             'main: loop {
                 match link.recv_query::<Query>() {
-                    Ok((kind, query)) => match kind {
+                    Ok(query) => match query {
                         //
                         // all possible kinds jof queries to be matched...
                         // corresponding reply to have to be returned
