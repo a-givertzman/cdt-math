@@ -21,14 +21,14 @@ impl ChooseUserHookQuery {
 /// Reply to [ChooseUserHookQuery]
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ChooseUserHookReply {
-    pub choosen_hook: Hook
+    pub choosen: Hook
 }
 //
 //
 impl ChooseUserHookReply {
-    pub fn new(choosen_hook: Hook) -> Self {
+    pub fn new(choosen: Hook) -> Self {
         Self {
-            choosen_hook,
+            choosen,
         }
     }
 }
