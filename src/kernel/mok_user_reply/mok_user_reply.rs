@@ -4,7 +4,7 @@ use sal_sync::services::{
     entity::{error::str_err::StrErr, name::Name, object::Object, point::point_tx_id::PointTxId}, service::{service::Service, service_handles::ServiceHandles}
 };
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
-use crate::{algorithm::entities::hook::Hook, infrostructure::client::{change_hoisting_tackle::{ChangeHoistingTackleQuery, ChangeHoistingTackleReply}, choose_hoisting_rope::{ChooseHoistingRopeQuery, ChooseHoistingRopeReply}, choose_user_bearing::{ChooseUserBearingQuery, ChooseUserBearingReply}, choose_user_hook::{ChooseUserHookQuery, ChooseUserHookReply}, query::Query}, kernel::link::Link};
+use crate::{algorithm::entities::{bearing::Bearing, hook::Hook}, infrostructure::client::{change_hoisting_tackle::{ChangeHoistingTackleQuery, ChangeHoistingTackleReply}, choose_hoisting_rope::{ChooseHoistingRopeQuery, ChooseHoistingRopeReply}, choose_user_bearing::{ChooseUserBearingQuery, ChooseUserBearingReply}, choose_user_hook::{ChooseUserHookQuery, ChooseUserHookReply}, query::Query}, kernel::link::Link};
 ///
 /// Struct to imitate user's answer's
 pub struct MokUserReply {
@@ -27,40 +27,6 @@ impl MokUserReply {
             name: name,
             link: Some(link),
             exit: Arc::new(AtomicBool::new(false)), 
-        }
-    }
-    ///
-    /// Match exact kind of query
-    /// Returns corresponding reply as [Serialize]
-    fn build_reply(dbg:&str, kind: Query, query: impl DeserializeOwned) -> Result<impl Serialize + Debug, StrErr> {
-        match kind {
-            Query::ChooseUserHook(query) => {
-                let query: ChooseUserHookQuery = query;
-                Ok(ChooseUserHookReply::new(Hook {
-                    gost: todo!(),
-                    r#type: todo!(),
-                    load_capacity_m13: todo!(),
-                    load_capacity_m46: todo!(),
-                    load_capacity_m78: todo!(),
-                    shank_diameter: todo!(),
-                }))
-            },
-            Query::ChooseUserBearing(query) => {
-                let query: ChooseUserBearingQuery = query;
-                Ok(ChooseUserBearingReply::new())
-            },
-            Query::ChooseHoistingRope(query) => {
-                let query: ChooseHoistingRopeQuery = query;
-                Ok(ChooseHoistingRopeReply::new())
-            },
-            Query::ChangeHoistingTackle(query) => {
-                let query: ChangeHoistingTackleQuery = query;
-                Ok(ChangeHoistingTackleReply::new())
-            },
-            //
-            // all possible kinds jof queries to be matched...
-            // corresponding reply to have to be returned
-            //
         }
     }
     ///
@@ -93,17 +59,49 @@ impl Service for MokUserReply {
         let exit = self.exit.clone();
         let dbg = self.name.join().clone();
         let handle = thread::Builder::new().name(format!("{} - main", self_id)).spawn(move ||{
+            fn send_reply(dbg: &str, link: Link, reply: impl Serialize + Debug) {
+                if let Err(err) = link.send_reply(reply) {
+                    log::debug!("{}.run | Send reply error: {:?}", dbg.clone(), err);
+                };
+            }
             'main: loop {
                 match link.recv_query::<Query>() {
                     Ok((kind, query)) => {
-                        match Self::build_reply(&dbg.clone(), &kind, query) {
-                            Ok(reply) => {
-                                if let Err(err) = link.send_reply(reply) {
-                                    log::debug!("{}.run | Send reply error: {:?}", dbg.clone(), err);
-                                };
-                            }
-                            Err(_) => todo!(),
-                        };
+                        match kind {
+                            Query::ChooseUserHook(query) => {
+                                let query: ChooseUserHookQuery = query;
+                                ChooseUserHookReply::new(Hook {
+                                    gost: todo!(),
+                                    r#type: todo!(),
+                                    load_capacity_m13: todo!(),
+                                    load_capacity_m46: todo!(),
+                                    load_capacity_m78: todo!(),
+                                    shank_diameter: todo!(),
+                                })
+                            },
+                            Query::ChooseUserBearing(query) => {
+                                let query: ChooseUserBearingQuery = query;
+                                ChooseUserBearingReply::new(Bearing {
+                                    name: todo!(),
+                                    outer_diameter: todo!(),
+                                    inner_diameter: todo!(),
+                                    static_load_capacity: todo!(),
+                                    height: todo!(),
+                                })
+                            },
+                            Query::ChooseHoistingRope(query) => {
+                                let query: ChooseHoistingRopeQuery = query;
+                                Ok(ChooseHoistingRopeReply::new())
+                            },
+                            Query::ChangeHoistingTackle(query) => {
+                                let query: ChangeHoistingTackleQuery = query;
+                                Ok(ChangeHoistingTackleReply::new())
+                            },
+                            //
+                            // all possible kinds jof queries to be matched...
+                            // corresponding reply to have to be returned
+                            //
+                        }
                     }
                     Err(err) => {
                         log::warn!("{}.run | Error: {:?}", dbg.clone(), err);
