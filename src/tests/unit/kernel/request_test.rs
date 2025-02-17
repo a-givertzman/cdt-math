@@ -5,7 +5,7 @@ mod request {
     use testing::{entities::test_value::Value, stuff::max_test_duration::TestDuration};
     use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
 
-    use crate::{algorithm::{context::{context::Context, testing_ctx::MokUserReplyTestCtx}, initial_ctx::initial_ctx::InitialCtx}, kernel::{request::Request, storage::storage::Storage}};
+    use crate::{algorithm::{context::{context::Context, testing_ctx::{MokUserReplyTestCtx, TestingCtx}}, initial_ctx::initial_ctx::InitialCtx}, kernel::{request::Request, storage::storage::Storage}};
     ///
     ///
     static INIT: Once = Once::new();
@@ -51,11 +51,13 @@ mod request {
             )
         ];
         for (step, initial, target) in test_data {
+            let value = target.clone();
             let request = Request::new(|ctx: Context| -> MokUserReplyTestCtx {
                 let reply = ctx.testing.unwrap().mok_user_reply;
                 reply
             });
-            let ctx = Context::new(initial.clone());
+            let mut ctx = Context::new(initial.clone());
+            ctx.testing = Some(TestingCtx { mok_user_reply: value });
             let result = request.fetch(ctx);
             assert!(result == target, "step {} \nresult: {:?}\ntarget: {:?}", step, result, target);
         }
