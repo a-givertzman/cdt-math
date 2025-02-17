@@ -7,7 +7,6 @@ use crate::algorithm::entities::hook::Hook;
 pub struct ChooseUserHookQuery {
     /// hooks filtered by user characteristics
     pub filtered_hooks: Vec<Hook>,
-    #[serde(skip_deserializing)]
     #[serde(skip_serializing_if = "testing")]
     pub testing: bool,
 }
