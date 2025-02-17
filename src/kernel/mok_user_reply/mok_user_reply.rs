@@ -4,7 +4,7 @@ use sal_sync::services::{
     entity::{error::str_err::StrErr, name::Name, object::Object, point::point_tx_id::PointTxId}, service::{service::Service, service_handles::ServiceHandles}
 };
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
-use crate::{infrostructure::client::{change_hoisting_tackle::{ChangeHoistingTackleQuery, ChangeHoistingTackleReply}, choose_hoisting_rope::{ChooseHoistingRopeQuery, ChooseHoistingRopeReply}, choose_user_bearing::{ChooseUserBearingQuery, ChooseUserBearingReply}, choose_user_hook::{ChooseUserHookQuery, ChooseUserHookReply}, query_kind::QueryKind}, kernel::link::Link};
+use crate::{infrostructure::client::{change_hoisting_tackle::{ChangeHoistingTackleQuery, ChangeHoistingTackleReply}, choose_hoisting_rope::{ChooseHoistingRopeQuery, ChooseHoistingRopeReply}, choose_user_bearing::{ChooseUserBearingQuery, ChooseUserBearingReply}, choose_user_hook::{ChooseUserHookQuery, ChooseUserHookReply}, query::Query}, kernel::link::Link};
 ///
 /// Struct to imitate user's answer's
 pub struct MokUserReply {
@@ -32,33 +32,28 @@ impl MokUserReply {
     ///
     /// Match exact kind of query
     /// Returns corresponding reply as [Serialize]
-    fn build_reply(dbg:&str, kind: &str, query: impl DeserializeOwned) -> Result<impl Serialize + Debug, StrErr> {
-        match QueryKind::from_str(&kind) {
-            Ok(kind) => {
-                match kind {
-                    QueryKind::ChooseUserHook => {
-                        let query: ChooseUserHookQuery = query;
-                        Ok(ChooseUserHookReply::new())
-                    },
-                    QueryKind::ChooseUserBearing => {
-                        let query: ChooseUserBearingQuery = query;
-                        Ok(ChooseUserBearingReply::new())
-                    },
-                    QueryKind::ChooseHoistingRope => {
-                        let query: ChooseHoistingRopeQuery = query;
-                        Ok(ChooseHoistingRopeReply::new())
-                    },
-                    QueryKind::ChangeHoistingTackle => {
-                        let query: ChangeHoistingTackleQuery = query;
-                        Ok(ChangeHoistingTackleReply::new())
-                    },
-                    //
-                    // all possible kinds jof queries to be matched...
-                    // corresponding reply to have to be returned
-                    //
-                }
-            }
-            Err(err) => Err(StrErr(format!("{}.build_reply | Error: {:?}", dbg, err))),
+    fn build_reply(dbg:&str, kind: Query, query: impl DeserializeOwned) -> Result<impl Serialize + Debug, StrErr> {
+        match kind {
+            Query::ChooseUserHook(query) => {
+                let query: ChooseUserHookQuery = query;
+                Ok(ChooseUserHookReply::new())
+            },
+            Query::ChooseUserBearing(query) => {
+                let query: ChooseUserBearingQuery = query;
+                Ok(ChooseUserBearingReply::new())
+            },
+            Query::ChooseHoistingRope(query) => {
+                let query: ChooseHoistingRopeQuery = query;
+                Ok(ChooseHoistingRopeReply::new())
+            },
+            Query::ChangeHoistingTackle(query) => {
+                let query: ChangeHoistingTackleQuery = query;
+                Ok(ChangeHoistingTackleReply::new())
+            },
+            //
+            // all possible kinds jof queries to be matched...
+            // corresponding reply to have to be returned
+            //
         }
     }
     ///
@@ -92,7 +87,7 @@ impl Service for MokUserReply {
         let dbg = self.name.join().clone();
         let handle = thread::Builder::new().name(format!("{} - main", self_id)).spawn(move ||{
             'main: loop {
-                match link.recv_query::<QueryKind>() {
+                match link.recv_query::<Query>() {
                     Ok((kind, query)) => {
                         match Self::build_reply(&dbg.clone(), &kind, query) {
                             Ok(reply) => {
