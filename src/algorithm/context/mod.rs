@@ -14,3 +14,6 @@
 pub mod context_access;
 pub mod context;
 pub mod ctx_result;
+///
+/// TODO: To be moved to the better place
+pub mod testing_ctx;
