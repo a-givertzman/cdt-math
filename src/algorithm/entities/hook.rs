@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
-///
-/// Struct to describe a hook
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+///
+/// Represents a [crane hook](docs\catalogsPurchasedEquipment.xlsx) with specifications and load capacities.
 pub struct Hook {
     /// GOST number of hook
     pub gost: String,

@@ -1,4 +1,4 @@
-use std::{fmt::Debug, sync::mpsc::{self, Receiver, Sender}, time::Duration};
+use std::{fmt::Debug, sync::mpsc::{self, Receiver, RecvTimeoutError, Sender}, time::Duration};
 use sal_sync::services::entity::{name::Name, point::{point::Point, point_tx_id::PointTxId}};
 use serde::{de::DeserializeOwned, Serialize};
 use super::str_err::str_err::StrErr;
@@ -81,4 +81,51 @@ impl Link {
             Err(err) => Err(StrErr(format!("{}.req | Serialize query error: {:#?}, \n\tquery: {:#?}", self.name, err, query))),
         }
     }
+    ///
+    /// Receiving incomong events
+    pub fn  recv_query<T: DeserializeOwned + Debug>(&self) -> Result<T, StrErr> {
+        loop {
+            match self.recv.recv_timeout(self.timeout) {
+                Ok(quyru) => {
+                    let quyru = quyru.as_string().value;
+                    match serde_json::from_str::<T>(quyru.as_str()) {
+                        Ok(query) => {
+                            return Ok(query)
+                        }
+                        Err(err) => return Err(
+                            StrErr(
+                                format!("{}.req | Deserialize error for {:?} in {}, \n\terror: {:#?}",
+                                self.name, std::any::type_name::<T>(), quyru, err),
+                            ),
+                        ),
+                    }
+                }
+                Err(err) => {
+                    match err {
+                        RecvTimeoutError::Timeout => {},
+                        RecvTimeoutError::Disconnected => return Err(
+                            StrErr(format!("{}.req | Recv error: {:#?}", self.name, err)),
+                        ),
+                    }
+                }
+            }
+        }
+    }
+    ///
+    /// Sending event
+    pub fn send_reply(&self, reply: impl Serialize + Debug) -> Result<(), StrErr> {
+        match serde_json::to_string(&reply) {
+            Ok(reply) => {
+                let reply = Point::new(self.txid, &self.name.join(), reply);
+                match self.send.send(reply) {
+                    Ok(_) => Ok(()),
+                    Err(err) => Err(StrErr(format!("{}.teply | Send request error: {:#?}", self.name, err))),
+                }
+            }
+            Err(err) => Err(StrErr(format!("{}.reply | Serialize reply error: {:#?}, \n\tquery: {:#?}", self.name, err, reply))),
+        }
+    }
 }
+//
+//
+unsafe impl Sync for Link {}

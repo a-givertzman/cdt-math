@@ -2,8 +2,7 @@ use crate::kernel::str_err::str_err::StrErr;
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 ///
-/// Enum for structuring lifting class types
-/// [reference to lifting class type documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
+/// Represents [lifting class types](design\docs\algorithm\part02\chapter_01_choose_hook.md)
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum LiftClass {
     Hc1,

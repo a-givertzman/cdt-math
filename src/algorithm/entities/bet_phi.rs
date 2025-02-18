@@ -1,6 +1,5 @@
 ///
-/// Struct to storage β2 and ϕ2 coefficients
-/// [reference to β2 and ϕ2 coefficients documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
+/// Represents [β2 and ϕ2 coefficients](design\docs\algorithm\part02\chapter_01_choose_hook.md) for calculation [dynamic coefficient](design\docs\algorithm\part02\chapter_01_choose_hook.md)
 #[derive(Debug, Clone, Copy, PartialEq, Default)]
 pub struct BetPhi {
     /// β2 coefficient
