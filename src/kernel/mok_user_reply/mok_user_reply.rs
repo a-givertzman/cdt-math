@@ -1,4 +1,4 @@
-use std::{fmt::Debug, sync::{atomic::{AtomicBool, Ordering}, Arc}, thread};
+use std::{fmt::Debug, sync::{atomic::{AtomicBool, Ordering}, Arc}, thread, time::Duration};
 use log::{info, trace, warn};
 use sal_sync::services::{
     entity::{name::Name, object::Object, point::point_tx_id::PointTxId},
@@ -63,32 +63,33 @@ impl Service for MokUserReply {
         info!("{}.run | Starting...", dbg);
         trace!("{}.run | Self tx_id: {}", dbg, PointTxId::from_str(self.id()));
         let exit = self.exit.clone();
-        let handle = thread::Builder::new().name(format!("{} - main", dbg)).spawn(move ||{
+        let handle = thread::Builder::new().name(format!("{} - main", dbg)).spawn(move || {
             fn send_reply(dbg: &str, link: &Link, reply: impl Serialize + Debug) {
                 if let Err(err) = link.send_reply(reply) {
                     log::debug!("{}.run | Send reply error: {:?}", dbg, err);
                 };
             }
+    
             'main: loop {
+                if exit.load(Ordering::SeqCst) {
+                    log::debug!("Exiting main loop");
+                    break 'main;
+                }
+    
+                log::debug!("Received query:");
                 match link.recv_query::<Query>() {
                     Ok(query) => match query {
-                        //
-                        // all possible kinds jof queries to be matched...
-                        // corresponding reply to have to be returned
-                        //
                         Query::ChooseUserHook(query) => {
                             let query: ChooseUserHookQuery = query;
                             let reply = match query.testing {
-                                // Used for Testing puroses only
                                 true => ChooseUserHookReply::new(Hook {
-                                    gost: "ГОСТ Test".into(),
-                                    r#type: "Hook-type-Test".into(),
-                                    load_capacity_m13: 0.1,
-                                    load_capacity_m46: 0.2,
-                                    load_capacity_m78: 0.3,
-                                    shank_diameter: 0.4,
+                                    gost: "GOST 34567-85".to_string(),
+                                    r#type: "Forged".to_string(),
+                                    load_capacity_m13: 25.0,
+                                    load_capacity_m46: 23.0,
+                                    load_capacity_m78: 21.0,
+                                    shank_diameter: 85.0,
                                 }),
-                                // Real worked cases
                                 false => ChooseUserHookReply::new(Hook {
                                     gost: "GOST 34567-85".to_string(),
                                     r#type: "Forged".to_string(),
@@ -98,12 +99,10 @@ impl Service for MokUserReply {
                                     shank_diameter: 85.0,
                                 }),
                             };
-                            send_reply(&dbg, &link, reply);
+                            send_reply(&dbg, &link, reply.choosen);
                         },
-                        //
                         Query::ChooseUserBearing(query) => {
                             let _query: ChooseUserBearingQuery = query;
-                            // handle query if neccessary
                             send_reply(&dbg, &link, ChooseUserBearingReply::new(Bearing {
                                 name: "8100H".to_owned(),
                                 outer_diameter: 24.0,
@@ -112,10 +111,8 @@ impl Service for MokUserReply {
                                 height: 9.0,
                             }))
                         },
-                        //
                         Query::ChooseHoistingRope(query) => {
                             let _query: ChooseHoistingRopeQuery = query;
-                            // handle query if neccessary
                             send_reply(&dbg, &link, ChooseHoistingRopeReply::new(HoistingRope {
                                 name: "STO 71915393-TU 051-2014 Octopus 826K".to_owned(),
                                 rope_diameter: 12.0,
@@ -126,13 +123,9 @@ impl Service for MokUserReply {
                                 m: 0.688,
                             }))
                         },
-                        //
                         Query::ChangeHoistingTackle(query) => {
-                            let query: ChangeHoistingTackleQuery = query;
-                            // handle query if neccessary
-                            send_reply(&dbg, &link, ChangeHoistingTackleReply::new(
-                                1,
-                            ))
+                            let _query: ChangeHoistingTackleQuery = query;
+                            send_reply(&dbg, &link, ChangeHoistingTackleReply::new(1))
                         },
                     }
                     Err(err) => {
@@ -140,23 +133,22 @@ impl Service for MokUserReply {
                         break;
                     }
                 }
-                if exit.load(Ordering::SeqCst) {
-                    break 'main;
-                }
+                std::thread::sleep(Duration::from_millis(100));
             }
         });
+    
         match handle {
             Ok(handle) => {
                 info!("{}.run | Starting - ok", self.id());
-                return Ok(ServiceHandles::new(vec![(self.id().to_string(), handle)]))
+                Ok(ServiceHandles::new(vec![(self.id().to_string(), handle)]))
             }
             Err(err) => {
                 let message = format!("{}.run | Start failed: {:#?}", self.id(), err);
                 warn!("{}", message);
-                return Err(message)
+                Err(message)
             }
         }
-    }
+    }    
     //
     //
     fn exit(&self) {

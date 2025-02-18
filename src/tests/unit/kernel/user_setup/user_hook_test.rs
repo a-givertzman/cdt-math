@@ -1,11 +1,11 @@
 #[cfg(test)]
 
-mod user_hook {
+mod user_hook_test {
     use std::{sync::{Arc, Once}, time::Duration};
     use sal_sync::services::service::service::Service;
     use testing::stuff::max_test_duration::TestDuration;
     use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
-    use crate::{algorithm::{context::{context::Context, context_access::ContextRead, ctx_result::CtxResult}, dynamic_coefficient::dynamic_coefficient::DynamicCoefficient, entities::hook::Hook, hook_filter::{hook_filter::HookFilter, hook_filter_ctx::HookFilterCtx}, initial::Initial, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed::LiftingSpeed, select_betta_phi::select_betta_phi::SelectBettaPhi}, infrostructure::client::choose_user_hook::ChooseUserHookQuery, kernel::{eval::Eval, link::Link, mok_user_reply::mok_user_reply::MokUserReply, request::Request, storage::storage::Storage, user_setup::{user_hook::UserHook, user_hook_ctx::UserHookCtx}}};
+    use crate::{algorithm::{context::{context::Context, context_access::ContextRead, ctx_result::CtxResult}, dynamic_coefficient::dynamic_coefficient::DynamicCoefficient, entities::hook::Hook, hook_filter::{hook_filter::HookFilter, hook_filter_ctx::HookFilterCtx}, initial::Initial, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed::LiftingSpeed, select_betta_phi::select_betta_phi::SelectBettaPhi}, infrostructure::client::{choose_user_hook::ChooseUserHookQuery, query::Query}, kernel::{eval::Eval, link::Link, mok_user_reply::mok_user_reply::MokUserReply, request::Request, storage::storage::Storage, user_setup::{user_hook::UserHook, user_hook_ctx::UserHookCtx}}};
     ///
     ///
     static INIT: Once = Once::new();
@@ -35,7 +35,7 @@ mod user_hook {
         let test_data = [
             (
                 1,
-                "./src/tests/unit/kernel/storage/cache/test_1",
+                r#"./src/tests/unit/kernel/storage/cache/test_2"#,
                 Hook {
                     gost: "GOST 34567-85".to_string(),
                     r#type: "Forged".to_string(),
@@ -54,7 +54,7 @@ mod user_hook {
             let result = UserHook::new(
                 Request::<Hook>::new(|ctx: Context| -> Hook {
                     let variants: &HookFilterCtx = ctx.read();
-                    let query = ChooseUserHookQuery::new(variants.result.clone());
+                    let query = Query::ChooseUserHook(ChooseUserHookQuery::test(variants.result.clone()));
                     ctx.link.req(query).expect("{}.req | Error to send request")
                 }),
                 HookFilter::new(
@@ -81,6 +81,7 @@ mod user_hook {
                     let result = ContextRead::<UserHookCtx>::read(&result)
                         .result
                         .clone();
+                    println!("{:?}",result);
                     assert!(
                         result == target,
                         "step {} \nresult: {:?}\ntarget: {:?}",

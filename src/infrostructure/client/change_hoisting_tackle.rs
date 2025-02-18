@@ -9,6 +9,8 @@ pub struct ChangeHoistingTackleQuery {
 //
 //
 impl ChangeHoistingTackleQuery {
+    ///
+    /// New instance [ChangeHoistingTackleQuery]
     pub fn new() -> Self {
         Self {
             variants: vec![1,2],
@@ -24,6 +26,8 @@ pub struct ChangeHoistingTackleReply {
 //
 //
 impl ChangeHoistingTackleReply {
+    ///
+    /// New instance [ChangeHoistingTackleReply]
     pub fn new(choosen: u8) -> Self {
         Self {
             answer: choosen,

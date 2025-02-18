@@ -7,8 +7,7 @@ use crate::{
     kernel::{dbgid::dbgid::DbgId, eval::Eval, str_err::str_err::StrErr},
 };
 ///
-/// Сlass, that filter hooks by user loading capacity
-/// [reference to filtering documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
+/// Calculation step: [filtering hooks](design\docs\algorithm\part02\chapter_01_choose_hook.md)
 pub struct HookFilter {
     dbgid: DbgId,
     /// vector of [filtered hooks](design\docs\algorithm\part02\chapter_01_choose_hook.md)
@@ -20,7 +19,7 @@ pub struct HookFilter {
 //
 impl HookFilter {
     ///
-    /// Class Constructor
+    /// New instance [HookFilter]
     /// - `ctx` - [Context]
     pub fn new(ctx: impl Eval + 'static) -> Self {
         Self {

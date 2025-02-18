@@ -58,7 +58,6 @@ impl Link {
     pub fn req<T: DeserializeOwned + Debug>(&self, query: impl Serialize + Debug) -> Result<T, StrErr> {
         match serde_json::to_string(&query) {
             Ok(query) => {
-                // let bytes = query.as_bytes();
                 let query = Point::new(self.txid, &self.name.join(), query);
                 match self.send.send(query) {
                     Ok(_) => {
@@ -119,7 +118,7 @@ impl Link {
                 let reply = Point::new(self.txid, &self.name.join(), reply);
                 match self.send.send(reply) {
                     Ok(_) => Ok(()),
-                    Err(err) => Err(StrErr(format!("{}.teply | Send request error: {:#?}", self.name, err))),
+                    Err(err) => Err(StrErr(format!("{}.reply | Send request error: {:#?}", self.name, err))),
                 }
             }
             Err(err) => Err(StrErr(format!("{}.reply | Serialize reply error: {:#?}, \n\tquery: {:#?}", self.name, err, reply))),

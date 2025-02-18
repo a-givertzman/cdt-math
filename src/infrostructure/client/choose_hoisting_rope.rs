@@ -10,6 +10,8 @@ pub struct ChooseHoistingRopeQuery {
 //
 //
 impl ChooseHoistingRopeQuery {
+    ///
+    /// New instance [ChooseHoistingRopeQuery]
     pub fn new(variants: Vec<HoistingRope>) -> Self {
         Self {
             variants,
@@ -25,6 +27,8 @@ pub struct ChooseHoistingRopeReply {
 //
 //
 impl ChooseHoistingRopeReply {
+    ///
+    /// New instance [ChooseHoistingRopeReply]
     pub fn new(choosen: HoistingRope) -> Self {
         Self { 
             answer: choosen

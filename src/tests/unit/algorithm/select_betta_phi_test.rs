@@ -60,8 +60,8 @@ mod select_bet_phi {
                 ))
                 .unwrap(),
                 CtxResult::Ok(BetPhi {
-                    bet: 0.34,
-                    phi: 1.1,
+                    bet: 0.17,
+                    phi: 1.05,
                 }),
             ),
             (

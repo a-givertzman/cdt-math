@@ -9,7 +9,7 @@ use algorithm::{context::{context::Context, context_access::ContextRead}, dynami
 use api_tools::debug::dbg_id::DbgId;
 use app::app::App;
 use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
-use infrostructure::client::choose_user_hook::ChooseUserHookQuery;
+use infrostructure::client::{choose_user_hook::ChooseUserHookQuery, query::Query};
 use kernel::{eval::Eval, link::Link, mok_user_reply::mok_user_reply::MokUserReply, request::Request, run::Run, storage::storage::Storage, user_setup::user_hook::UserHook};
 use sal_sync::services::service::service::Service;
 ///
@@ -22,14 +22,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     if let Err(err) = app.run() {
         log::error!("main | Error: {:#?}", err);
     }
-    let cache_path = r#"src/assets/cache"#;
+    let cache_path = "./src/tests/unit/kernel/storage/cache/test_2";
     let (local, remote) = Link::split(&dbg);
     let mut mok_user_reply = MokUserReply::new(&dbg, remote);
     let mok_user_reply_handle = mok_user_reply.run().unwrap();
     let _user_hook = UserHook::new(
         Request::<Hook>::new(|ctx: Context| -> Hook {
             let variants: &HookFilterCtx = ctx.read();
-            let query = ChooseUserHookQuery::new(variants.result.clone());
+            let query = Query::ChooseUserHook(ChooseUserHookQuery::test(variants.result.clone()));
             ctx.link.req(query).expect("{}.req | Error to send request")
         }),
         HookFilter::new(
@@ -51,6 +51,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             )
         )
     ).eval();
+    mok_user_reply.exit();
     for (_id, h) in mok_user_reply_handle.into_iter() {
         h.join().unwrap();
     }
