@@ -90,7 +90,7 @@ mod user_hook {
                     );
                 }
                 CtxResult::Err(err) => panic!("step {} \nerror: {:#?}", step, err),
-                CtxResult::None => {},
+                CtxResult::None => panic!("step {} \nerror: `UserHook` returns None", step),
             }
         }
         for (_, h) in mok_user_reply_handle {
