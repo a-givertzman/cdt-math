@@ -12,6 +12,9 @@ pub enum CtxResult<T, E> {
 //
 //
 impl<T, E> CtxResult<T, E> {
+    //
+    //
+    #[allow(dead_code)]
     pub fn unwrap(self) -> T
     where
         E: std::fmt::Debug,
