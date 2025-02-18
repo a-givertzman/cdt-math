@@ -9,7 +9,7 @@ use algorithm::{context::context::Context, dynamic_coefficient::dynamic_coeffici
 use api_tools::debug::dbg_id::DbgId;
 use app::app::App;
 use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
-use kernel::{eval::Eval, run::Run, storage::storage::Storage};
+use kernel::{eval::Eval, link::Link, run::Run, storage::storage::Storage};
 ///
 /// Application entry point
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -21,6 +21,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         log::error!("main | Error: {:#?}", err);
     }
     let cache_path = r#"src/assets/cache"#;
+    let (local, remote) = Link::split(&dbg);
+    let _ = local;
+    let _ = remote;
     // let mut hooks_storage = Storage::new(cache_path);
     // match hooks_storage.load("type.one-horned.sequence_number.1.capacity_M2") {
     //     Ok(value) => log::debug!("{}.load | Found: {}", dbg, value),
