@@ -28,10 +28,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mok_user_reply_handle = mok_user_reply.run().unwrap();
     let _user_hook = UserHook::new(
         Request::<Hook>::new(|ctx: Context| -> Hook {
-            let link: &Link = ctx.read();
             let variants: &HookFilterCtx = ctx.read();
             let query = ChooseUserHookQuery::new(variants.result.clone());
-            link.req(query).expect("{}.req | Error to send request")
+            ctx.link.req(query).expect("{}.req | Error to send request")
         }),
         HookFilter::new(
             DynamicCoefficient::new(

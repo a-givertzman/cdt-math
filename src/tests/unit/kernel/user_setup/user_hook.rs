@@ -1,10 +1,11 @@
 #[cfg(test)]
 
-mod tests {
-    use std::{sync::Once, time::Duration};
+mod user_hook {
+    use std::{sync::{Arc, Once}, time::Duration};
+    use sal_sync::services::service::service::Service;
     use testing::stuff::max_test_duration::TestDuration;
     use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
-    use crate::{algorithm::{context::{context::Context, context_access::ContextRead, ctx_result::CtxResult}, dynamic_coefficient::dynamic_coefficient::DynamicCoefficient, entities::hook::Hook, hook_filter::{hook_filter::HookFilter, hook_filter_ctx::HookFilterCtx}, initial::Initial, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed::LiftingSpeed, select_betta_phi::select_betta_phi::SelectBettaPhi}, infrostructure::client::choose_user_hook::ChooseUserHookQuery, kernel::{eval::Eval, link::Link, request::Request, storage::storage::Storage, user_setup::{user_hook::UserHook, user_hook_ctx::UserHookCtx}}};
+    use crate::{algorithm::{context::{context::Context, context_access::ContextRead, ctx_result::CtxResult}, dynamic_coefficient::dynamic_coefficient::DynamicCoefficient, entities::hook::Hook, hook_filter::{hook_filter::HookFilter, hook_filter_ctx::HookFilterCtx}, initial::Initial, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed::LiftingSpeed, select_betta_phi::select_betta_phi::SelectBettaPhi}, infrostructure::client::choose_user_hook::ChooseUserHookQuery, kernel::{eval::Eval, link::Link, mok_user_reply::mok_user_reply::MokUserReply, request::Request, storage::storage::Storage, user_setup::{user_hook::UserHook, user_hook_ctx::UserHookCtx}}};
     ///
     ///
     static INIT: Once = Once::new();
@@ -22,14 +23,14 @@ mod tests {
     ///
     /// Testing such functionality / behavior
     #[test]
-    fn test_task_cycle() {
+    fn eval() {
         DebugSession::init(LogLevel::Info, Backtrace::Short);
         init_once();
         init_each();
         log::debug!("");
-        let dbgid = "test";
-        log::debug!("\n{}", dbgid);
-        let test_duration = TestDuration::new(dbgid, Duration::from_secs(1));
+        let dbg = "test";
+        log::debug!("\n{}", dbg);
+        let test_duration = TestDuration::new(dbg, Duration::from_secs(1));
         test_duration.run().unwrap();
         let test_data = [
             (
@@ -45,14 +46,16 @@ mod tests {
                 },
             )
         ];
-        for (step,cache_path,target) in test_data.iter() {
-            let (local, _remote) = Link::split(dbgid);
+        let (local, remote) = Link::split(dbg);
+        let mut mok_user_reply = MokUserReply::new(dbg, remote);
+        let mok_user_reply_handle = mok_user_reply.run().unwrap();
+        let local = Arc::new(local);
+        for (step, cache_path, target) in test_data {
             let result = UserHook::new(
                 Request::<Hook>::new(|ctx: Context| -> Hook {
-                    let link: &Link = ctx.read();
                     let variants: &HookFilterCtx = ctx.read();
                     let query = ChooseUserHookQuery::new(variants.result.clone());
-                    link.req(query).expect("{}.req | Error to send request")
+                    ctx.link.req(query).expect("{}.req | Error to send request")
                 }),
                 HookFilter::new(
                     DynamicCoefficient::new(
@@ -65,32 +68,34 @@ mod tests {
                                                     cache_path
                                                 )
                                             ).unwrap(),
-                                    local.into()
-                                        )
+                                    local.clone(),
+                                    )
                                 )
                             )
                         )
                     )
                 )
             ).eval();
-            match &result {
+            match result {
                 CtxResult::Ok(result) => {
-                    let result = ContextRead::<UserHookCtx>::read(result)
+                    let result = ContextRead::<UserHookCtx>::read(&result)
                         .result
                         .clone();
                     assert!(
-                        result == *target,
+                        result == target,
                         "step {} \nresult: {:?}\ntarget: {:?}",
                         step,
                         result,
                         target
                     );
                 }
-                CtxResult::Err(_) => {},
+                CtxResult::Err(err) => panic!("step {} \nerror: {:#?}", step, err),
                 CtxResult::None => {},
-                _ => panic!("step {} \nresult: {:?}\ntarget: {:?}", step, result, target),
             }
-        } 
+        }
+        for (_, h) in mok_user_reply_handle {
+            h.join().unwrap();
+        }
         test_duration.exit();
     }
 }
