@@ -4,14 +4,13 @@ mod infrostructure;
 mod kernel;
 #[cfg(test)]
 mod tests;
-use std::sync::Arc;
-
-use algorithm::{context::context::Context, dynamic_coefficient::dynamic_coefficient::DynamicCoefficient, hook_filter::hook_filter::HookFilter, initial::Initial, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed::LiftingSpeed, select_betta_phi::select_betta_phi::SelectBettaPhi};
+use algorithm::{context::{context::Context, context_access::ContextRead}, dynamic_coefficient::dynamic_coefficient::DynamicCoefficient, entities::hook::Hook, hook_filter::{hook_filter::HookFilter, hook_filter_ctx::HookFilterCtx}, initial::Initial, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed::LiftingSpeed, select_betta_phi::select_betta_phi::SelectBettaPhi};
 //
 use api_tools::debug::dbg_id::DbgId;
 use app::app::App;
 use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
-use kernel::{eval::Eval, link::Link, mok_user_reply::mok_user_reply::MokUserReply, run::Run, storage::storage::Storage};
+use infrostructure::client::choose_user_hook::ChooseUserHookQuery;
+use kernel::{eval::Eval, link::Link, mok_user_reply::mok_user_reply::MokUserReply, request::Request, run::Run, storage::storage::Storage, user_setup::user_hook::UserHook};
 use sal_sync::services::service::service::Service;
 ///
 /// Application entry point
@@ -25,44 +24,34 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
     let cache_path = r#"src/assets/cache"#;
     let (local, remote) = Link::split(&dbg);
-    let local = Arc::new(local);
     let mut mok_user_reply = MokUserReply::new(&dbg, remote);
     let mok_user_reply_handle = mok_user_reply.run().unwrap();
-    let _ = local;
-    // let mut hooks_storage = Storage::new(cache_path);
-    // match hooks_storage.load("type.one-horned.sequence_number.1.capacity_M2") {
-    //     Ok(value) => log::debug!("{}.load | Found: {}", dbg, value),
-    //     Err(err) => log::error!("{}.load | Some Error: {:#?}", dbg, err),
-    // }
-    // match hooks_storage.store("type.one-horned.sequence_number.1.capacity_M2", 0.2) {
-    //     Ok(_) => log::debug!("{}.store | Value succesful stored!", dbg),
-    //     Err(err) => log::error!("{}.store | Some Error: {:#?}", dbg, err),
-    // }
-    // match hooks_storage.load("type.one-horned.sequence_number.1.capacity_M2") {
-    //     Ok(value) => log::debug!("{}.load | Found: {}", dbg, value),
-    //     Err(err) => log::error!("{}.load | Some Error: {:#?}", dbg, err),
-    // }
-    match InitialCtx::new(&mut Storage::new(cache_path)) {
-        Ok(initial) => {
-            HookFilter::new(
-                DynamicCoefficient::new(
-                    SelectBettaPhi::new(
-                        LiftingSpeed::new(
-                            Initial::new(
-                                Context::new(
-                                    initial,
-                                    local,
-                                ),
-                            ),
-                        ),
-                    ),
+    let _user_hook = UserHook::new(
+        Request::<Hook>::new(|ctx: Context| -> Hook {
+            let link: &Link = ctx.read();
+            let variants: &HookFilterCtx = ctx.read();
+            let query = ChooseUserHookQuery::new(variants.result.clone());
+            link.req(query).expect("{}.req | Error to send request")
+        }),
+        HookFilter::new(
+            DynamicCoefficient::new(
+                SelectBettaPhi::new(
+                    LiftingSpeed::new(
+                        Initial::new(
+                            Context::new(
+                                    InitialCtx::new(
+                                        &mut Storage::new(
+                                            cache_path
+                                        )
+                                    ).unwrap(),
+                            local.into()
+                                )
+                        )
+                    )
                 )
-            ).eval();
-        }
-        Err(err) => {
-            log::error!("{} | Error: {:?}", dbg, err);
-        }
-    }
+            )
+        )
+    ).eval();
     for (_id, h) in mok_user_reply_handle.into_iter() {
         h.join().unwrap();
     }
