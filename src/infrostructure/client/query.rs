@@ -6,7 +6,7 @@ use super::{
 use serde::{Deserialize, Serialize};
 ///
 /// List of all possible requests in Client-Server interface
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub enum Query {
     ///
     /// Request for choosing hook from filtered hooks

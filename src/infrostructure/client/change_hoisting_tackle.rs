@@ -1,7 +1,7 @@
 use serde::{Serialize, Deserialize};
 ///
 /// User request | Asks user for change [HoistingTackle](design\docs\algorithm\part02\chapter_03_choose_hoisting_tackle.md)
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct ChangeHoistingTackleQuery {
     /// vector of hoisting tackle variants
     pub variants: Vec<u8>,

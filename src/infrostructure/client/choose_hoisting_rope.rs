@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use crate::algorithm::entities::hoisting_rope::hoisting_rope::HoistingRope;
 ///
 /// User request | Asks user for choose [HoistingRope] from filtered
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct ChooseHoistingRopeQuery {
     /// vector of hoisting ropes filtered by user characteristics
     pub variants: Vec<HoistingRope>,

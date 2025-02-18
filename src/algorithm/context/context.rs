@@ -24,6 +24,7 @@ pub struct Context {
     pub(super) hook_filter: HookFilterCtx,
     ///
     /// Uset for testing only
+    #[allow(dead_code)]
     pub testing: Option<TestingCtx>,
 }
 //
