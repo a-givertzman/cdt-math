@@ -7,7 +7,7 @@ use super::context::{context::Context, ctx_result::CtxResult};
 #[derive(Debug)]
 pub struct Initial {
     dbg: DbgId,
-    pub ctx: Context,
+    pub ctx:Option<Context>,
 }
 //
 //
@@ -18,7 +18,7 @@ impl Initial {
     pub fn new(ctx: Context) -> Self {
         Self {
             dbg: DbgId("Initial".to_string()),
-            ctx,
+            ctx: Some(ctx),
         }
     }
 }
@@ -28,7 +28,7 @@ impl Eval for Initial {
     //
     //
     fn eval(&mut self) -> CtxResult<Context, crate::kernel::str_err::str_err::StrErr> {
-        let ctx = self.ctx.clone();
+        let ctx = self.ctx.take().unwrap();
         log::debug!("{}.eval | Start with contect: {:#?}", self.dbg, ctx);
         CtxResult::Ok(ctx)
     }

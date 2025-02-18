@@ -129,3 +129,16 @@ impl Link {
 //
 //
 unsafe impl Sync for Link {}
+//
+//
+impl Debug for Link {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Link")
+        .field("txid", &self.txid)
+        .field("name", &self.name)
+        // .field("send", &self.send)
+        // .field("recv", &self.recv)
+        .field("timeout", &self.timeout)
+        .finish()
+    }
+}

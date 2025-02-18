@@ -9,7 +9,8 @@ use algorithm::{context::context::Context, dynamic_coefficient::dynamic_coeffici
 use api_tools::debug::dbg_id::DbgId;
 use app::app::App;
 use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
-use kernel::{eval::Eval, link::Link, run::Run, storage::storage::Storage};
+use kernel::{eval::Eval, link::Link, mok_user_reply::mok_user_reply::MokUserReply, run::Run, storage::storage::Storage};
+use sal_sync::services::service::service::Service;
 ///
 /// Application entry point
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -22,8 +23,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
     let cache_path = r#"src/assets/cache"#;
     let (local, remote) = Link::split(&dbg);
+    let mut mok_user_reply = MokUserReply::new(&dbg, remote);
+    let mok_user_reply_handle = mok_user_reply.run().unwrap();
     let _ = local;
-    let _ = remote;
     // let mut hooks_storage = Storage::new(cache_path);
     // match hooks_storage.load("type.one-horned.sequence_number.1.capacity_M2") {
     //     Ok(value) => log::debug!("{}.load | Found: {}", dbg, value),
@@ -54,6 +56,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         Err(err) => {
             log::error!("{} | Error: {:?}", dbg, err);
         }
+    }
+    for (_id, h) in mok_user_reply_handle.into_iter() {
+        h.join().unwrap();
     }
     Ok(())
 }

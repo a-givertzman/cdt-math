@@ -1,10 +1,11 @@
-use crate::algorithm::{
+use std::sync::Arc;
+
+use crate::{algorithm::{
     dynamic_coefficient::dynamic_coefficient_ctx::DynamicCoefficientCtx,
     hook_filter::hook_filter_ctx::HookFilterCtx, initial_ctx::initial_ctx::InitialCtx,
     lifting_speed::lifting_speed_ctx::LiftingSpeedCtx,
     select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx,
-};
-
+}, kernel::link::Link};
 use super::testing_ctx::TestingCtx;
 ///
 /// # Calculation context
@@ -12,6 +13,8 @@ use super::testing_ctx::TestingCtx;
 /// - R/W access to the isoleted data of each step of computations
 #[derive(Debug, Clone)]
 pub struct Context {
+    /// Event interface
+    pub link: Arc<Link>,
     /// where store [initial data](design\docs\algorithm\part01\initial_data.md)
     pub(super) initial: InitialCtx,
     /// result of calculation [steady-state-lifting-speed](design/docs/algorithm/part02/chapter_01_choose_hook.md)
@@ -33,8 +36,9 @@ impl Context {
     ///
     /// Struct constructor
     /// - 'initial' - [InitialCtx] instance, where store initial data
-    pub fn new(initial: InitialCtx) -> Self {
+    pub fn new(initial: InitialCtx, link: Arc<Link>) -> Self {
         Self {
+            link: link,
             initial,
             lifting_speed: LiftingSpeedCtx::default(),
             select_bet_phi: SelectBetPhiCtx::default(),
