@@ -4,6 +4,8 @@ mod infrostructure;
 mod kernel;
 #[cfg(test)]
 mod tests;
+use std::sync::Arc;
+
 use algorithm::{context::context::Context, dynamic_coefficient::dynamic_coefficient::DynamicCoefficient, hook_filter::hook_filter::HookFilter, initial::Initial, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed::LiftingSpeed, select_betta_phi::select_betta_phi::SelectBettaPhi};
 //
 use api_tools::debug::dbg_id::DbgId;
@@ -23,6 +25,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
     let cache_path = r#"src/assets/cache"#;
     let (local, remote) = Link::split(&dbg);
+    let local = Arc::new(local);
     let mut mok_user_reply = MokUserReply::new(&dbg, remote);
     let mok_user_reply_handle = mok_user_reply.run().unwrap();
     let _ = local;
@@ -46,7 +49,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     SelectBettaPhi::new(
                         LiftingSpeed::new(
                             Initial::new(
-                                Context::new(initial),
+                                Context::new(
+                                    initial,
+                                    local,
+                                ),
                             ),
                         ),
                     ),

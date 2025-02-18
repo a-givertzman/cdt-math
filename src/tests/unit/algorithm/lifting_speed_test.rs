@@ -4,7 +4,7 @@ mod lifting_speed {
     use api_tools::error::str_err::StrErr;
     use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
     use std::{
-        sync::Once,
+        sync::{Arc, Once},
         time::Duration,
     };
     use testing::stuff::max_test_duration::TestDuration;
@@ -15,7 +15,7 @@ mod lifting_speed {
             initial_ctx::initial_ctx::InitialCtx,
             lifting_speed::{lifting_speed::LiftingSpeed, lifting_speed_ctx::LiftingSpeedCtx},
         },
-        kernel::{dbgid::dbgid::DbgId, eval::Eval, storage::storage::Storage},
+        kernel::{dbgid::dbgid::DbgId, eval::Eval, link::Link, storage::storage::Storage},
     };
 
     ///
@@ -39,9 +39,9 @@ mod lifting_speed {
         DebugSession::init(LogLevel::Info, Backtrace::Short);
         init_once();
         init_each();
-        let dbgid = DbgId("eval".into());
-        log::debug!("\n{}", dbgid);
-        let test_duration = TestDuration::new(&dbgid, Duration::from_secs(1));
+        let dbg = DbgId("eval".into());
+        log::debug!("\n{}", dbg);
+        let test_duration = TestDuration::new(&dbg, Duration::from_secs(1));
         test_duration.run().unwrap();
         let test_data: [(i32, InitialCtx, CtxResult<f64, StrErr>); 8] = [
             (
@@ -109,9 +109,14 @@ mod lifting_speed {
                 CtxResult::Ok(0.315),
             ),
         ];
+        let (local, _) = Link::split(&dbg);
+        let local = Arc::new(local);
         for (step, initial, target) in test_data {
             let ctx = MocEval {
-                ctx: Context::new(initial),
+                ctx: Context::new(
+                    initial,
+                    local.clone(),
+                ),
             };
             let result = LiftingSpeed::new(ctx).eval();
             match (&result, &target) {

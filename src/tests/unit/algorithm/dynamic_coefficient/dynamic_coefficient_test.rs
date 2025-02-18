@@ -38,8 +38,8 @@ mod dynamic_coefficient {
         log::debug!("\n{}", dbg);
         let test_duration = TestDuration::new(&dbg, Duration::from_secs(1));
         test_duration.run().unwrap();
-        let (_, remote) = Link::split(&dbg);
-        let remote = Arc::new(remote);
+        let (local, _) = Link::split(&dbg);
+        let local = Arc::new(local);
         let test_data: [(i32, Context, CtxResult<f64, StrErr>); 3] = [
             (
                 1,
@@ -49,7 +49,7 @@ mod dynamic_coefficient {
                             "./src/tests/unit/kernel/storage/cache/test_1",
                         ),
                         ).unwrap(),
-                        remote.clone(),
+                        local.clone(),
                     );
                     let ctx = ctx.write(LiftingSpeedCtx {
                         result: 50.0,
@@ -72,7 +72,7 @@ mod dynamic_coefficient {
                         InitialCtx::new(&mut Storage::new(
                         "./src/tests/unit/kernel/storage/cache/test_1",
                         )).unwrap(),
-                        remote.clone(),
+                        local.clone(),
                     );
                     let ctx = ctx.write(LiftingSpeedCtx {
                         result: 50.0,
@@ -95,7 +95,7 @@ mod dynamic_coefficient {
                         InitialCtx::new(&mut Storage::new(
                             "./src/tests/unit/kernel/storage/cache/test_1",
                         )).unwrap(),
-                        remote.clone(),
+                        local.clone(),
                     );
                     let ctx = ctx.write(LiftingSpeedCtx {
                         result: 50.0,

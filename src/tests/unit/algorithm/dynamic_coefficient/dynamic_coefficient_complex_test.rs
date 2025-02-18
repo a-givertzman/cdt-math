@@ -44,8 +44,8 @@ mod dynamic_coefficient {
         log::debug!("\n{}", dbg);
         let test_duration = TestDuration::new(&dbg, Duration::from_secs(1));
         test_duration.run().unwrap();
-        let (_, remote) = Link::split(&dbg);
-        let remote = Arc::new(remote);
+        let (local, _) = Link::split(&dbg);
+        let local = Arc::new(local);
         let test_data: [(i32, InitialCtx, CtxResult<f64, StrErr>); 3] = [
             (
                 1,
@@ -79,7 +79,7 @@ mod dynamic_coefficient {
                         MocEval {
                             ctx: Some(Context::new(
                                 initial,
-                                remote.clone(),
+                                local.clone(),
                             )),
                         },
                     ),
