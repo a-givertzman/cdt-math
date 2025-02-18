@@ -93,6 +93,7 @@ mod user_hook {
                 CtxResult::None => panic!("step {} \nerror: `UserHook` returns None", step),
             }
         }
+        mok_user_reply.exit();
         for (_, h) in mok_user_reply_handle {
             h.join().unwrap();
         }
