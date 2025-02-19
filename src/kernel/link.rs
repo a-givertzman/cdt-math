@@ -18,6 +18,9 @@ pub struct Link {
 //
 impl Link {
     ///
+    /// Default timeout to await `recv`` operation, 300 ms
+    const DEFAULT_TIMEOUT: Duration = Duration::from_millis(300);
+    ///
     /// Returns [Link] new instance
     /// - `send` - local side of channel.send
     /// - `recv` - local side of channel.recv
@@ -29,7 +32,7 @@ impl Link {
             name,
             send, 
             recv,
-            timeout: Duration::from_millis(300),
+            timeout: Self::DEFAULT_TIMEOUT,
         }
     }
     ///
@@ -43,13 +46,13 @@ impl Link {
                 txid: PointTxId::from_str(&name.join()),
                 name: name.clone(),
                 send: loc_send, recv: loc_recv,
-                timeout: Duration::from_millis(3000),
+                timeout: Self::DEFAULT_TIMEOUT,
             },
             Self { 
                 txid: PointTxId::from_str(&name.join()),
                 name,
                 send: rem_send, recv: rem_recv,
-                timeout: Duration::from_millis(3000),
+                timeout: Self::DEFAULT_TIMEOUT,
             },
         )
     }
