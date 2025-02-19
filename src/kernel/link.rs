@@ -1,6 +1,7 @@
 use std::{fmt::Debug, sync::mpsc::{self, Receiver, RecvTimeoutError, Sender}, time::Duration};
 use sal_sync::services::entity::{name::Name, point::{point::Point, point_tx_id::PointTxId}};
 use serde::{de::DeserializeOwned, Serialize};
+use crate::algorithm::context::ctx_result::CtxResult;
 use super::str_err::str_err::StrErr;
 ///
 /// Contains local side `send` & `recv` of `channel`
@@ -18,16 +19,17 @@ pub struct Link {
 impl Link {
     ///
     /// Returns [Link] new instance
-    /// - send - local side of channel.send
-    /// - recv - local side of channel.recv
-    pub fn new(parent: impl Into<String>, send: Sender<Point>, recv: Receiver<Point>,) -> Self {
+    /// - `send` - local side of channel.send
+    /// - `recv` - local side of channel.recv
+    /// - `exit` - exit signal for `recv_query` method
+    pub fn new(parent: impl Into<String>, send: Sender<Point>, recv: Receiver<Point>) -> Self {
         let name = Name::new(parent, "Link");
         Self {
             txid: PointTxId::from_str(&name.join()),
             name,
             send, 
             recv,
-            timeout: Duration::from_millis(3000),
+            timeout: Duration::from_millis(300),
         }
     }
     ///
@@ -82,30 +84,28 @@ impl Link {
     }
     ///
     /// Receiving incomong events
-    pub fn  recv_query<T: DeserializeOwned + Debug>(&self) -> Result<T, StrErr> {
-        loop {
-            match self.recv.recv_timeout(self.timeout) {
-                Ok(quyru) => {
-                    let quyru = quyru.as_string().value;
-                    match serde_json::from_str::<T>(quyru.as_str()) {
-                        Ok(query) => {
-                            return Ok(query)
-                        }
-                        Err(err) => return Err(
-                            StrErr(
-                                format!("{}.req | Deserialize error for {:?} in {}, \n\terror: {:#?}",
-                                self.name, std::any::type_name::<T>(), quyru, err),
-                            ),
-                        ),
+    pub fn recv_query<T: DeserializeOwned + Debug>(&self) -> CtxResult<T, StrErr> {
+        match self.recv.recv_timeout(self.timeout) {
+            Ok(quyru) => {
+                let quyru = quyru.as_string().value;
+                match serde_json::from_str::<T>(quyru.as_str()) {
+                    Ok(query) => {
+                        return CtxResult::Ok(query)
                     }
+                    Err(err) => CtxResult::Err(
+                        StrErr(
+                            format!("{}.req | Deserialize error for {:?} in {}, \n\terror: {:#?}",
+                            self.name, std::any::type_name::<T>(), quyru, err),
+                        ),
+                    ),
                 }
-                Err(err) => {
-                    match err {
-                        RecvTimeoutError::Timeout => {},
-                        RecvTimeoutError::Disconnected => return Err(
-                            StrErr(format!("{}.req | Recv error: {:#?}", self.name, err)),
-                        ),
-                    }
+            }
+            Err(err) => {
+                match err {
+                    RecvTimeoutError::Timeout => CtxResult::None,
+                    RecvTimeoutError::Disconnected => CtxResult::Err(
+                        StrErr(format!("{}.req | Recv error: {:#?}", self.name, err)),
+                    ),
                 }
             }
         }

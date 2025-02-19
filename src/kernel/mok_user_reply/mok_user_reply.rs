@@ -1,12 +1,11 @@
-use std::{fmt::Debug, sync::{atomic::{AtomicBool, Ordering}, Arc}, thread, time::Duration};
-use log::{info, trace, warn};
+use std::{fmt::Debug, sync::{atomic::{AtomicBool, Ordering}, Arc}, thread};
 use sal_sync::services::{
     entity::{name::Name, object::Object, point::point_tx_id::PointTxId},
     service::{service::Service, service_handles::ServiceHandles},
 };
 use serde::Serialize;
 use crate::{
-    algorithm::entities::{bearing::Bearing, hoisting_rope::{hoisting_rope::HoistingRope, rope_durability_class::RopeDurabilityClass, rope_type::RopeType}, hook::Hook}, 
+    algorithm::{context::ctx_result::CtxResult, entities::{bearing::Bearing, hoisting_rope::{hoisting_rope::HoistingRope, rope_durability_class::RopeDurabilityClass, rope_type::RopeType}, hook::Hook}}, 
     infrostructure::client::{
         change_hoisting_tackle::{ChangeHoistingTackleQuery, ChangeHoistingTackleReply},
         choose_hoisting_rope::{ChooseHoistingRopeQuery, ChooseHoistingRopeReply},
@@ -37,7 +36,7 @@ impl MokUserReply {
             dbg: name.join(),
             name: name,
             link: Some(link),
-            exit: Arc::new(AtomicBool::new(false)), 
+            exit: Arc::new(AtomicBool::new(false)),
         }
     }
 }
@@ -60,8 +59,8 @@ impl Service for MokUserReply {
     fn run(&mut self) -> Result<ServiceHandles<()>, String> {
         let link = self.link.take().unwrap_or_else(|| panic!("{}.run | Link not found", self.name));
         let dbg = self.name.join().clone();
-        info!("{}.run | Starting...", dbg);
-        trace!("{}.run | Self tx_id: {}", dbg, PointTxId::from_str(self.id()));
+        log::info!("{}.run | Starting...", dbg);
+        log::trace!("{}.run | Self tx_id: {}", dbg, PointTxId::from_str(self.id()));
         let exit = self.exit.clone();
         let handle = thread::Builder::new().name(format!("{} - main", dbg)).spawn(move || {
             fn send_reply(dbg: &str, link: &Link, reply: impl Serialize + Debug) {
@@ -69,16 +68,9 @@ impl Service for MokUserReply {
                     log::debug!("{}.run | Send reply error: {:?}", dbg, err);
                 };
             }
-    
             'main: loop {
-                if exit.load(Ordering::SeqCst) {
-                    log::debug!("Exiting main loop");
-                    break 'main;
-                }
-    
-                log::debug!("Received query:");
                 match link.recv_query::<Query>() {
-                    Ok(query) => match query {
+                    CtxResult::Ok(query) => match query {
                         Query::ChooseUserHook(query) => {
                             let query: ChooseUserHookQuery = query;
                             let reply = match query.testing {
@@ -100,7 +92,7 @@ impl Service for MokUserReply {
                                 }),
                             };
                             send_reply(&dbg, &link, reply.choosen);
-                        },
+                        }
                         Query::ChooseUserBearing(query) => {
                             let _query: ChooseUserBearingQuery = query;
                             send_reply(&dbg, &link, ChooseUserBearingReply::new(Bearing {
@@ -110,7 +102,7 @@ impl Service for MokUserReply {
                                 static_load_capacity: 11800.0,
                                 height: 9.0,
                             }))
-                        },
+                        }
                         Query::ChooseHoistingRope(query) => {
                             let _query: ChooseHoistingRopeQuery = query;
                             send_reply(&dbg, &link, ChooseHoistingRopeReply::new(HoistingRope {
@@ -122,29 +114,33 @@ impl Service for MokUserReply {
                                 s: 67.824,
                                 m: 0.688,
                             }))
-                        },
+                        }
                         Query::ChangeHoistingTackle(query) => {
                             let _query: ChangeHoistingTackleQuery = query;
                             send_reply(&dbg, &link, ChangeHoistingTackleReply::new(1))
-                        },
+                        }
                     }
-                    Err(err) => {
+                    CtxResult::Err(err) => {
                         log::warn!("{}.run | Error: {:?}", dbg.clone(), err);
                         break;
                     }
+                    CtxResult::None => {},
                 }
-                std::thread::sleep(Duration::from_millis(100));
+                // std::thread::sleep(Duration::from_millis(100));
+                if exit.load(Ordering::SeqCst) {
+                    break 'main;
+                }
             }
+            log::debug!("{}.run | Exit", dbg);
         });
-    
         match handle {
             Ok(handle) => {
-                info!("{}.run | Starting - ok", self.id());
+                log::info!("{}.run | Starting - ok", self.id());
                 Ok(ServiceHandles::new(vec![(self.id().to_string(), handle)]))
             }
             Err(err) => {
                 let message = format!("{}.run | Start failed: {:#?}", self.id(), err);
-                warn!("{}", message);
+                log::warn!("{}", message);
                 Err(message)
             }
         }
@@ -153,7 +149,6 @@ impl Service for MokUserReply {
     //
     fn exit(&self) {
         self.exit.store(true, Ordering::SeqCst);
-        log::debug!("{}.run | Exit: {}", self.name, self.exit.load(Ordering::SeqCst));
     }
 }
 //
