@@ -40,8 +40,9 @@ impl Eval for DynamicCoefficient {
                     None => {
                         let lifting_speed = ContextRead::<LiftingSpeedCtx>::read(&ctx).result;
                         let bet_phi = ContextRead::<SelectBetPhiCtx>::read(&ctx).result;
+                        let result = bet_phi.phi + bet_phi.bet * lifting_speed;
                         DynamicCoefficientCtx {
-                            result: bet_phi.phi + bet_phi.bet * lifting_speed,
+                            result: (result * 1000.0).round() / 1000.0,
                         }
                     }
                 };

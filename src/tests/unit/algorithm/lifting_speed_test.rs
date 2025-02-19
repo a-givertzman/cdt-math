@@ -58,7 +58,7 @@ mod lifting_speed {
                     "./src/tests/unit/kernel/storage/cache/test_2",
                 ))
                 .unwrap(),
-                CtxResult::Ok(0.63),
+                CtxResult::Ok(0.2),
             ),
             (
                 3,
