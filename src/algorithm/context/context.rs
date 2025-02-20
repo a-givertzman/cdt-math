@@ -2,10 +2,7 @@ use std::sync::Arc;
 
 use crate::{
     algorithm::{
-        dynamic_coefficient::dynamic_coefficient_ctx::DynamicCoefficientCtx,
-        hook_filter::hook_filter_ctx::HookFilterCtx, initial_ctx::initial_ctx::InitialCtx,
-        lifting_speed::lifting_speed_ctx::LiftingSpeedCtx,
-        select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx,
+        bearing_filter::bearing_filter_ctx::BearingFilterCtx, dynamic_coefficient::dynamic_coefficient_ctx::DynamicCoefficientCtx, hook_filter::hook_filter_ctx::HookFilterCtx, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed_ctx::LiftingSpeedCtx, select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx
     },
     kernel::{link::Link, user_setup::user_hook_ctx::UserHookCtx},
 };
@@ -30,6 +27,8 @@ pub struct Context {
     pub(super) hook_filter: HookFilterCtx,
     /// user [crane hook](design/docs/algorithm/part02/chapter_01_choose_hook.md)
     pub(super) user_hook: UserHookCtx,
+    /// result of [filtering bearings](design/docs/algorithm/part02/chapter_01_choose_hook.md)
+    pub(super) bearing_filter: BearingFilterCtx,
     ///
     /// Uset for testing only
     #[allow(dead_code)]
@@ -50,6 +49,7 @@ impl Context {
             dynamic_coefficient: DynamicCoefficientCtx::default(),
             hook_filter: HookFilterCtx::default(),
             user_hook: UserHookCtx::default(),
+            bearing_filter: BearingFilterCtx::default(),
             testing: None,
         }
     }
