@@ -91,7 +91,7 @@ impl Service for MokUserReply {
                                     shank_diameter: 85.0,
                                 }),
                             };
-                            send_reply(&dbg, &link, reply.choosen);
+                            send_reply(&dbg, &link, reply);
                         }
                         Query::ChooseUserBearing(query) => {
                             let _query: ChooseUserBearingQuery = query;

@@ -3,7 +3,7 @@ use crate::{
     algorithm::{
         bearing_filter::bearing_filter_ctx::BearingFilterCtx, dynamic_coefficient::dynamic_coefficient_ctx::DynamicCoefficientCtx, hook_filter::hook_filter_ctx::HookFilterCtx, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed_ctx::LiftingSpeedCtx, select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx
     },
-    kernel::{str_err::str_err::StrErr, user_setup::user_hook_ctx::UserHookCtx},
+    kernel::{str_err::str_err::StrErr, user_setup::{user_bearing_ctx::UserBearingCtx, user_hook_ctx::UserHookCtx}},
 };
 ///
 /// Provides restricted write access to the [Context] members
@@ -104,5 +104,18 @@ impl ContextWrite<BearingFilterCtx> for Context {
 impl ContextRead<BearingFilterCtx> for Context {
     fn read(&self) -> &BearingFilterCtx {
         &self.bearing_filter
+    }
+}
+//
+//
+impl ContextWrite<UserBearingCtx> for Context {
+    fn write(mut self, value: UserBearingCtx) -> CtxResult<Self, StrErr> {
+        self.user_bearing = value;
+        CtxResult::Ok(self)
+    }
+}
+impl ContextRead<UserBearingCtx> for Context {
+    fn read(&self) -> &UserBearingCtx {
+        &self.user_bearing
     }
 }

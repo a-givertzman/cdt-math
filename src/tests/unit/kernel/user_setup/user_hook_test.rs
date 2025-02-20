@@ -1,6 +1,6 @@
 #[cfg(test)]
 
-mod user_hook_test {
+mod user_hook {
     use std::{sync::{Arc, Once}, time::Duration};
     use sal_sync::services::service::service::Service;
     use testing::stuff::max_test_duration::TestDuration;
@@ -13,7 +13,7 @@ mod user_hook_test {
             initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed::LiftingSpeed,
             select_betta_phi::select_betta_phi::SelectBettaPhi,
         },
-        infrostructure::client::{choose_user_hook::ChooseUserHookQuery, query::Query},
+        infrostructure::client::{choose_user_hook::{ChooseUserHookQuery, ChooseUserHookReply}, query::Query},
         kernel::{eval::Eval, link::Link, mok_user_reply::mok_user_reply::MokUserReply, request::Request, storage::storage::Storage, user_setup::{user_hook::UserHook, user_hook_ctx::UserHookCtx}}
     };
     ///
@@ -63,7 +63,7 @@ mod user_hook_test {
         let local = Arc::new(local);
         for (step, cache_path, target) in test_data {
             let result = UserHook::new(
-                Request::<Hook>::new(|ctx: &Context| {
+                Request::<ChooseUserHookReply>::new(|ctx: &Context| {
                     let variants: &HookFilterCtx = ctx.read();
                     let query = Query::ChooseUserHook(ChooseUserHookQuery::test(variants.result.clone()));
                     ctx.link.req(query).expect("{}.req | Error to send request")
@@ -92,7 +92,6 @@ mod user_hook_test {
                     let result = ContextRead::<UserHookCtx>::read(&result)
                         .result
                         .clone();
-                    println!("{:?}",result);
                     assert!(
                         result == target,
                         "step {} \nresult: {:?}\ntarget: {:?}",

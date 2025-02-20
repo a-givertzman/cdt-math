@@ -4,7 +4,7 @@ use crate::{
     algorithm::{
         bearing_filter::bearing_filter_ctx::BearingFilterCtx, dynamic_coefficient::dynamic_coefficient_ctx::DynamicCoefficientCtx, hook_filter::hook_filter_ctx::HookFilterCtx, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed_ctx::LiftingSpeedCtx, select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx
     },
-    kernel::{link::Link, user_setup::user_hook_ctx::UserHookCtx},
+    kernel::{link::Link, user_setup::{user_bearing_ctx::UserBearingCtx, user_hook_ctx::UserHookCtx}},
 };
 use super::testing_ctx::TestingCtx;
 ///
@@ -29,6 +29,8 @@ pub struct Context {
     pub(super) user_hook: UserHookCtx,
     /// result of [filtering bearings](design/docs/algorithm/part02/chapter_01_choose_hook.md)
     pub(super) bearing_filter: BearingFilterCtx,
+    /// user [bearing hook](design/docs/algorithm/part02/chapter_01_choose_hook.md)
+    pub(super) user_bearing: UserBearingCtx,
     ///
     /// Uset for testing only
     #[allow(dead_code)]
@@ -50,6 +52,7 @@ impl Context {
             hook_filter: HookFilterCtx::default(),
             user_hook: UserHookCtx::default(),
             bearing_filter: BearingFilterCtx::default(),
+            user_bearing: UserBearingCtx::default(),
             testing: None,
         }
     }
