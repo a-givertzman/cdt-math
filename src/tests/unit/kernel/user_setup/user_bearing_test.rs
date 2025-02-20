@@ -35,9 +35,9 @@ mod user_bearing {
         init_once();
         init_each();
         log::debug!("");
-        let dbg = "test";
-        log::debug!("\n{}", dbg);
-        let test_duration = TestDuration::new(dbg, Duration::from_secs(1));
+        let dbgid = "test";
+        log::debug!("\n{}", dbgid);
+        let test_duration = TestDuration::new(dbgid, Duration::from_secs(1));
         test_duration.run().unwrap();
         let test_data = [
             (
@@ -52,8 +52,8 @@ mod user_bearing {
                 },
             )
         ];
-        let (local, remote) = Link::split(dbg);
-        let mut mok_user_reply = MokUserReply::new(dbg, remote);
+        let (local, remote) = Link::split(dbgid);
+        let mut mok_user_reply = MokUserReply::new(dbgid, remote);
         let mok_user_reply_handle = mok_user_reply.run().unwrap();
         let local = Arc::new(local);
         for (step, cache_path, target) in test_data {
