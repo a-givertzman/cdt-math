@@ -12,6 +12,8 @@ pub struct ChooseUserHookQuery {
 //
 //
 impl ChooseUserHookQuery {
+    ///
+    /// New instance [ChooseUserHookQuery]
     pub fn new(variants: Vec<Hook>) -> Self {
         Self {
             variants,
@@ -19,7 +21,7 @@ impl ChooseUserHookQuery {
         }
     }
     ///
-    /// Used for testing
+    /// New instance [ChooseUserHookQuery] for testing
     pub fn test(variants: Vec<Hook>) -> Self {
         Self {
             variants,
@@ -34,13 +36,15 @@ fn testing(v: &bool) -> bool {
 }
 ///
 /// Reply to [ChooseUserHookQuery]
-#[derive(Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct ChooseUserHookReply {
     pub choosen: Hook
 }
 //
 //
 impl ChooseUserHookReply {
+    ///
+    /// New instance [ChooseUserHookReply]
     pub fn new(choosen: Hook) -> Self {
         Self {
             choosen,

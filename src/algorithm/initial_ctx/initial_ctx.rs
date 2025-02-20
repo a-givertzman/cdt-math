@@ -6,8 +6,7 @@ use crate::{
     kernel::{dbgid::dbgid::DbgId, storage::storage::Storage, str_err::str_err::StrErr},
 };
 ///
-/// Struct to storage initial data
-/// [documentation to initial data](design\docs\algorithm\part01\initial_data.md)
+/// Storage of [initial data](design\docs\algorithm\part01\initial_data.md)
 #[derive(Debug, Clone)]
 pub struct InitialCtx {
     // dbgid: DbgId,

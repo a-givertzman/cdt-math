@@ -53,7 +53,7 @@ mod dynamic_coefficient {
                     "./src/tests/unit/kernel/storage/cache/test_1",
                 ))
                 .unwrap(),
-                CtxResult::Ok(1.1571),
+                CtxResult::Ok(1.157),
             ),
             (
                 2,
@@ -61,7 +61,7 @@ mod dynamic_coefficient {
                     "./src/tests/unit/kernel/storage/cache/test_2",
                 ))
                 .unwrap(),
-                CtxResult::Ok(1.1680000000000001),
+                CtxResult::Ok(1.168),
             ),
             (
                 3,

@@ -7,8 +7,7 @@ use crate::{
 };
 use super::select_betta_phi_ctx::SelectBetPhiCtx;
 ///
-/// Struct, that make choice β2 and ϕ2 coefficients, based on user [lifting class](design\docs\algorithm\part01\initial_data.md)
-/// [reference to β2 and ϕ2 coefficients documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
+/// Calculation step: [β2 and ϕ2 coefficients](design\docs\algorithm\part02\chapter_01_choose_hook.md)
 pub struct SelectBettaPhi {
     dbgid: DbgId,
     /// [BetPhi] instance, where store value of coefficients β2 and ϕ2
@@ -20,7 +19,7 @@ pub struct SelectBettaPhi {
 //
 impl SelectBettaPhi {
     ///
-    /// Class Constructor
+    /// New instance [SelectBettaPhi]
     /// - 'ctx' - [Context] instance, where store all info about initial data and each algorithm result's
     pub fn new(ctx: impl Eval + 'static) -> Self {
         Self {

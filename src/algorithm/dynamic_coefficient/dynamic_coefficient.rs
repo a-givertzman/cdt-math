@@ -4,8 +4,7 @@ use crate::{
 };
 use super::dynamic_coefficient_ctx::DynamicCoefficientCtx;
 ///
-/// Сlass, that calculate dynamic coefficient
-/// [reference to dynamic coefficient documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
+/// Calculation step: [dynamic coefficient](design\docs\algorithm\part02\chapter_01_choose_hook.md)
 pub struct DynamicCoefficient {
     dbgid: DbgId,
     /// value of [dynamic coefficient](design\docs\algorithm\part02\chapter_01_choose_hook.md)
@@ -17,7 +16,7 @@ pub struct DynamicCoefficient {
 //
 impl DynamicCoefficient {
     ///
-    /// Class Constructor
+    /// New instance [DynamicCoefficient]
     /// - `ctx` - [Context]
     pub fn new(ctx: impl Eval + 'static) -> Self {
         Self {
@@ -41,8 +40,9 @@ impl Eval for DynamicCoefficient {
                     None => {
                         let lifting_speed = ContextRead::<LiftingSpeedCtx>::read(&ctx).result;
                         let bet_phi = ContextRead::<SelectBetPhiCtx>::read(&ctx).result;
+                        let result = bet_phi.phi + bet_phi.bet * lifting_speed;
                         DynamicCoefficientCtx {
-                            result: bet_phi.phi + bet_phi.bet * lifting_speed,
+                            result: (result * 1000.0).round() / 1000.0,
                         }
                     }
                 };

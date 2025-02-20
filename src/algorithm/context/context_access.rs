@@ -3,7 +3,7 @@ use crate::{
     algorithm::{
         dynamic_coefficient::dynamic_coefficient_ctx::DynamicCoefficientCtx, hook_filter::hook_filter_ctx::HookFilterCtx, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed_ctx::LiftingSpeedCtx, select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx
     },
-    kernel::str_err::str_err::StrErr,
+    kernel::{str_err::str_err::StrErr, user_setup::user_hook_ctx::UserHookCtx},
 };
 ///
 /// Provides restricted write access to the [Context] members
@@ -80,3 +80,17 @@ impl ContextRead<HookFilterCtx> for Context {
         &self.hook_filter
     }
 }
+//
+//
+impl ContextWrite<UserHookCtx> for Context {
+    fn write(mut self, value: UserHookCtx) -> CtxResult<Self, StrErr> {
+        self.user_hook = value;
+        CtxResult::Ok(self)
+    }
+}
+impl ContextRead<UserHookCtx> for Context {
+    fn read(&self) -> &UserHookCtx {
+        &self.user_hook
+    }
+}
+

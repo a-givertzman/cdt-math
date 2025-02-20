@@ -7,7 +7,7 @@ use std::fs::OpenOptions;
 use std::io::BufReader;
 use std::path::{Path, PathBuf};
 ///
-/// Struct for storage data from json files
+/// Storage data from json files
 pub struct Storage {
     dbgid: DbgId,
     /// cash-storage
@@ -19,7 +19,7 @@ pub struct Storage {
 //
 impl Storage {
     ///
-    /// Struct constructor
+    /// New instance [Storage]
     /// - `file_path` - path to file json
     pub fn new(path: impl AsRef<Path>) -> Self {
         Storage {

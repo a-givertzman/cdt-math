@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Default)]
 ///
 /// Represents a [crane hook](docs\catalogsPurchasedEquipment.xlsx) with specifications and load capacities.
 pub struct Hook {

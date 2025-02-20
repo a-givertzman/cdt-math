@@ -1,6 +1,7 @@
-use std::{fmt::Debug, sync::mpsc::{self, Receiver, RecvTimeoutError, Sender}, time::Duration};
+use std::{fmt::Debug, sync::mpsc::{self, Receiver, Sender}, time::Duration};
 use sal_sync::services::entity::{name::Name, point::{point::Point, point_tx_id::PointTxId}};
 use serde::{de::DeserializeOwned, Serialize};
+use crate::algorithm::context::ctx_result::CtxResult;
 use super::str_err::str_err::StrErr;
 ///
 /// Contains local side `send` & `recv` of `channel`
@@ -17,17 +18,21 @@ pub struct Link {
 //
 impl Link {
     ///
+    /// Default timeout to await `recv`` operation, 300 ms
+    const DEFAULT_TIMEOUT: Duration = Duration::from_millis(300);
+    ///
     /// Returns [Link] new instance
-    /// - send - local side of channel.send
-    /// - recv - local side of channel.recv
-    pub fn new(parent: impl Into<String>, send: Sender<Point>, recv: Receiver<Point>,) -> Self {
+    /// - `send` - local side of channel.send
+    /// - `recv` - local side of channel.recv
+    /// - `exit` - exit signal for `recv_query` method
+    pub fn new(parent: impl Into<String>, send: Sender<Point>, recv: Receiver<Point>) -> Self {
         let name = Name::new(parent, "Link");
         Self {
             txid: PointTxId::from_str(&name.join()),
             name,
             send, 
             recv,
-            timeout: Duration::from_millis(3000),
+            timeout: Self::DEFAULT_TIMEOUT,
         }
     }
     ///
@@ -41,13 +46,13 @@ impl Link {
                 txid: PointTxId::from_str(&name.join()),
                 name: name.clone(),
                 send: loc_send, recv: loc_recv,
-                timeout: Duration::from_millis(3000),
+                timeout: Self::DEFAULT_TIMEOUT,
             },
             Self { 
                 txid: PointTxId::from_str(&name.join()),
                 name,
                 send: rem_send, recv: rem_recv,
-                timeout: Duration::from_millis(3000),
+                timeout: Self::DEFAULT_TIMEOUT,
             },
         )
     }
@@ -58,7 +63,6 @@ impl Link {
     pub fn req<T: DeserializeOwned + Debug>(&self, query: impl Serialize + Debug) -> Result<T, StrErr> {
         match serde_json::to_string(&query) {
             Ok(query) => {
-                // let bytes = query.as_bytes();
                 let query = Point::new(self.txid, &self.name.join(), query);
                 match self.send.send(query) {
                     Ok(_) => {
@@ -72,7 +76,8 @@ impl Link {
                                     Err(err) => Err(StrErr(format!("{}.req | Deserialize error for {:?} in {}, \n\terror: {:#?}", self.name, std::any::type_name::<T>(), reply, err))),
                                 }
                             }
-                            Err(_) => Err(StrErr(format!("{}.req | Request timeout ({:?})", self.name, self.timeout))),
+                            _ => Err(StrErr(format!("{}.req | Request timeout ({:?})", self.name, self.timeout))),
+
                         }
                     },
                     Err(err) => Err(StrErr(format!("{}.req | Send request error: {:#?}", self.name, err))),
@@ -83,30 +88,31 @@ impl Link {
     }
     ///
     /// Receiving incomong events
-    pub fn  recv_query<T: DeserializeOwned + Debug>(&self) -> Result<T, StrErr> {
-        loop {
-            match self.recv.recv_timeout(self.timeout) {
-                Ok(quyru) => {
-                    let quyru = quyru.as_string().value;
-                    match serde_json::from_str::<T>(quyru.as_str()) {
-                        Ok(query) => {
-                            return Ok(query)
-                        }
-                        Err(err) => return Err(
-                            StrErr(
-                                format!("{}.req | Deserialize error for {:?} in {}, \n\terror: {:#?}",
-                                self.name, std::any::type_name::<T>(), quyru, err),
-                            ),
-                        ),
+    /// - Returns Ok<T> if channel has query
+    /// - Returns None if channel is empty for now
+    /// - Returns Err if channel is closed
+    pub fn recv_query<T: DeserializeOwned + Debug>(&self) -> CtxResult<T, StrErr> {
+        match self.recv.recv_timeout(self.timeout) {
+            Ok(quyru) => {
+                let quyru = quyru.as_string().value;
+                match serde_json::from_str::<T>(quyru.as_str()) {
+                    Ok(query) => {
+                        return CtxResult::Ok(query)
                     }
+                    Err(err) => CtxResult::Err(
+                        StrErr(
+                            format!("{}.req | Deserialize error for {:?} in {}, \n\terror: {:#?}",
+                            self.name, std::any::type_name::<T>(), quyru, err),
+                        ),
+                    ),
                 }
-                Err(err) => {
-                    match err {
-                        RecvTimeoutError::Timeout => {},
-                        RecvTimeoutError::Disconnected => return Err(
-                            StrErr(format!("{}.req | Recv error: {:#?}", self.name, err)),
-                        ),
-                    }
+            }
+            Err(err) => {
+                match err {
+                    mpsc::RecvTimeoutError::Timeout => CtxResult::None,
+                    mpsc::RecvTimeoutError::Disconnected => CtxResult::Err(
+                        StrErr(format!("{}.req | Recv error: {:#?}", self.name, err)),
+                    ),
                 }
             }
         }
@@ -119,7 +125,7 @@ impl Link {
                 let reply = Point::new(self.txid, &self.name.join(), reply);
                 match self.send.send(reply) {
                     Ok(_) => Ok(()),
-                    Err(err) => Err(StrErr(format!("{}.teply | Send request error: {:#?}", self.name, err))),
+                    Err(err) => Err(StrErr(format!("{}.reply | Send request error: {:#?}", self.name, err))),
                 }
             }
             Err(err) => Err(StrErr(format!("{}.reply | Serialize reply error: {:#?}, \n\tquery: {:#?}", self.name, err, reply))),

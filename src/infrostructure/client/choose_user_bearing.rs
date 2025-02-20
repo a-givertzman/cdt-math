@@ -11,6 +11,8 @@ pub struct ChooseUserBearingQuery {
 //
 //
 impl ChooseUserBearingQuery {
+    ///
+    /// New instance [ChooseUserBearingQuery]
     pub fn new(variants: Vec<Bearing>) -> Self {
         Self {
             variants,
@@ -26,6 +28,8 @@ pub struct ChooseUserBearingReply {
 //
 //
 impl ChooseUserBearingReply {
+    ///
+    /// New instance [ChooseUserBearingReply]
     pub fn new(choosen: Bearing) -> Self {
         Self {
             answer: choosen,

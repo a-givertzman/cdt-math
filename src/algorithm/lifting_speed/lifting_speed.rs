@@ -7,8 +7,7 @@ use crate::{
 };
 use super::lifting_speed_ctx::LiftingSpeedCtx;
 ///
-/// Сlass, that select the steady-state lifting speed of the load
-/// [reference to steady-state lifting speed documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
+/// Calculation step: [steady-state lifting speed of the load](design\docs\algorithm\part02\chapter_01_choose_hook.md)
 pub struct LiftingSpeed {
     dbgid: DbgId,
     /// value of [steady-state lifting speed](design\docs\algorithm\part02\chapter_01_choose_hook.md)
@@ -20,7 +19,7 @@ pub struct LiftingSpeed {
 //
 impl LiftingSpeed {
     ///
-    /// Class Constructor
+    /// New instance [LiftingSpeed]
     /// - 'ctx' - [Context] instance, where store all info about initial data and each algorithm result's
     pub fn new(ctx: impl Eval + 'static) -> Self {
         Self {
