@@ -13,6 +13,9 @@ pub struct BearingFilter {
 //
 impl BearingFilter {
     ///
+    /// [Acceleration of gravity](design\docs\algorithm\part02\chapter_01_choose_hook.md)
+    const g: f64 = 9.81;
+    ///
     /// New instance [BearingFilter]
     /// - `ctx` - [Context]
     pub fn new(ctx: impl Eval + 'static) -> Self {
@@ -38,7 +41,7 @@ impl Eval for BearingFilter {
                 .iter()
                 .cloned()
                 .filter(|bearing| {
-                    (bearing.static_load_capacity >= dynamic_coefficient * user_loading_capacity * 9.81) &&
+                    (bearing.static_load_capacity >= dynamic_coefficient * user_loading_capacity * Self::g) &&
                     (bearing.outer_diameter >= user_hook.shank_diameter)
                 })
                 .collect();

@@ -1,6 +1,6 @@
 #[cfg(test)]
 
-mod bearing_filter_test {
+mod bearing_filter {
     use std::{sync::{Arc, Once}, time::Duration};
     use sal_sync::services::service::service::Service;
     use testing::stuff::max_test_duration::TestDuration;
