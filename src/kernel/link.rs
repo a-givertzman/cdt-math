@@ -86,20 +86,6 @@ impl Link {
             Err(err) => Err(StrErr(format!("{}.req | Serialize query error: {:#?}, \n\tquery: {:#?}", self.name, err, query))),
         }
     }
-    // async fn recv_timeout(&mut self, duration: Duration) -> CtxResult<Point, StrErr> {
-    //     match timeout(duration, self.recv.recv()).await {
-    //         Ok(event) => match event {
-    //             Some(event) => CtxResult::Ok(event),
-    //             None => CtxResult::Err(
-    //                 StrErr(
-    //                     format!("{}.req | Deserialize error",
-    //                     self.name),
-    //                 ),
-    //             )
-    //         }
-    //         Err(_) => CtxResult::None,
-    //     }
-    // }
     ///
     /// Receiving incomong events
     /// - Returns Ok<T> if channel has query
