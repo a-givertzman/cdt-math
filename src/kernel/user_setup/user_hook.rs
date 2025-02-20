@@ -1,4 +1,4 @@
-use crate::{algorithm::{context::{context::Context, context_access::ContextWrite, ctx_result::CtxResult}, entities::hook::Hook}, kernel::{dbgid::dbgid::DbgId, eval::Eval, request::Request, str_err::str_err::StrErr}};
+use crate::{algorithm::{context::{context::Context, context_access::ContextWrite, ctx_result::CtxResult}, entities::hook::Hook}, infrostructure::client::choose_user_hook::ChooseUserHookReply, kernel::{dbgid::dbgid::DbgId, eval::Eval, request::Request, str_err::str_err::StrErr}};
 use super::user_hook_ctx::UserHookCtx;
 ///
 /// Represents user hook and make request to user for choosing one
@@ -8,7 +8,7 @@ pub struct UserHook {
     value: Option<UserHookCtx>,
     /// [Context] instance, where store all info about initial data and each algorithm result's
     ctx: Box<dyn Eval>,
-    req: Request<Hook>,
+    req: Request<ChooseUserHookReply>,
 }
 //
 //
@@ -17,7 +17,7 @@ impl UserHook {
     /// New instance [UserHook]
     /// - `ctx` - [Context]
     /// - `req` - [Request] for user
-    pub fn new(req: Request<Hook>, ctx: impl Eval + 'static) -> Self{
+    pub fn new(req: Request<ChooseUserHookReply>, ctx: impl Eval + 'static) -> Self{
         Self { 
             dbgid: DbgId("UserHook".to_string()), 
             value: None,
@@ -33,7 +33,7 @@ impl Eval for UserHook {
         match self.ctx.eval() {
             CtxResult::Ok(ctx) => {
                 let reply = self.req.fetch(&ctx);
-                let result = UserHookCtx { result: reply };
+                let result = UserHookCtx { result: reply.choosen };
                 self.value = Some(result.clone());
                 ctx.write(result)
             },

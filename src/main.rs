@@ -9,7 +9,7 @@ use algorithm::{bearing_filter::bearing_filter_ctx::BearingFilterCtx, context::{
 use api_tools::debug::dbg_id::DbgId;
 use app::app::App;
 use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
-use infrostructure::client::{choose_user_bearing::ChooseUserBearingQuery, choose_user_hook::ChooseUserHookQuery, query::Query};
+use infrostructure::client::{choose_user_bearing::{ChooseUserBearingQuery, ChooseUserBearingReply}, choose_user_hook::{ChooseUserHookQuery, ChooseUserHookReply}, query::Query};
 use kernel::{eval::Eval, link::Link, mok_user_reply::mok_user_reply::MokUserReply, request::Request, run::Run, storage::storage::Storage, user_setup::{user_bearing::UserBearing, user_hook::UserHook}};
 use sal_sync::services::service::service::Service;
 ///
@@ -28,13 +28,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut mok_user_reply = MokUserReply::new(&dbg, remote);
     let mok_user_reply_handle = mok_user_reply.run().unwrap();
     let _user_hook = UserBearing::new(
-        Request::<Bearing>::new(|ctx: &Context| -> Bearing {
+        Request::<ChooseUserBearingReply>::new(|ctx: &Context| -> ChooseUserBearingReply {
             let variants: &BearingFilterCtx = ctx.read();
             let query = Query::ChooseUserBearing(ChooseUserBearingQuery::new(variants.result.clone()));
             ctx.link.req(query).expect("{}.req | Error to send request")
         }),
         UserHook::new(
-            Request::<Hook>::new(|ctx: &Context| -> Hook {
+            Request::<ChooseUserHookReply>::new(|ctx: &Context| -> ChooseUserHookReply {
                 let variants: &HookFilterCtx = ctx.read();
                 let query = Query::ChooseUserHook(ChooseUserHookQuery::test(variants.result.clone()));
                 ctx.link.req(query).expect("{}.req | Error to send request")

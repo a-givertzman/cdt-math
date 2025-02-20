@@ -9,7 +9,7 @@ mod user_bearing {
         algorithm::{
             bearing_filter::bearing_filter_ctx::BearingFilterCtx, context::{context::Context, context_access::ContextRead, ctx_result::CtxResult}, dynamic_coefficient::dynamic_coefficient::DynamicCoefficient, entities::{bearing::Bearing, hook::Hook}, hook_filter::{hook_filter::HookFilter, hook_filter_ctx::HookFilterCtx}, initial::Initial, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed::LiftingSpeed, select_betta_phi::select_betta_phi::SelectBettaPhi
         },
-        infrostructure::client::{choose_user_bearing::ChooseUserBearingQuery, choose_user_hook::ChooseUserHookQuery, query::Query},
+        infrostructure::client::{choose_user_bearing::{ChooseUserBearingQuery, ChooseUserBearingReply}, choose_user_hook::{ChooseUserHookQuery, ChooseUserHookReply}, query::Query},
         kernel::{eval::Eval, link::Link, mok_user_reply::mok_user_reply::MokUserReply, request::Request, storage::storage::Storage, user_setup::{user_bearing::UserBearing, user_bearing_ctx::UserBearingCtx, user_hook::UserHook}}
     };
     ///
@@ -58,13 +58,13 @@ mod user_bearing {
         let local = Arc::new(local);
         for (step, cache_path, target) in test_data {
             let result = UserBearing::new(
-                Request::<Bearing>::new(|ctx: &Context| -> Bearing {
+                Request::<ChooseUserBearingReply>::new(|ctx: &Context| -> ChooseUserBearingReply {
                     let variants: &BearingFilterCtx = ctx.read();
                     let query = Query::ChooseUserBearing(ChooseUserBearingQuery::new(variants.result.clone()));
                     ctx.link.req(query).expect("{}.req | Error to send request")
                 }),
                 UserHook::new(
-                    Request::<Hook>::new(|ctx: &Context| {
+                    Request::<ChooseUserHookReply>::new(|ctx: &Context| {
                         let variants: &HookFilterCtx = ctx.read();
                         let query = Query::ChooseUserHook(ChooseUserHookQuery::test(variants.result.clone()));
                         ctx.link.req(query).expect("{}.req | Error to send request")
