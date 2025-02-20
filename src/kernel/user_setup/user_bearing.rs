@@ -49,7 +49,6 @@ impl std::fmt::Debug for UserBearing {
         f.debug_struct("UserBearing")
             .field("dbgid", &self.dbgid)
             .field("value", &self.value)
-            // .field("ctx", &self.ctx)
             .finish()
     }
 }
