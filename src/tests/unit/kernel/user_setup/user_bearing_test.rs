@@ -58,36 +58,37 @@ mod user_bearing {
         let local = Arc::new(local);
         for (step, cache_path, target) in test_data {
             let result = UserBearing::new(
-            Request::<Bearing>::new(|ctx: &Context| -> Bearing {
-                let variants: &BearingFilterCtx = ctx.read();
-                let query = Query::ChooseUserBearing(ChooseUserBearingQuery::new(variants.result.clone()));
-                ctx.link.req(query).expect("{}.req | Error to send request")
-            }),
-        UserHook::new(
-            Request::<Hook>::new(|ctx: &Context| {
-                    let variants: &HookFilterCtx = ctx.read();
-                    let query = Query::ChooseUserHook(ChooseUserHookQuery::test(variants.result.clone()));
+                Request::<Bearing>::new(|ctx: &Context| -> Bearing {
+                    let variants: &BearingFilterCtx = ctx.read();
+                    let query = Query::ChooseUserBearing(ChooseUserBearingQuery::new(variants.result.clone()));
                     ctx.link.req(query).expect("{}.req | Error to send request")
                 }),
-                HookFilter::new(
-                    DynamicCoefficient::new(
-                        SelectBettaPhi::new(
-                            LiftingSpeed::new(
-                                Initial::new(
-                                    Context::new(
-                                        InitialCtx::new(
-                                            &mut Storage::new(
-                                                cache_path
-                                            )
-                                            ).unwrap(),
-                                    local.clone(),
-                                    )
-                                )
-                            )
-                        )
-                    )
-                )
-            )).eval();
+                UserHook::new(
+                    Request::<Hook>::new(|ctx: &Context| {
+                        let variants: &HookFilterCtx = ctx.read();
+                        let query = Query::ChooseUserHook(ChooseUserHookQuery::test(variants.result.clone()));
+                        ctx.link.req(query).expect("{}.req | Error to send request")
+                    }),
+                    HookFilter::new(
+                        DynamicCoefficient::new(
+                            SelectBettaPhi::new(
+                                LiftingSpeed::new(
+                                    Initial::new(
+                                        Context::new(
+                                            InitialCtx::new(
+                                                &mut Storage::new(
+                                                    cache_path
+                                                )
+                                                ).unwrap(),
+                                            local.clone(),
+                                        ),
+                                    ),
+                                ),
+                            ),
+                        ),
+                    ),
+                ),
+            ).eval();
             match result {
                 CtxResult::Ok(result) => {
                     let result = ContextRead::<UserBearingCtx>::read(&result)
