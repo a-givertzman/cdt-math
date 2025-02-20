@@ -34,30 +34,29 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             ctx.link.req(query).expect("{}.req | Error to send request")
         }),
         UserHook::new(
-        Request::<Hook>::new(|ctx: &Context| -> Hook {
-            let variants: &HookFilterCtx = ctx.read();
-            let query = Query::ChooseUserHook(ChooseUserHookQuery::test(variants.result.clone()));
-            ctx.link.req(query).expect("{}.req | Error to send request")
-        }),
-        HookFilter::new(
-            DynamicCoefficient::new(
-                SelectBettaPhi::new(
-                    LiftingSpeed::new(
-                        Initial::new(
-                            Context::new(
+            Request::<Hook>::new(|ctx: &Context| -> Hook {
+                let variants: &HookFilterCtx = ctx.read();
+                let query = Query::ChooseUserHook(ChooseUserHookQuery::test(variants.result.clone()));
+                ctx.link.req(query).expect("{}.req | Error to send request")
+            }),
+            HookFilter::new(
+                DynamicCoefficient::new(
+                    SelectBettaPhi::new(
+                        LiftingSpeed::new(
+                            Initial::new(
+                                Context::new(
                                     InitialCtx::new(
-                                        &mut Storage::new(
-                                            cache_path
-                                        )
+                                        &mut Storage::new(cache_path)
                                     ).unwrap(),
-                            local.into()
-                                )
-                        )
-                    )
-                )
-            )
-        )
-    )).eval();
+                                    local.into()
+                                ),
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+        ),
+    ).eval();
     mok_user_reply.exit();
     for (_id, h) in mok_user_reply_handle.into_iter() {
         h.join().unwrap();
