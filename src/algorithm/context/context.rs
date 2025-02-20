@@ -1,11 +1,14 @@
 use std::sync::Arc;
 
-use crate::{algorithm::{
-    dynamic_coefficient::dynamic_coefficient_ctx::DynamicCoefficientCtx,
-    hook_filter::hook_filter_ctx::HookFilterCtx, initial_ctx::initial_ctx::InitialCtx,
-    lifting_speed::lifting_speed_ctx::LiftingSpeedCtx,
-    select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx,
-}, kernel::{link::Link, user_setup::user_hook_ctx::UserHookCtx}};
+use crate::{
+    algorithm::{
+        dynamic_coefficient::dynamic_coefficient_ctx::DynamicCoefficientCtx,
+        hook_filter::hook_filter_ctx::HookFilterCtx, initial_ctx::initial_ctx::InitialCtx,
+        lifting_speed::lifting_speed_ctx::LiftingSpeedCtx,
+        select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx,
+    },
+    kernel::{link::Link, user_setup::user_hook_ctx::UserHookCtx},
+};
 use super::testing_ctx::TestingCtx;
 ///
 /// # Calculation context
