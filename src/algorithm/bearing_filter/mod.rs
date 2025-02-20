@@ -26,9 +26,9 @@
 //! let result = bearing_filter.eval();
 //! 
 //! match result {
-//!     CtxResult::Ok(ctx) => println!("Filtered bearings: {:?}", ctx),
-//!     CtxResult::Err(err) => eprintln!("Error: {}", err),
-//!     CtxResult::None => println!("No bearings matched the criteria."),
+//!     CtxResult::Ok(ctx) => log::debug!("Filtered bearings: {:?}", ctx),
+//!     CtxResult::Err(err) => log::debug!("Error: {}", err),
+//!     CtxResult::None => log::debug!("No bearings matched the criteria."),
 //! }
 //! ```
 //! 
