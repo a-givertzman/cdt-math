@@ -101,7 +101,7 @@ impl Service for MokUserReply {
                                 inner_diameter: 10.0,
                                 static_load_capacity: 11800.0,
                                 height: 9.0,
-                            }).answer)
+                            }))
                         }
                         Query::ChooseHoistingRope(query) => {
                             let _query: ChooseHoistingRopeQuery = query;
