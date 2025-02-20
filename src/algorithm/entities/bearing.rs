@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Default)]
 ///
 /// Represents a [bearing](docs\catalogsPurchasedEquipment.xlsx) with its main characteristics.
 pub struct Bearing {
