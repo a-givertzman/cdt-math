@@ -13,6 +13,10 @@ pub struct UserBearing {
 //
 //
 impl UserBearing {
+    ///
+    /// New instance [UserBearing]
+    /// - `ctx` - [Context]
+    /// - `req` - [Request] for user
     pub fn new(req: Request<Bearing>, ctx: impl Eval + 'static) -> Self{
         Self { 
             dbgid: DbgId("UserBearing".to_string()), 

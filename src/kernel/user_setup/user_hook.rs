@@ -13,6 +13,10 @@ pub struct UserHook {
 //
 //
 impl UserHook {
+    ///
+    /// New instance [UserHook]
+    /// - `ctx` - [Context]
+    /// - `req` - [Request] for user
     pub fn new(req: Request<Hook>, ctx: impl Eval + 'static) -> Self{
         Self { 
             dbgid: DbgId("UserHook".to_string()), 
