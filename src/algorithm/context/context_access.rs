@@ -1,7 +1,7 @@
 use super::{context::Context, ctx_result::CtxResult};
 use crate::{
     algorithm::{
-        dynamic_coefficient::dynamic_coefficient_ctx::DynamicCoefficientCtx, hook_filter::hook_filter_ctx::HookFilterCtx, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed_ctx::LiftingSpeedCtx, select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx
+        bearing_filter::bearing_filter_ctx::BearingFilterCtx, dynamic_coefficient::dynamic_coefficient_ctx::DynamicCoefficientCtx, hook_filter::hook_filter_ctx::HookFilterCtx, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed_ctx::LiftingSpeedCtx, select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx
     },
     kernel::{str_err::str_err::StrErr, user_setup::user_hook_ctx::UserHookCtx},
 };
@@ -93,4 +93,16 @@ impl ContextRead<UserHookCtx> for Context {
         &self.user_hook
     }
 }
-
+//
+//
+impl ContextWrite<BearingFilterCtx> for Context {
+    fn write(mut self, value: BearingFilterCtx) -> CtxResult<Self, StrErr> {
+        self.bearing_filter = value;
+        CtxResult::Ok(self)
+    }
+}
+impl ContextRead<BearingFilterCtx> for Context {
+    fn read(&self) -> &BearingFilterCtx {
+        &self.bearing_filter
+    }
+}

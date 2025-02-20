@@ -1,3 +1,4 @@
+pub mod bearing_filter;
 pub mod context;
 pub mod dynamic_coefficient;
 pub mod entities;

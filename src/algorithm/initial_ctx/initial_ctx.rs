@@ -1,7 +1,6 @@
 use crate::{
     algorithm::entities::{
-        driver_type::DriverType, hook::Hook, lifting_class::LiftClass,
-        loading_combination::LoadingCombination, mechanism_work_type::MechanismWorkType,
+        bearing::Bearing, driver_type::DriverType, hook::Hook, lifting_class::LiftClass, loading_combination::LoadingCombination, mechanism_work_type::MechanismWorkType
     },
     kernel::{dbgid::dbgid::DbgId, storage::storage::Storage, str_err::str_err::StrErr},
 };
@@ -20,12 +19,14 @@ pub struct InitialCtx {
     pub vhcs: f64,
     /// value of [lifting class](design\docs\algorithm\part02\chapter_01_choose_hook.md)
     pub lift_class: LiftClass,
-    /// vector of data base hook
+    /// vector of data base hooks
     pub hooks: Vec<Hook>,
     /// value of [loading capacity](design\docs\algorithm\part01\initial_data.md)
     pub load_capacity: f64,
     /// value of [mechanism work type](design\docs\algorithm\part01\initial_data.md)
     pub mechanism_work_type: MechanismWorkType,
+    /// vector of data base bearings
+    pub bearings: Vec<Bearing>,
 }
 //
 //
@@ -66,6 +67,10 @@ impl InitialCtx {
             .map_err(|err| StrErr(format!("{}.new | Error {:?}", dbg, err)))?,
             mechanism_work_type: serde_json::from_value::<MechanismWorkType>(
                 storage_initial_data.load("test.user_characteristics.mechanism_work_type")?,
+            )
+            .map_err(|err| StrErr(format!("{}.new | Error {:?}", dbg, err)))?,
+            bearings: serde_json::from_value::<Vec<Bearing>>(
+                storage_initial_data.load("test.constructions.bearings")?,
             )
             .map_err(|err| StrErr(format!("{}.new | Error {:?}", dbg, err)))?,
             // dbgid: dbg,
