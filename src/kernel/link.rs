@@ -1,4 +1,4 @@
-use std::{fmt::Debug, sync::mpsc::{self, Receiver, RecvTimeoutError, Sender}, time::Duration};
+use std::{fmt::Debug, sync::mpsc::{self, Receiver, Sender}, time::Duration};
 use sal_sync::services::entity::{name::Name, point::{point::Point, point_tx_id::PointTxId}};
 use serde::{de::DeserializeOwned, Serialize};
 use crate::algorithm::context::ctx_result::CtxResult;
@@ -76,7 +76,8 @@ impl Link {
                                     Err(err) => Err(StrErr(format!("{}.req | Deserialize error for {:?} in {}, \n\terror: {:#?}", self.name, std::any::type_name::<T>(), reply, err))),
                                 }
                             }
-                            Err(_) => Err(StrErr(format!("{}.req | Request timeout ({:?})", self.name, self.timeout))),
+                            _ => Err(StrErr(format!("{}.req | Request timeout ({:?})", self.name, self.timeout))),
+
                         }
                     },
                     Err(err) => Err(StrErr(format!("{}.req | Send request error: {:#?}", self.name, err))),
@@ -85,8 +86,25 @@ impl Link {
             Err(err) => Err(StrErr(format!("{}.req | Serialize query error: {:#?}, \n\tquery: {:#?}", self.name, err, query))),
         }
     }
+    // async fn recv_timeout(&mut self, duration: Duration) -> CtxResult<Point, StrErr> {
+    //     match timeout(duration, self.recv.recv()).await {
+    //         Ok(event) => match event {
+    //             Some(event) => CtxResult::Ok(event),
+    //             None => CtxResult::Err(
+    //                 StrErr(
+    //                     format!("{}.req | Deserialize error",
+    //                     self.name),
+    //                 ),
+    //             )
+    //         }
+    //         Err(_) => CtxResult::None,
+    //     }
+    // }
     ///
     /// Receiving incomong events
+    /// - Returns Ok<T> if channel has query
+    /// - Returns None if channel is empty for now
+    /// - Returns Err if channel is closed
     pub fn recv_query<T: DeserializeOwned + Debug>(&self) -> CtxResult<T, StrErr> {
         match self.recv.recv_timeout(self.timeout) {
             Ok(quyru) => {
@@ -105,8 +123,8 @@ impl Link {
             }
             Err(err) => {
                 match err {
-                    RecvTimeoutError::Timeout => CtxResult::None,
-                    RecvTimeoutError::Disconnected => CtxResult::Err(
+                    mpsc::RecvTimeoutError::Timeout => CtxResult::None,
+                    mpsc::RecvTimeoutError::Disconnected => CtxResult::Err(
                         StrErr(format!("{}.req | Recv error: {:#?}", self.name, err)),
                     ),
                 }

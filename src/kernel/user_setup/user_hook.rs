@@ -28,7 +28,8 @@ impl Eval for UserHook {
     fn eval(&mut self) -> CtxResult<Context, StrErr> {
         match self.ctx.eval() {
             CtxResult::Ok(ctx) => {
-                let result = UserHookCtx { result: self.req.fetch(ctx.clone()) };
+                let reply = self.req.fetch(&ctx);
+                let result = UserHookCtx { result: reply };
                 self.value = Some(result.clone());
                 ctx.write(result)
             },

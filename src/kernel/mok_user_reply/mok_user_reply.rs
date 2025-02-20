@@ -126,7 +126,6 @@ impl Service for MokUserReply {
                     }
                     CtxResult::None => {},
                 }
-                // std::thread::sleep(Duration::from_millis(100));
                 if exit.load(Ordering::SeqCst) {
                     break 'main;
                 }

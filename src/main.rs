@@ -14,7 +14,8 @@ use kernel::{eval::Eval, link::Link, mok_user_reply::mok_user_reply::MokUserRepl
 use sal_sync::services::service::service::Service;
 ///
 /// Application entry point
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
     DebugSession::init(LogLevel::Debug, Backtrace::Short);
     let dbg = DbgId("main".into());
     let path = "config.yaml";
@@ -27,7 +28,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut mok_user_reply = MokUserReply::new(&dbg, remote);
     let mok_user_reply_handle = mok_user_reply.run().unwrap();
     let _user_hook = UserHook::new(
-        Request::<Hook>::new(|ctx: Context| -> Hook {
+        Request::<Hook>::new(|ctx: &Context| -> Hook {
             let variants: &HookFilterCtx = ctx.read();
             let query = Query::ChooseUserHook(ChooseUserHookQuery::test(variants.result.clone()));
             ctx.link.req(query).expect("{}.req | Error to send request")

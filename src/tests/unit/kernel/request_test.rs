@@ -54,13 +54,16 @@ mod request {
         let local = Arc::new(local);
         for (step, initial, target) in test_data {
             let value = target.clone();
-            let request = Request::new(|ctx: Context| -> MokUserReplyTestCtx {
-                let reply = ctx.testing.unwrap().mok_user_reply;
+            let request = Request::new(|ctx: &Context| -> MokUserReplyTestCtx {
+                let reply = ctx
+                    .testing.clone()
+                    .unwrap()
+                    .mok_user_reply;
                 reply
             });
             let mut ctx = Context::new(initial.clone(), local.clone());
             ctx.testing = Some(TestingCtx { mok_user_reply: value });
-            let result = request.fetch(ctx);
+            let result = request.fetch(&ctx);
             assert!(result == target, "step {} \nresult: {:?}\ntarget: {:?}", step, result, target);
         }
         test_duration.exit();
