@@ -81,6 +81,7 @@ impl Service for MokUserReply {
                                     load_capacity_m46: 23.0,
                                     load_capacity_m78: 21.0,
                                     shank_diameter: 85.0,
+                                    weight: 50.0,
                                 }),
                                 false => ChooseUserHookReply::new(Hook {
                                     gost: "GOST 34567-85".to_string(),
@@ -89,6 +90,7 @@ impl Service for MokUserReply {
                                     load_capacity_m46: 23.0,
                                     load_capacity_m78: 21.0,
                                     shank_diameter: 85.0,
+                                    weight: 50.0,
                                 }),
                             };
                             send_reply(&dbg, &link, reply);

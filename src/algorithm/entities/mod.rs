@@ -1,3 +1,4 @@
+pub mod alternative_lifting_device;
 pub mod bearing;
 pub mod bet_phi;
 pub mod driver_type;

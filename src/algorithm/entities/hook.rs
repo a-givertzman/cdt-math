@@ -15,4 +15,6 @@ pub struct Hook {
     pub load_capacity_m78: f64,
     /// shank diameter
     pub shank_diameter: f64,
+    /// weight of hook
+    pub weight: f64,
 }

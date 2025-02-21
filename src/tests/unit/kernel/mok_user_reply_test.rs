@@ -43,6 +43,7 @@ mod mok_user_reply {
                         load_capacity_m46: 0.2,
                         load_capacity_m78: 0.3,
                         shank_diameter: 0.4,
+                        weight: 50.0,
                     }
                 ]),
                 Hook {
@@ -52,6 +53,7 @@ mod mok_user_reply {
                     load_capacity_m46: 23.0,
                     load_capacity_m78: 21.0,
                     shank_diameter: 85.0,
+                    weight: 50.0,
                 }
             )
         ];
