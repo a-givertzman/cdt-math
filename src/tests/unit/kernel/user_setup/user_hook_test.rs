@@ -54,6 +54,7 @@ mod user_hook {
                     load_capacity_m46: 23.0,
                     load_capacity_m78: 21.0,
                     shank_diameter: 85.0,
+                    weight: 50.0,
                 },
             )
         ];

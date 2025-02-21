@@ -66,6 +66,7 @@ mod hook_filter {
                         load_capacity_m46: 11.0,
                         load_capacity_m78: 10.0,
                         shank_diameter: 55.0,
+                        weight: 60.0,
                     },
                     Hook {
                         gost: "GOST 23858-79".to_string(),
@@ -74,6 +75,7 @@ mod hook_filter {
                         load_capacity_m46: 20.0,
                         load_capacity_m78: 18.5,
                         shank_diameter: 80.0,
+                        weight: 70.0,
                     },
                     Hook {
                         gost: "GOST 31272-92".to_string(),
@@ -82,6 +84,7 @@ mod hook_filter {
                         load_capacity_m46: 16.0,
                         load_capacity_m78: 14.0,
                         shank_diameter: 65.0,
+                        weight: 80.0,
                     },
                 ]),
             ),
@@ -98,6 +101,7 @@ mod hook_filter {
                     load_capacity_m46: 23.0,
                     load_capacity_m78: 21.0,
                     shank_diameter: 85.0,
+                    weight: 70.0,
                 }]),
             ),
         ];

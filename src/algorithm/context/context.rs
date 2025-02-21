@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use crate::{
     algorithm::{
-        bearing_filter::bearing_filter_ctx::BearingFilterCtx, dynamic_coefficient::dynamic_coefficient_ctx::DynamicCoefficientCtx, hook_filter::hook_filter_ctx::HookFilterCtx, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed_ctx::LiftingSpeedCtx, select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx
+        bearing_filter::bearing_filter_ctx::BearingFilterCtx, dynamic_coefficient::dynamic_coefficient_ctx::DynamicCoefficientCtx, hook_filter::hook_filter_ctx::HookFilterCtx, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed_ctx::LiftingSpeedCtx, load_hand_device_mass::load_hand_device_mass_ctx::LoadHandDeviceMassCtx, select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx
     },
     kernel::{link::Link, user_setup::{user_bearing_ctx::UserBearingCtx, user_hook_ctx::UserHookCtx}},
 };
@@ -31,6 +31,8 @@ pub struct Context {
     pub(super) bearing_filter: BearingFilterCtx,
     /// user [bearing hook](design/docs/algorithm/part02/chapter_01_choose_hook.md)
     pub(super) user_bearing: UserBearingCtx,
+    /// result of calculation [total mass and net weight](design\docs\algorithm\part02\chapter_02_choose_another_load_handing_device.md)
+    pub(super) load_device_mass: LoadHandDeviceMassCtx,
     ///
     /// Uset for testing only
     #[allow(dead_code)]
@@ -53,6 +55,7 @@ impl Context {
             user_hook: UserHookCtx::default(),
             bearing_filter: BearingFilterCtx::default(),
             user_bearing: UserBearingCtx::default(),
+            load_device_mass: LoadHandDeviceMassCtx::default(),
             testing: None,
         }
     }

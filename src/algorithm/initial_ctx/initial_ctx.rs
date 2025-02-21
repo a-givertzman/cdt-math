@@ -1,6 +1,6 @@
 use crate::{
     algorithm::entities::{
-        bearing::Bearing, driver_type::DriverType, hook::Hook, lifting_class::LiftClass, loading_combination::LoadingCombination, mechanism_work_type::MechanismWorkType
+        alt_lift_device::AltLiftDevice, bearing::Bearing, driver_type::DriverType, hook::Hook, lifting_class::LiftClass, loading_combination::LoadingCombination, mechanism_work_type::MechanismWorkType
     },
     kernel::{dbgid::dbgid::DbgId, storage::storage::Storage, str_err::str_err::StrErr},
 };
@@ -27,6 +27,8 @@ pub struct InitialCtx {
     pub mechanism_work_type: MechanismWorkType,
     /// vector of data base bearings
     pub bearings: Vec<Bearing>,
+    /// user [alternative lifting device](design\docs\algorithm\part02\chapter_02_choose_another_load_handing_device.md)
+    pub user_alt_lift_device: Option<AltLiftDevice>,
 }
 //
 //
@@ -73,6 +75,10 @@ impl InitialCtx {
                 storage_initial_data.load("test.constructions.bearings")?,
             )
             .map_err(|err| StrErr(format!("{}.new | Error {:?}", dbg, err)))?,
+            user_alt_lift_device: storage_initial_data
+                .load("test.user_characteristics.alternavite_lifting_device")
+                .ok()
+                .and_then(|data| serde_json::from_value::<AltLiftDevice>(data).ok()),
             // dbgid: dbg,
         })
     }
