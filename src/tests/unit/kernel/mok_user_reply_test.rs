@@ -2,10 +2,9 @@
 
 mod mok_user_reply {
     use std::{sync::Once, time::Duration};
-    use sal_sync::services::service::service::Service;
     use testing::stuff::max_test_duration::TestDuration;
     use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
-    use crate::{algorithm::entities::hook::Hook, infrostructure::client::{choose_user_hook::{ChooseUserHookQuery, ChooseUserHookReply}, query::Query}, kernel::{link::Link, mok_user_reply::mok_user_reply::MokUserReply}};
+    use crate::{algorithm::entities::hook::Hook, infrostructure::client::{choose_user_hook::{ChooseUserHookQuery, ChooseUserHookReply}, query::Query}, kernel::{sync::link::Link, mok_user_reply::mok_user_reply::MokUserReply}};
     ///
     ///
     static INIT: Once = Once::new();
@@ -22,8 +21,8 @@ mod mok_user_reply {
     fn init_each() -> () {}
     ///
     /// Testing 'run' method
-    #[test]
-    fn run() {
+    #[tokio::test]
+    async fn run() {
         DebugSession::init(LogLevel::Info, Backtrace::Short);
         init_once();
         init_each();
@@ -59,16 +58,14 @@ mod mok_user_reply {
         ];
         let (local, remote) = Link::split(dbg);
         let mut user = MokUserReply::new(dbg, remote);
-        let _handle = user.run().unwrap();
+        let handle = user.run().await.unwrap();
         for (step, query, target) in test_data {
             let query = Query::ChooseUserHook(query);
             let result: ChooseUserHookReply = local.req(query).unwrap();
             assert!(result.choosen == target, "step {} \nresult: {:?}\ntarget: {:?}", step, result, target);
         }
         user.exit();
-        for (_, h) in _handle {
-            h.join().unwrap()
-        }
+        handle.join_all().await;
         test_duration.exit();
     }
     

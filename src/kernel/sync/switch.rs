@@ -1,7 +1,6 @@
 use std::{hash::BuildHasherDefault, sync::{atomic::{AtomicBool, Ordering}, Arc}, time::Duration};
-
 use sal_sync::{collections::map::IndexMapFxHasher, services::entity::{cot::Cot, error::str_err::StrErr, name::Name, point::{point::Point, point_tx_id::PointTxId}}};
-use tokio::{sync::mpsc::{self, Receiver, Sender}, task::{JoinHandle, JoinSet}};
+use tokio::{sync::mpsc::{self, Receiver, Sender}, task::JoinSet};
 use tokio_stream::{wrappers::ReceiverStream, StreamExt, StreamMap};
 use super::{link::Link, recv_timeout::RecvTimeout};
 trait SizedStream: tokio_stream::Stream<Item = Point> + Sized {}
@@ -131,7 +130,7 @@ impl Switch {
     }
     ///
     /// Sends "exit" signal to the service's task
-    fn exit(&self) {
+    pub fn exit(&self) {
         self.exit.store(true, Ordering::SeqCst);
     }
 }

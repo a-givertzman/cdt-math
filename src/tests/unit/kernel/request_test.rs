@@ -5,7 +5,7 @@ mod request {
     use testing::{entities::test_value::Value, stuff::max_test_duration::TestDuration};
     use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
 
-    use crate::{algorithm::{context::{context::Context, testing_ctx::{MokUserReplyTestCtx, TestingCtx}}, initial_ctx::initial_ctx::InitialCtx}, kernel::{link::Link, request::Request, storage::storage::Storage}};
+    use crate::{algorithm::{context::{context::Context, testing_ctx::{MokUserReplyTestCtx, TestingCtx}}, initial_ctx::initial_ctx::InitialCtx}, kernel::{sync::link::Link, request::Request, storage::storage::Storage}};
     ///
     ///
     static INIT: Once = Once::new();
@@ -22,8 +22,8 @@ mod request {
     fn init_each() -> () {}
     ///
     /// Testing 'Request::fetch'
-    #[test]
-    fn execute() {
+    #[tokio::test]
+    async fn execute() {
         DebugSession::init(LogLevel::Info, Backtrace::Short);
         init_once();
         init_each();

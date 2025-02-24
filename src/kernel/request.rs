@@ -1,5 +1,4 @@
-use crate::algorithm::context::context::Context;
-use super::link::Link;
+use crate::{algorithm::context::context::Context, kernel::sync::link::Link};
 ///
 /// Used for declarative `Rrequest` implementation
 /// 
