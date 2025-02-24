@@ -4,6 +4,7 @@ pub mod eval;
 pub mod mok_user_reply;
 pub mod storage;
 pub mod str_err;
+pub mod sync;
 pub mod types;
 pub mod user_setup;
 pub mod link;
