@@ -7,7 +7,12 @@ mod user_bearing {
     use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
     use crate::{
         algorithm::{
-            bearing_filter::bearing_filter_ctx::BearingFilterCtx, context::{context::Context, context_access::ContextRead, ctx_result::CtxResult}, dynamic_coefficient::dynamic_coefficient::DynamicCoefficient, entities::{bearing::Bearing, hook::Hook}, hook_filter::{hook_filter::HookFilter, hook_filter_ctx::HookFilterCtx}, initial::Initial, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed::LiftingSpeed, select_betta_phi::select_betta_phi::SelectBettaPhi
+            context::{context::Context, context_access::ContextRead, ctx_result::CtxResult},
+            initial::Initial, initial_ctx::initial_ctx::InitialCtx,
+            bearing_filter::bearing_filter_ctx::BearingFilterCtx,
+            dynamic_coefficient::dynamic_coefficient::DynamicCoefficient, entities::bearing::Bearing,
+            hook_filter::{hook_filter::HookFilter, hook_filter_ctx::HookFilterCtx},
+            lifting_speed::lifting_speed::LiftingSpeed, select_betta_phi::select_betta_phi::SelectBettaPhi,
         },
         infrostructure::client::{choose_user_bearing::{ChooseUserBearingQuery, ChooseUserBearingReply}, choose_user_hook::{ChooseUserHookQuery, ChooseUserHookReply}, query::Query},
         kernel::{eval::Eval, link::Link, mok_user_reply::mok_user_reply::MokUserReply, request::Request, storage::storage::Storage, user_setup::{user_bearing::UserBearing, user_bearing_ctx::UserBearingCtx, user_hook::UserHook}}
@@ -58,16 +63,18 @@ mod user_bearing {
         let local = Arc::new(local);
         for (step, cache_path, target) in test_data {
             let result = UserBearing::new(
-                Request::<ChooseUserBearingReply>::new(|ctx: &Context| -> ChooseUserBearingReply {
+                link,
+                Request::<ChooseUserBearingReply>::new(|ctx: &Context, link: &mut Link| -> ChooseUserBearingReply {
                     let variants: &BearingFilterCtx = ctx.read();
                     let query = Query::ChooseUserBearing(ChooseUserBearingQuery::new(variants.result.clone()));
-                    ctx.link.req(query).expect("{}.req | Error to send request")
+                    link.req(query).expect("{}.req | Error to send request")
                 }),
                 UserHook::new(
-                    Request::<ChooseUserHookReply>::new(|ctx: &Context| {
+                    link,
+                    Request::<ChooseUserHookReply>::new(|ctx: &Context, link: &mut Link| {
                         let variants: &HookFilterCtx = ctx.read();
                         let query = Query::ChooseUserHook(ChooseUserHookQuery::test(variants.result.clone()));
-                        ctx.link.req(query).expect("{}.req | Error to send request")
+                        link.req(query).expect("{}.req | Error to send request")
                     }),
                     HookFilter::new(
                         DynamicCoefficient::new(
@@ -76,11 +83,8 @@ mod user_bearing {
                                     Initial::new(
                                         Context::new(
                                             InitialCtx::new(
-                                                &mut Storage::new(
-                                                    cache_path
-                                                )
-                                                ).unwrap(),
-                                            local.clone(),
+                                                &mut Storage::new(cache_path)
+                                            ).unwrap(),
                                         ),
                                     ),
                                 ),

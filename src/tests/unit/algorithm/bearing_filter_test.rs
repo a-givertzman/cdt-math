@@ -1,13 +1,18 @@
 #[cfg(test)]
 
 mod bearing_filter {
-    use std::{sync::{Arc, Once}, time::Duration};
+    use std::{sync::Once, time::Duration};
     use sal_sync::services::service::service::Service;
     use testing::stuff::max_test_duration::TestDuration;
     use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
     use crate::{
         algorithm::{
-            bearing_filter::{bearing_filter::BearingFilter, bearing_filter_ctx::BearingFilterCtx}, context::{context::Context, context_access::ContextRead, ctx_result::CtxResult}, dynamic_coefficient::dynamic_coefficient::DynamicCoefficient, entities::{bearing::Bearing, hook::Hook}, hook_filter::{hook_filter::HookFilter, hook_filter_ctx::HookFilterCtx}, initial::Initial, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed::LiftingSpeed, select_betta_phi::select_betta_phi::SelectBettaPhi
+            context::{context::Context, context_access::ContextRead, ctx_result::CtxResult},
+            initial::Initial, initial_ctx::initial_ctx::InitialCtx,
+            bearing_filter::{bearing_filter::BearingFilter, bearing_filter_ctx::BearingFilterCtx},
+            dynamic_coefficient::dynamic_coefficient::DynamicCoefficient, entities::bearing::Bearing,
+            hook_filter::{hook_filter::HookFilter, hook_filter_ctx::HookFilterCtx},
+            lifting_speed::lifting_speed::LiftingSpeed, select_betta_phi::select_betta_phi::SelectBettaPhi,
         },
         infrostructure::client::{choose_user_hook::{ChooseUserHookQuery, ChooseUserHookReply}, query::Query},
         kernel::{eval::Eval, link::Link, mok_user_reply::mok_user_reply::MokUserReply, request::Request, storage::storage::Storage, user_setup::user_hook::UserHook}
@@ -84,34 +89,34 @@ mod bearing_filter {
         let (local, remote) = Link::split(dbg);
         let mut mok_user_reply = MokUserReply::new(dbg, remote);
         let mok_user_reply_handle = mok_user_reply.run().unwrap();
-        let local = Arc::new(local);
         for (step, cache_path, target) in test_data {
             let result = BearingFilter::new(
                 UserHook::new(
-                Request::<ChooseUserHookReply>::new(|ctx: &Context| {
-                    let variants: &HookFilterCtx = ctx.read();
-                    let query = Query::ChooseUserHook(ChooseUserHookQuery::test(variants.result.clone()));
-                    ctx.link.req(query).expect("{}.req | Error to send request")
-                }),
-                HookFilter::new(
-                    DynamicCoefficient::new(
-                        SelectBettaPhi::new(
-                            LiftingSpeed::new(
-                                Initial::new(
-                                    Context::new(
-                                            InitialCtx::new(
-                                                &mut Storage::new(
-                                                    cache_path
-                                                )
-                                            ).unwrap(),
-                                    local.clone(),
+                    local,
+                    Request::<ChooseUserHookReply>::new(|ctx: &Context, link: &mut Link| {
+                        let variants: &HookFilterCtx = ctx.read();
+                        let query = Query::ChooseUserHook(ChooseUserHookQuery::test(variants.result.clone()));
+                        link.req(query).expect("{}.req | Error to send request")
+                    }),
+                    HookFilter::new(
+                        DynamicCoefficient::new(
+                            SelectBettaPhi::new(
+                                LiftingSpeed::new(
+                                    Initial::new(
+                                        Context::new(
+                                                InitialCtx::new(
+                                                    &mut Storage::new(
+                                                        cache_path
+                                                    )
+                                                ).unwrap(),
+                                        )
                                     )
                                 )
                             )
                         )
                     )
                 )
-            )).eval();
+            ).eval();
             match result {
                 CtxResult::Ok(result) => {
                     let result = ContextRead::<BearingFilterCtx>::read(&result)

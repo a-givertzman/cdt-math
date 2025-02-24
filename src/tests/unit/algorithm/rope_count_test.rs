@@ -1,10 +1,9 @@
 #[cfg(test)]
 mod rope_count {
-    use std::{sync::{Arc, Once}, time::Duration};
+    use std::{sync::Once, time::Duration};
     use testing::stuff::max_test_duration::TestDuration;
     use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
-
-    use crate::{algorithm::{context::{context::Context, context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult}, initial_ctx::initial_ctx::InitialCtx, load_hand_device_mass::load_hand_device_mass_ctx::LoadHandDeviceMassCtx, rope_count::{rope_count::RopeCount, rope_count_ctx::RopeCountCtx}, rope_effort::{rope_effort::RopeEffort, rope_effort_ctx::RopeEffortCtx}}, kernel::{eval::Eval, link::Link, storage::storage::Storage, user_setup::user_hook_ctx::UserHookCtx}};
+    use crate::{algorithm::{context::{context::Context, context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult}, initial_ctx::initial_ctx::InitialCtx, load_hand_device_mass::load_hand_device_mass_ctx::LoadHandDeviceMassCtx, rope_count::{rope_count::RopeCount, rope_count_ctx::RopeCountCtx}, rope_effort::rope_effort_ctx::RopeEffortCtx}, kernel::{eval::Eval, storage::storage::Storage}};
     ///
     ///
     static INIT: Once = Once::new();
@@ -78,14 +77,9 @@ mod rope_count {
                 4.0
             )
         ];
-        let (local, _) = Link::split(dbg);
-        let local = Arc::new(local);
         for (step,initial,mass,effort,target) in test_data {
             let mut ctx = MocEval {
-                ctx: Context::new(
-                    initial,
-                    local.clone(),
-                ),
+                ctx: Context::new(initial),
             };
             ctx.ctx = ctx.ctx.clone().write(
                 mass

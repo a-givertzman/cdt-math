@@ -64,10 +64,11 @@ mod user_hook {
         let local = Arc::new(local);
         for (step, cache_path, target) in test_data {
             let result = UserHook::new(
-                Request::<ChooseUserHookReply>::new(|ctx: &Context| {
+                link,
+                Request::<ChooseUserHookReply>::new(|ctx: &Context, link: &mut Link| {
                     let variants: &HookFilterCtx = ctx.read();
                     let query = Query::ChooseUserHook(ChooseUserHookQuery::test(variants.result.clone()));
-                    ctx.link.req(query).expect("{}.req | Error to send request")
+                    link.req(query).expect("{}.req | Error to send request")
                 }),
                 HookFilter::new(
                     DynamicCoefficient::new(
@@ -75,18 +76,15 @@ mod user_hook {
                             LiftingSpeed::new(
                                 Initial::new(
                                     Context::new(
-                                            InitialCtx::new(
-                                                &mut Storage::new(
-                                                    cache_path
-                                                )
-                                            ).unwrap(),
-                                    local.clone(),
-                                    )
-                                )
-                            )
-                        )
-                    )
-                )
+                                        InitialCtx::new(
+                                            &mut Storage::new(cache_path)
+                                        ).unwrap(),
+                                    ),
+                                ),
+                            ),
+                        ),
+                    ),
+                ),
             ).eval();
             match result {
                 CtxResult::Ok(result) => {

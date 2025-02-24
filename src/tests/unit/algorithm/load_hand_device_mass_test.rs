@@ -1,16 +1,16 @@
 #[cfg(test)]
 
 mod user_bearing {
-    use std::{sync::{Arc, Once}, time::Duration};
+    use std::{sync::Once, time::Duration};
     use sal_sync::services::service::service::Service;
     use testing::stuff::max_test_duration::TestDuration;
     use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
     use crate::{
         algorithm::{
-            bearing_filter::bearing_filter_ctx::BearingFilterCtx, context::{context::Context, context_access::ContextRead, ctx_result::CtxResult}, dynamic_coefficient::dynamic_coefficient::DynamicCoefficient, entities::{bearing::Bearing, hook::Hook}, hook_filter::{hook_filter::HookFilter, hook_filter_ctx::HookFilterCtx}, initial::Initial, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed::LiftingSpeed, load_hand_device_mass::{load_hand_device_mass::LoadHandDeviceMass, load_hand_device_mass_ctx::LoadHandDeviceMassCtx}, select_betta_phi::select_betta_phi::SelectBettaPhi
+            bearing_filter::bearing_filter_ctx::BearingFilterCtx, context::{context::Context, context_access::ContextRead, ctx_result::CtxResult}, dynamic_coefficient::dynamic_coefficient::DynamicCoefficient, hook_filter::{hook_filter::HookFilter, hook_filter_ctx::HookFilterCtx}, initial::Initial, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed::LiftingSpeed, load_hand_device_mass::{load_hand_device_mass::LoadHandDeviceMass, load_hand_device_mass_ctx::LoadHandDeviceMassCtx}, select_betta_phi::select_betta_phi::SelectBettaPhi
         },
         infrostructure::client::{choose_user_bearing::{ChooseUserBearingQuery, ChooseUserBearingReply}, choose_user_hook::{ChooseUserHookQuery, ChooseUserHookReply}, query::Query},
-        kernel::{eval::Eval, link::Link, mok_user_reply::mok_user_reply::MokUserReply, request::Request, storage::storage::Storage, user_setup::{user_bearing::UserBearing, user_bearing_ctx::UserBearingCtx, user_hook::UserHook}}
+        kernel::{eval::Eval, link::Link, mok_user_reply::mok_user_reply::MokUserReply, request::Request, storage::storage::Storage, user_setup::{user_bearing::UserBearing, user_hook::UserHook}}
     };
     ///
     ///
@@ -60,20 +60,21 @@ mod user_bearing {
         let (local, remote) = Link::split(dbgid);
         let mut mok_user_reply = MokUserReply::new(dbgid, remote);
         let mok_user_reply_handle = mok_user_reply.run().unwrap();
-        let local = Arc::new(local);
         for (step, cache_path, target) in test_data {
             let result = LoadHandDeviceMass::new(
                 UserBearing::new(
-                    Request::<ChooseUserBearingReply>::new(|ctx: &Context| -> ChooseUserBearingReply {
+                    link,
+                    Request::<ChooseUserBearingReply>::new(|ctx: &Context, link: &mut Link| -> ChooseUserBearingReply {
                         let variants: &BearingFilterCtx = ctx.read();
                         let query = Query::ChooseUserBearing(ChooseUserBearingQuery::new(variants.result.clone()));
-                        ctx.link.req(query).expect("{}.req | Error to send request")
+                        link.req(query).expect("{}.req | Error to send request")
                     }),
                     UserHook::new(
-                        Request::<ChooseUserHookReply>::new(|ctx: &Context| {
+                        link,
+                        Request::<ChooseUserHookReply>::new(|ctx: &Context, link: &mut Link| {
                             let variants: &HookFilterCtx = ctx.read();
                             let query = Query::ChooseUserHook(ChooseUserHookQuery::test(variants.result.clone()));
-                            ctx.link.req(query).expect("{}.req | Error to send request")
+                            link.req(query).expect("{}.req | Error to send request")
                         }),
                         HookFilter::new(
                             DynamicCoefficient::new(
@@ -82,11 +83,8 @@ mod user_bearing {
                                         Initial::new(
                                             Context::new(
                                                 InitialCtx::new(
-                                                    &mut Storage::new(
-                                                        cache_path
-                                                    )
-                                                    ).unwrap(),
-                                                local.clone(),
+                                                    &mut Storage::new(cache_path)
+                                                ).unwrap(),
                                             ),
                                         ),
                                     ),

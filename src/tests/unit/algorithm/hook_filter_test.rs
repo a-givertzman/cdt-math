@@ -3,7 +3,7 @@
 mod hook_filter {
     use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
     use std::{
-        sync::{Arc, Once},
+        sync::Once,
         time::Duration,
     };
     use testing::stuff::max_test_duration::TestDuration;
@@ -15,7 +15,7 @@ mod hook_filter {
             hook_filter::{hook_filter::HookFilter, hook_filter_ctx::HookFilterCtx},
             initial_ctx::initial_ctx::InitialCtx,
         },
-        kernel::{dbgid::dbgid::DbgId, eval::Eval, link::Link, storage::storage::Storage, str_err::str_err::StrErr},
+        kernel::{dbgid::dbgid::DbgId, eval::Eval, storage::storage::Storage, str_err::str_err::StrErr},
     };
 
     ///
@@ -105,14 +105,9 @@ mod hook_filter {
                 }]),
             ),
         ];
-        let (local, _) = Link::split(&dbg);
-        let local = Arc::new(local);
         for (step, initial, target) in test_data {
             let ctx = MocEval {
-                ctx: Context::new(
-                    initial,
-                    local.clone(),
-                ),
+                ctx: Context::new(initial),
             };
             let result = HookFilter::new(ctx).eval();
             match (&result, &target) {

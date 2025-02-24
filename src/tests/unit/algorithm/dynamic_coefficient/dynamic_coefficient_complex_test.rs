@@ -3,11 +3,10 @@
 mod dynamic_coefficient {
     use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
     use std::{
-        sync::{Arc, Once},
+        sync::Once,
         time::Duration,
     };
     use testing::stuff::max_test_duration::TestDuration;
-
     use crate::{
         algorithm::{
             context::{context::Context, context_access::ContextRead, ctx_result::CtxResult},
@@ -16,7 +15,7 @@ mod dynamic_coefficient {
             lifting_speed::lifting_speed::LiftingSpeed,
             select_betta_phi::select_betta_phi::SelectBettaPhi,
         },
-        kernel::{dbgid::dbgid::DbgId, eval::Eval, link::Link, storage::storage::Storage, str_err::str_err::StrErr},
+        kernel::{dbgid::dbgid::DbgId, eval::Eval, storage::storage::Storage, str_err::str_err::StrErr},
     };
 
     ///
@@ -44,8 +43,6 @@ mod dynamic_coefficient {
         log::debug!("\n{}", dbg);
         let test_duration = TestDuration::new(&dbg, Duration::from_secs(1));
         test_duration.run().unwrap();
-        let (local, _) = Link::split(&dbg);
-        let local = Arc::new(local);
         let test_data: [(i32, InitialCtx, CtxResult<f64, StrErr>); 3] = [
             (
                 1,
@@ -77,10 +74,7 @@ mod dynamic_coefficient {
                 SelectBettaPhi::new(
                     LiftingSpeed::new(
                         MocEval {
-                            ctx: Some(Context::new(
-                                initial,
-                                local.clone(),
-                            )),
+                            ctx: Some(Context::new(initial)),
                         },
                     ),
                 ),

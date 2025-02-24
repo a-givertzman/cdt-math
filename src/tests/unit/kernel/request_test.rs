@@ -1,7 +1,7 @@
 #[cfg(test)]
 
 mod request {
-    use std::{sync::{Arc, Once}, time::Duration};
+    use std::{sync::Once, time::Duration};
     use testing::{entities::test_value::Value, stuff::max_test_duration::TestDuration};
     use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
 
@@ -50,20 +50,19 @@ mod request {
                 MokUserReplyTestCtx {value: Value::Real(123.456) },
             )
         ];
-        let (local, _) = Link::split(dbg);
-        let local = Arc::new(local);
+        let (mut local, _) = Link::split(dbg);
         for (step, initial, target) in test_data {
             let value = target.clone();
-            let request = Request::new(|ctx: &Context| -> MokUserReplyTestCtx {
+            let request = Request::new(|ctx: &Context, _link: &mut Link| -> MokUserReplyTestCtx {
                 let reply = ctx
                     .testing.clone()
                     .unwrap()
                     .mok_user_reply;
                 reply
             });
-            let mut ctx = Context::new(initial.clone(), local.clone());
+            let mut ctx = Context::new(initial.clone());
             ctx.testing = Some(TestingCtx { mok_user_reply: value });
-            let result = request.fetch(&ctx);
+            let result = request.fetch(&ctx, &mut local);
             assert!(result == target, "step {} \nresult: {:?}\ntarget: {:?}", step, result, target);
         }
         test_duration.exit();

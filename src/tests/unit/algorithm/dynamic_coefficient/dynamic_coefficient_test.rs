@@ -3,7 +3,7 @@
 mod dynamic_coefficient {
     use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
     use std::{
-        sync::{Arc, Once},
+        sync::Once,
         time::Duration,
     };
     use testing::stuff::max_test_duration::TestDuration;
@@ -11,7 +11,7 @@ mod dynamic_coefficient {
         algorithm::{
             context::{context::Context, context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult}, dynamic_coefficient::{dynamic_coefficient::DynamicCoefficient, dynamic_coefficient_ctx::DynamicCoefficientCtx}, entities::bet_phi::BetPhi, hook_filter::hook_filter_ctx::HookFilterCtx, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed_ctx::LiftingSpeedCtx, select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx
         },
-        kernel::{dbgid::dbgid::DbgId, eval::Eval, link::Link, storage::storage::Storage, str_err::str_err::StrErr},
+        kernel::{dbgid::dbgid::DbgId, eval::Eval, storage::storage::Storage, str_err::str_err::StrErr},
     };
     ///
     ///
@@ -38,18 +38,15 @@ mod dynamic_coefficient {
         log::debug!("\n{}", dbg);
         let test_duration = TestDuration::new(&dbg, Duration::from_secs(1));
         test_duration.run().unwrap();
-        let (local, _) = Link::split(&dbg);
-        let local = Arc::new(local);
         let test_data: [(i32, Context, CtxResult<f64, StrErr>); 3] = [
             (
                 1,
                 {
                     let ctx = Context::new(
-                        InitialCtx::new(&mut Storage::new(
-                            "./src/tests/unit/kernel/storage/cache/test_1",
-                        ),
+                            InitialCtx::new(&mut Storage::new(
+                                "./src/tests/unit/kernel/storage/cache/test_1",
+                            ),
                         ).unwrap(),
-                        local.clone(),
                     );
                     let ctx = ctx.write(LiftingSpeedCtx {
                         result: 50.0,
@@ -72,7 +69,6 @@ mod dynamic_coefficient {
                         InitialCtx::new(&mut Storage::new(
                         "./src/tests/unit/kernel/storage/cache/test_1",
                         )).unwrap(),
-                        local.clone(),
                     );
                     let ctx = ctx.write(LiftingSpeedCtx {
                         result: 50.0,
@@ -95,7 +91,6 @@ mod dynamic_coefficient {
                         InitialCtx::new(&mut Storage::new(
                             "./src/tests/unit/kernel/storage/cache/test_1",
                         )).unwrap(),
-                        local.clone(),
                     );
                     let ctx = ctx.write(LiftingSpeedCtx {
                         result: 50.0,

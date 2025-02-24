@@ -1,10 +1,9 @@
 #[cfg(test)]
 mod rope_effort {
-    use std::{sync::{Arc, Once}, time::Duration};
+    use std::{sync::Once, time::Duration};
     use testing::stuff::max_test_duration::TestDuration;
     use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
-
-    use crate::{algorithm::{context::{context::Context, context_access::ContextRead, ctx_result::CtxResult}, initial_ctx::initial_ctx::InitialCtx, rope_effort::{rope_effort::RopeEffort, rope_effort_ctx::RopeEffortCtx}}, kernel::{eval::Eval, link::Link, storage::storage::Storage}};
+    use crate::{algorithm::{context::{context::Context, context_access::ContextRead, ctx_result::CtxResult}, initial_ctx::initial_ctx::InitialCtx, rope_effort::{rope_effort::RopeEffort, rope_effort_ctx::RopeEffortCtx}}, kernel::{eval::Eval, storage::storage::Storage}};
     ///
     ///
     static INIT: Once = Once::new();
@@ -57,14 +56,9 @@ mod rope_effort {
                 50.0
             )
         ];
-        let (local, _) = Link::split(dbg);
-        let local = Arc::new(local);
         for (step,initial,target) in test_data {
             let ctx = MocEval {
-                ctx: Context::new(
-                    initial,
-                    local.clone(),
-                ),
+                ctx: Context::new(initial),
             };
             let result = RopeEffort::new(ctx).eval();
             match &result {

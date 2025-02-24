@@ -3,7 +3,7 @@
 mod select_bet_phi {
     use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
     use std::{
-        sync::{Arc, Once},
+        sync::Once,
         time::Duration,
     };
     use testing::stuff::max_test_duration::TestDuration;
@@ -14,7 +14,7 @@ mod select_bet_phi {
             initial_ctx::initial_ctx::InitialCtx,
             select_betta_phi::{select_betta_phi::SelectBettaPhi, select_betta_phi_ctx::SelectBetPhiCtx},
         },
-        kernel::{dbgid::dbgid::DbgId, eval::Eval, link::Link, storage::storage::Storage, str_err::str_err::StrErr},
+        kernel::{dbgid::dbgid::DbgId, eval::Eval, storage::storage::Storage, str_err::str_err::StrErr},
     };
     ///
     ///
@@ -87,14 +87,9 @@ mod select_bet_phi {
                 }),
             ),
         ];
-        let (local, _) = Link::split(&dbg);
-        let local = Arc::new(local);
         for (step, initial, target) in test_data {
             let ctx = MocEval {
-                ctx: Context::new(
-                    initial,
-                    local.clone(),
-                ),
+                ctx: Context::new(initial),
             };
             let result = SelectBettaPhi::new(ctx).eval();
             match (&result, &target) {

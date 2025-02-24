@@ -4,13 +4,30 @@ mod infrostructure;
 mod kernel;
 #[cfg(test)]
 mod tests;
-use algorithm::{bearing_filter::bearing_filter_ctx::BearingFilterCtx, context::{context::Context, context_access::ContextRead}, dynamic_coefficient::dynamic_coefficient::DynamicCoefficient, entities::{bearing::Bearing, hook::Hook}, hook_filter::{hook_filter::HookFilter, hook_filter_ctx::HookFilterCtx}, initial::Initial, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed::LiftingSpeed, load_hand_device_mass::load_hand_device_mass::LoadHandDeviceMass, rope_count::rope_count::RopeCount, rope_effort::rope_effort::RopeEffort, select_betta_phi::select_betta_phi::SelectBettaPhi};
+use algorithm::{
+    context::{context::Context, context_access::ContextRead}, 
+    initial::Initial, initial_ctx::initial_ctx::InitialCtx,
+    bearing_filter::bearing_filter_ctx::BearingFilterCtx, 
+    dynamic_coefficient::dynamic_coefficient::DynamicCoefficient,
+    hook_filter::{hook_filter::HookFilter,hook_filter_ctx::HookFilterCtx},
+    lifting_speed::lifting_speed::LiftingSpeed, load_hand_device_mass::load_hand_device_mass::LoadHandDeviceMass,
+    rope_count::rope_count::RopeCount, rope_effort::rope_effort::RopeEffort,
+    select_betta_phi::select_betta_phi::SelectBettaPhi,
+};
 //
 use api_tools::debug::dbg_id::DbgId;
 use app::app::App;
 use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
-use infrostructure::client::{choose_user_bearing::{ChooseUserBearingQuery, ChooseUserBearingReply}, choose_user_hook::{ChooseUserHookQuery, ChooseUserHookReply}, query::Query};
-use kernel::{eval::Eval, link::Link, mok_user_reply::mok_user_reply::MokUserReply, request::Request, run::Run, storage::storage::Storage, user_setup::{user_bearing::UserBearing, user_hook::UserHook}};
+use infrostructure::client::{
+    choose_user_bearing::{ChooseUserBearingQuery, ChooseUserBearingReply},
+    choose_user_hook::{ChooseUserHookQuery, ChooseUserHookReply},
+    query::Query,
+};
+use kernel::{
+    eval::Eval, link::Link, mok_user_reply::mok_user_reply::MokUserReply,
+    request::Request, run::Run, storage::storage::Storage,
+    user_setup::{user_bearing::UserBearing, user_hook::UserHook},
+};
 use sal_sync::services::service::service::Service;
 ///
 /// Application entry point
@@ -31,16 +48,18 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         RopeEffort::new(
             LoadHandDeviceMass::new(
                 UserBearing::new(
-                    Request::<ChooseUserBearingReply>::new(|ctx: &Context| -> ChooseUserBearingReply {
+                    link,
+                    Request::<ChooseUserBearingReply>::new(|ctx: &Context, link: &mut Link| -> ChooseUserBearingReply {
                         let variants: &BearingFilterCtx = ctx.read();
                         let query = Query::ChooseUserBearing(ChooseUserBearingQuery::new(variants.result.clone()));
-                        ctx.link.req(query).expect("{}.req | Error to send request")
+                        link.req(query).expect("{}.req | Error to send request")
                     }),
                     UserHook::new(
-                        Request::<ChooseUserHookReply>::new(|ctx: &Context| -> ChooseUserHookReply {
+                        link,
+                        Request::<ChooseUserHookReply>::new(|ctx: &Context, link: &mut Link| -> ChooseUserHookReply {
                             let variants: &HookFilterCtx = ctx.read();
                             let query = Query::ChooseUserHook(ChooseUserHookQuery::test(variants.result.clone()));
-                            ctx.link.req(query).expect("{}.req | Error to send request")
+                            link.req(query).expect("{}.req | Error to send request")
                         }),
                         HookFilter::new(
                             DynamicCoefficient::new(
@@ -51,7 +70,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                                                 InitialCtx::new(
                                                     &mut Storage::new(cache_path)
                                                 ).unwrap(),
-                                                local.into()
                                             ),
                                         ),
                                     ),
@@ -59,9 +77,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                             ),
                         ),
                     ),
-                )
-            )
-        )
+                ),
+            ),
+        ),
     ).eval();
     mok_user_reply.exit();
     for (_id, h) in mok_user_reply_handle.into_iter() {
