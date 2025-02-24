@@ -67,7 +67,7 @@ mod rope_effort {
                 ),
             };
             let result = RopeEffort::new(ctx).eval();
-            match (&result) {
+            match &result {
                 CtxResult::Ok(result) => {
                     let result = ContextRead::<RopeEffortCtx>::read(result)
                         .result;
