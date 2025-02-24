@@ -79,9 +79,8 @@ mod rope_effort {
                         target
                     )
                 }
-                CtxResult::Err(_) => {},
-                CtxResult::None => {},
-                _ => panic!("step {} \nresult: {:?}\ntarget: {:?}", step, result, target),
+                CtxResult::Err(err) => panic!("step {} \nerror: {:#?}", step, err),
+                CtxResult::None => panic!("step {} \nerror: `RopeEffort` returns None", step),
             }
         }
         test_duration.exit();
