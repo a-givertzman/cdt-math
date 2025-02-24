@@ -1,7 +1,7 @@
 use super::{context::Context, ctx_result::CtxResult};
 use crate::{
     algorithm::{
-        bearing_filter::bearing_filter_ctx::BearingFilterCtx, dynamic_coefficient::dynamic_coefficient_ctx::DynamicCoefficientCtx, hook_filter::hook_filter_ctx::HookFilterCtx, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed_ctx::LiftingSpeedCtx, load_hand_device_mass::load_hand_device_mass_ctx::LoadHandDeviceMassCtx, select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx
+        bearing_filter::bearing_filter_ctx::BearingFilterCtx, dynamic_coefficient::dynamic_coefficient_ctx::DynamicCoefficientCtx, hook_filter::hook_filter_ctx::HookFilterCtx, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed_ctx::LiftingSpeedCtx, load_hand_device_mass::load_hand_device_mass_ctx::LoadHandDeviceMassCtx, rope_effort::rope_effort_ctx::RopeEffortCtx, select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx
     },
     kernel::{str_err::str_err::StrErr, user_setup::{user_bearing_ctx::UserBearingCtx, user_hook_ctx::UserHookCtx}},
 };
@@ -130,5 +130,18 @@ impl ContextWrite<LoadHandDeviceMassCtx> for Context {
 impl ContextRead<LoadHandDeviceMassCtx> for Context {
     fn read(&self) -> &LoadHandDeviceMassCtx {
         &self.load_device_mass
+    }
+}
+//
+//
+impl ContextWrite<RopeEffortCtx> for Context {
+    fn write(mut self, value: RopeEffortCtx) -> CtxResult<Self, StrErr> {
+        self.rope_effort = value;
+        CtxResult::Ok(self)
+    }
+}
+impl ContextRead<RopeEffortCtx> for Context {
+    fn read(&self) -> &RopeEffortCtx {
+        &self.rope_effort
     }
 }

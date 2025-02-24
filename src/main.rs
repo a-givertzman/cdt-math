@@ -4,7 +4,7 @@ mod infrostructure;
 mod kernel;
 #[cfg(test)]
 mod tests;
-use algorithm::{bearing_filter::bearing_filter_ctx::BearingFilterCtx, context::{context::Context, context_access::ContextRead}, dynamic_coefficient::dynamic_coefficient::DynamicCoefficient, entities::{bearing::Bearing, hook::Hook}, hook_filter::{hook_filter::HookFilter, hook_filter_ctx::HookFilterCtx}, initial::Initial, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed::LiftingSpeed, load_hand_device_mass::load_hand_device_mass::LoadHandDeviceMass, select_betta_phi::select_betta_phi::SelectBettaPhi};
+use algorithm::{bearing_filter::bearing_filter_ctx::BearingFilterCtx, context::{context::Context, context_access::ContextRead}, dynamic_coefficient::dynamic_coefficient::DynamicCoefficient, entities::{bearing::Bearing, hook::Hook}, hook_filter::{hook_filter::HookFilter, hook_filter_ctx::HookFilterCtx}, initial::Initial, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed::LiftingSpeed, load_hand_device_mass::load_hand_device_mass::LoadHandDeviceMass, rope_effort::rope_effort::RopeEffort, select_betta_phi::select_betta_phi::SelectBettaPhi};
 //
 use api_tools::debug::dbg_id::DbgId;
 use app::app::App;
@@ -27,36 +27,38 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let (local, remote) = Link::split(&dbg);
     let mut mok_user_reply = MokUserReply::new(&dbg, remote);
     let mok_user_reply_handle = mok_user_reply.run().unwrap();
-    let test = LoadHandDeviceMass::new(
-        UserBearing::new(
-            Request::<ChooseUserBearingReply>::new(|ctx: &Context| -> ChooseUserBearingReply {
-                let variants: &BearingFilterCtx = ctx.read();
-                let query = Query::ChooseUserBearing(ChooseUserBearingQuery::new(variants.result.clone()));
-                ctx.link.req(query).expect("{}.req | Error to send request")
-            }),
-            UserHook::new(
-                Request::<ChooseUserHookReply>::new(|ctx: &Context| -> ChooseUserHookReply {
-                    let variants: &HookFilterCtx = ctx.read();
-                    let query = Query::ChooseUserHook(ChooseUserHookQuery::test(variants.result.clone()));
+    let _test = RopeEffort::new(
+        LoadHandDeviceMass::new(
+            UserBearing::new(
+                Request::<ChooseUserBearingReply>::new(|ctx: &Context| -> ChooseUserBearingReply {
+                    let variants: &BearingFilterCtx = ctx.read();
+                    let query = Query::ChooseUserBearing(ChooseUserBearingQuery::new(variants.result.clone()));
                     ctx.link.req(query).expect("{}.req | Error to send request")
                 }),
-                HookFilter::new(
-                    DynamicCoefficient::new(
-                        SelectBettaPhi::new(
-                            LiftingSpeed::new(
-                                Initial::new(
-                                    Context::new(
-                                        InitialCtx::new(
-                                            &mut Storage::new(cache_path)
-                                        ).unwrap(),
-                                        local.into()
+                UserHook::new(
+                    Request::<ChooseUserHookReply>::new(|ctx: &Context| -> ChooseUserHookReply {
+                        let variants: &HookFilterCtx = ctx.read();
+                        let query = Query::ChooseUserHook(ChooseUserHookQuery::test(variants.result.clone()));
+                        ctx.link.req(query).expect("{}.req | Error to send request")
+                    }),
+                    HookFilter::new(
+                        DynamicCoefficient::new(
+                            SelectBettaPhi::new(
+                                LiftingSpeed::new(
+                                    Initial::new(
+                                        Context::new(
+                                            InitialCtx::new(
+                                                &mut Storage::new(cache_path)
+                                            ).unwrap(),
+                                            local.into()
+                                        ),
                                     ),
                                 ),
                             ),
                         ),
                     ),
                 ),
-            ),
+            )
         )
     ).eval();
     mok_user_reply.exit();
