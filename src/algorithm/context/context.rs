@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use crate::{
     algorithm::{
-        bearing_filter::bearing_filter_ctx::BearingFilterCtx, dynamic_coefficient::dynamic_coefficient_ctx::DynamicCoefficientCtx, hook_filter::hook_filter_ctx::HookFilterCtx, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed_ctx::LiftingSpeedCtx, load_hand_device_mass::load_hand_device_mass_ctx::LoadHandDeviceMassCtx, rope_effort::rope_effort_ctx::RopeEffortCtx, select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx
+        bearing_filter::bearing_filter_ctx::BearingFilterCtx, dynamic_coefficient::dynamic_coefficient_ctx::DynamicCoefficientCtx, hook_filter::hook_filter_ctx::HookFilterCtx, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed_ctx::LiftingSpeedCtx, load_hand_device_mass::load_hand_device_mass_ctx::LoadHandDeviceMassCtx, rope_count::rope_count_ctx::RopeCountCtx, rope_effort::rope_effort_ctx::RopeEffortCtx, select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx
     },
     kernel::{link::Link, user_setup::{user_bearing_ctx::UserBearingCtx, user_hook_ctx::UserHookCtx}},
 };
@@ -35,6 +35,8 @@ pub struct Context {
     pub(super) load_device_mass: LoadHandDeviceMassCtx,
     /// result of calculation [rope effort](design\docs\algorithm\part02\chapter_03_choose_hoisting_tackle.md)
     pub(super) rope_effort: RopeEffortCtx,
+    /// result of calculation [rope count](design\docs\algorithm\part02\chapter_03_choose_hoisting_tackle.md)
+    pub(super) rope_count: RopeCountCtx,
     ///
     /// Uset for testing only
     #[allow(dead_code)]
@@ -59,6 +61,7 @@ impl Context {
             user_bearing: UserBearingCtx::default(),
             load_device_mass: LoadHandDeviceMassCtx::default(),
             rope_effort: RopeEffortCtx::default(),
+            rope_count: RopeCountCtx::default(),
             testing: None,
         }
     }
