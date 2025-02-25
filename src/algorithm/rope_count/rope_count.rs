@@ -9,7 +9,7 @@ pub struct RopeCount {
     /// value of [rope count](design\docs\algorithm\part02\chapter_03_choose_hoisting_tackle.md)
     value: Option<RopeCountCtx>,
     /// [Context] instance, where store all info about initial data and each algorithm result's
-    ctx: Box<dyn Eval<Context>>,
+    ctx: Box<dyn Eval<Context> + Send>,
 }
 //
 //
@@ -17,7 +17,7 @@ impl RopeCount {
     ///
     /// New instance [RopeCount]
     /// - `ctx` - [Context]
-    pub fn new(ctx: impl Eval<Context> + 'static) -> Self {
+    pub fn new(ctx: impl Eval<Context> + Send + 'static) -> Self {
         Self {
             dbgid: DbgId("RopeCount".to_string()),
             value: None,
@@ -38,7 +38,7 @@ impl RopeCount {
 }
 //
 //
-#[async_trait(?Send)]
+#[async_trait]
 impl Eval<Context> for RopeCount {
     async fn eval(&mut self) -> CtxResult<Context, StrErr> {
         match self.ctx.eval().await {

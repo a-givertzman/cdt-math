@@ -15,7 +15,7 @@ pub struct HookFilter {
     /// vector of [filtered hooks](design\docs\algorithm\part02\chapter_01_choose_hook.md)
     value: Option<HookFilterCtx>,
     /// [Context] instance, where store all info about initial data and each algorithm result's
-    ctx: Box<dyn Eval<Context>>,
+    ctx: Box<dyn Eval<Context> + Send>,
 }
 //
 //
@@ -23,7 +23,7 @@ impl HookFilter {
     ///
     /// New instance [HookFilter]
     /// - `ctx` - [Context]
-    pub fn new(ctx: impl Eval<Context> + 'static) -> Self {
+    pub fn new(ctx: impl Eval<Context> + Send + 'static) -> Self {
         Self {
             dbgid: DbgId("HookFilter".to_string()),
             value: None,
@@ -33,7 +33,7 @@ impl HookFilter {
 }
 //
 //
-#[async_trait(?Send)]
+#[async_trait]
 impl Eval<Context> for HookFilter {
     ///
     /// Method of filtering hooks by user loading capacity

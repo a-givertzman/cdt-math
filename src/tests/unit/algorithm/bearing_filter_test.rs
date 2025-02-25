@@ -90,7 +90,7 @@ mod bearing_filter {
             let result = BearingFilter::new(
                 UserHook::new(
                     switch.link(),
-                    Request::<ChooseUserHookReply>::new(|ctx: &Context, link: &mut Link| async move {
+                    Request::<ChooseUserHookReply>::new(|ctx: &Context, link: &mut Link| async {
                         let variants: &HookFilterCtx = ctx.read();
                         let variants = variants.result.clone();
                         let query = Query::ChooseUserHook(ChooseUserHookQuery::test(variants));

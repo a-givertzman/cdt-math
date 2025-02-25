@@ -88,7 +88,7 @@ mod rope_effort {
     }
     //
     //
-    #[async_trait(?Send)]
+    #[async_trait]
     impl Eval<Context> for MocEval {
         async fn eval(
             &mut self,

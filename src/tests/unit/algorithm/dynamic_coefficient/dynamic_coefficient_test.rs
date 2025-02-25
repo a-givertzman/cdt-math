@@ -140,7 +140,7 @@ mod dynamic_coefficient {
     }
     //
     //
-    #[async_trait(?Send)]
+    #[async_trait]
     impl Eval<Context> for MocEval {
         async fn eval(
             &mut self,

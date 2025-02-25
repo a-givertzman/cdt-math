@@ -15,7 +15,7 @@ pub struct SelectBettaPhi {
     /// [BetPhi] instance, where store value of coefficients β2 and ϕ2
     value: Option<SelectBetPhiCtx>,
     /// [Context] instance, where store all info about initial data and each algorithm result's
-    ctx: Box<dyn Eval<Context>>,
+    ctx: Box<dyn Eval<Context> + Send>,
 }
 //
 //
@@ -23,7 +23,7 @@ impl SelectBettaPhi {
     ///
     /// New instance [SelectBettaPhi]
     /// - 'ctx' - [Context] instance, where store all info about initial data and each algorithm result's
-    pub fn new(ctx: impl Eval<Context> + 'static) -> Self {
+    pub fn new(ctx: impl Eval<Context> + Send + 'static) -> Self {
         Self {
             dbgid: DbgId("SelectBetPhi".to_string()),
             value: None,
@@ -33,7 +33,7 @@ impl SelectBettaPhi {
 }
 //
 //
-#[async_trait(?Send)]
+#[async_trait]
 impl Eval<Context> for SelectBettaPhi {
     ///
     /// Method make choice β2 and ϕ2 coefficients, based on user [lifting class](design\docs\algorithm\part01\initial_data.md)

@@ -15,7 +15,7 @@ pub struct LiftingSpeed {
     /// value of [steady-state lifting speed](design\docs\algorithm\part02\chapter_01_choose_hook.md)
     value: Option<LiftingSpeedCtx>,
     /// [Context] instance, where store all info about initial data and each algorithm result's
-    ctx: Box<dyn Eval<Context>>,
+    ctx: Box<dyn Eval<Context> + Send>,
 }
 //
 //
@@ -23,7 +23,7 @@ impl LiftingSpeed {
     ///
     /// New instance [LiftingSpeed]
     /// - 'ctx' - [Context] instance, where store all info about initial data and each algorithm result's
-    pub fn new(ctx: impl Eval<Context> + 'static) -> Self {
+    pub fn new(ctx: impl Eval<Context> + Send + 'static) -> Self {
         Self {
             dbgid: DbgId("LiftingSpeed".to_string()),
             value: None,
@@ -40,7 +40,7 @@ impl LiftingSpeed {
 }
 //
 //
-#[async_trait(?Send)]
+#[async_trait]
 impl Eval<Context> for LiftingSpeed {
     ///
     /// Method of calculating the steady-state lifting speed of the load

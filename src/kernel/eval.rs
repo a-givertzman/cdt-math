@@ -3,7 +3,7 @@ use super::str_err::str_err::StrErr;
 use crate::algorithm::context::ctx_result::CtxResult;
 ///
 /// Trate defines common evaluation function for calculations classes
-#[async_trait(?Send)]
+#[async_trait]
 pub trait Eval<Out> {
     ///
     /// Pervorms a calculation

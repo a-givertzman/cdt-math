@@ -25,7 +25,7 @@ impl Initial {
 }
 //
 //
-#[async_trait(?Send)]
+#[async_trait]
 impl Eval<Context> for Initial {
     //
     //
