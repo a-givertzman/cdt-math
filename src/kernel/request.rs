@@ -19,7 +19,7 @@ use super::sync::link::Link;
 /// )
 /// ```
 pub struct Request<T> {
-    op: Box<dyn AsyncFn<T>>,
+    op: Box<dyn AsyncFn<T> + Send + Sync>,
 }
 //
 //
@@ -27,7 +27,7 @@ impl<T> Request<T> {
     ///
     /// Returns [Request] new instance
     /// - `op` - the body of the request
-    pub fn new(op: impl AsyncFn<T> + 'static) -> Self {
+    pub fn new(op: impl AsyncFn<T> + Send + Sync + 'static) -> Self {
         Self { op: Box::new(op) }
     }
     ///
@@ -39,14 +39,14 @@ impl<T> Request<T> {
 ///
 /// 
 trait AsyncFn<Out> {
-    fn call(&self, ctx: &Context, link: &mut Link) -> BoxFuture<'static, Out>;
+    fn call(&self, ctx: &Context, link: &mut Link) -> BoxFuture<Out>;
 }
 impl<T, F, Out> AsyncFn<Out> for T
 where
     T: Fn(&Context, &mut Link) -> F,
-    F: std::future::Future<Output = Out> + 'static + Send,
+    F: std::future::Future<Output = Out> + Send + 'static,
 {
-    fn call(&self, ctx: &Context, link: &mut Link) -> BoxFuture<'static, Out> {
+    fn call(&self, ctx: &Context, link: &mut Link) -> BoxFuture<Out> {
         Box::pin(self(ctx, link))
     }
 }

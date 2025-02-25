@@ -90,11 +90,12 @@ mod bearing_filter {
             let result = BearingFilter::new(
                 UserHook::new(
                     switch.link(),
-                    Request::<ChooseUserHookReply>::new(|ctx: &Context, link: &mut Link| async {
+                    Request::<ChooseUserHookReply>::new(|ctx: &Context, link: &mut Link| async move {
                         let variants: &HookFilterCtx = ctx.read();
                         let variants = variants.result.clone();
                         let query = Query::ChooseUserHook(ChooseUserHookQuery::test(variants));
-                        link.req(query).await.expect("{}.req | Error to send request")
+                        let r = link.req(query).await.expect("{}.req | Error to send request");
+                        r
                     }),
                     HookFilter::new(
                         DynamicCoefficient::new(
@@ -102,18 +103,16 @@ mod bearing_filter {
                                 LiftingSpeed::new(
                                     Initial::new(
                                         Context::new(
-                                                InitialCtx::new(
-                                                    &mut Storage::new(
-                                                        cache_path
-                                                    )
-                                                ).unwrap(),
-                                        )
-                                    )
-                                )
-                            )
-                        )
-                    )
-                )
+                                            InitialCtx::new(
+                                                &mut Storage::new(cache_path)
+                                            ).unwrap(),
+                                        ),
+                                    ),
+                                ),
+                            ),
+                        ),
+                    ),
+                ),
             )
             .eval()
             .await;

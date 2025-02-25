@@ -25,12 +25,12 @@ impl UserBearing {
     /// New instance [UserBearing]
     /// - `ctx` - [Context]
     /// - `req` - [Request] for user
-    pub fn new(link: Link, req: Request<ChooseUserBearingReply>, ctx: impl Eval<Context> + Send + 'static) -> Self{
+    pub fn new(link: Link, req: Request<ChooseUserBearingReply>, ctx: impl Eval<Context> + Send + 'static) -> Self {
         Self { 
             dbgid: DbgId("UserBearing".to_string()), 
             value: None,
             link,
-            req: req,
+            req,
             ctx: Box::new(ctx),
         }
     }
