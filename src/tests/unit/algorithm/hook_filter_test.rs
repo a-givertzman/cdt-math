@@ -140,7 +140,7 @@ mod hook_filter {
     //
     //
     #[async_trait]
-    impl Eval<Context> for MocEval {
+    impl Eval<'_, Context> for MocEval {
         async fn eval(
             &mut self,
         ) -> CtxResult<Context, crate::kernel::str_err::str_err::StrErr> {

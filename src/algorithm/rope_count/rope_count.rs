@@ -1,23 +1,24 @@
 use async_trait::async_trait;
+use futures::future::BoxFuture;
 
 use crate::{algorithm::{context::{context::Context, context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult}, initial_ctx::initial_ctx::InitialCtx, load_hand_device_mass::load_hand_device_mass_ctx::LoadHandDeviceMassCtx, rope_effort::rope_effort_ctx::RopeEffortCtx}, kernel::{dbgid::dbgid::DbgId, eval::Eval, str_err::str_err::StrErr}};
 use super::rope_count_ctx::RopeCountCtx;
 ///
 /// Calculation step: [rope count](design\docs\algorithm\part02\chapter_03_choose_hoisting_tackle.md)
-pub struct RopeCount {
+pub struct RopeCount<'a> {
     dbgid: DbgId,
     /// value of [rope count](design\docs\algorithm\part02\chapter_03_choose_hoisting_tackle.md)
     value: Option<RopeCountCtx>,
     /// [Context] instance, where store all info about initial data and each algorithm result's
-    ctx: Box<dyn Eval<Context> + Send>,
+    ctx: Box<dyn Eval<'a, Context> + Send + 'a>,
 }
 //
 //
-impl RopeCount {
+impl<'a> RopeCount<'a> {
     ///
     /// New instance [RopeCount]
     /// - `ctx` - [Context]
-    pub fn new(ctx: impl Eval<Context> + Send + 'static) -> Self {
+    pub fn new(ctx: impl Eval<'a, Context> + Send + 'a) -> Self {
         Self {
             dbgid: DbgId("RopeCount".to_string()),
             value: None,
@@ -39,31 +40,33 @@ impl RopeCount {
 //
 //
 #[async_trait]
-impl Eval<Context> for RopeCount {
-    async fn eval(&mut self) -> CtxResult<Context, StrErr> {
-        match self.ctx.eval().await {
-            CtxResult::Ok(ctx) => {
-                let initial = ContextRead::<InitialCtx>::read(&ctx);
-                let hook_weight = ContextRead::<LoadHandDeviceMassCtx>::read(&ctx).total_mass.clone();
-                let rope_effort = ContextRead::<RopeEffortCtx>::read(&ctx).result.clone();
-                let result = Self::round_up((initial.load_capacity+hook_weight)/rope_effort);
-                let result = RopeCountCtx {
-                    result,
-                };
-                self.value = Some(result.clone());
-                ctx.write(result)
-            },
-            CtxResult::Err(err) => CtxResult::Err(StrErr(format!(
-                "{}.eval | Read context error: {:?}",
-                self.dbgid, err
-            ))),
-            CtxResult::None => CtxResult::None,
-        }
+impl<'a> Eval<'a, Context> for RopeCount<'a> {
+    fn eval(&'a mut self) -> BoxFuture<'a, CtxResult<Context, StrErr>> {
+        Box::pin(async {
+            match self.ctx.eval().await {
+                CtxResult::Ok(ctx) => {
+                    let initial = ContextRead::<InitialCtx>::read(&ctx);
+                    let hook_weight = ContextRead::<LoadHandDeviceMassCtx>::read(&ctx).total_mass.clone();
+                    let rope_effort = ContextRead::<RopeEffortCtx>::read(&ctx).result.clone();
+                    let result = Self::round_up((initial.load_capacity+hook_weight)/rope_effort);
+                    let result = RopeCountCtx {
+                        result,
+                    };
+                    self.value = Some(result.clone());
+                    ctx.write(result)
+                }
+                CtxResult::Err(err) => CtxResult::Err(StrErr(format!(
+                    "{}.eval | Read context error: {:?}",
+                    self.dbgid, err
+                ))),
+                CtxResult::None => CtxResult::None,
+            }
+        })
     }
 }
 //
 //
-impl std::fmt::Debug for RopeCount {
+impl std::fmt::Debug for RopeCount<'_> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("RopeCount")
             .field("dbgid", &self.dbgid)

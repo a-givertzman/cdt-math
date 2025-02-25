@@ -89,26 +89,30 @@ mod select_bet_phi {
             ),
         ];
         for (step, initial, target) in test_data {
-            let ctx = MocEval {
-                ctx: Context::new(initial),
-            };
-            let result = SelectBettaPhi::new(ctx).eval().await;
-            match (&result, &target) {
-                (CtxResult::Ok(result), CtxResult::Ok(target)) => {
-                    let result = ContextRead::<SelectBetPhiCtx>::read(result)
-                        .result;
-                    assert!(
-                        result == *target,
-                        "step {} \nresult: {:?}\ntarget: {:?}",
-                        step,
-                        result,
-                        target
-                    );
+            async fn check<'a>(step: i32, initial: InitialCtx, target: CtxResult<BetPhi, StrErr>) {
+                let ctx = MocEval {
+                    ctx: Context::new(initial),
+                };
+                let mut select_betta_phi = SelectBettaPhi::<'a>::new(ctx);
+                let result = select_betta_phi.eval().await;
+                match (&result, &target) {
+                    (CtxResult::Ok(result), CtxResult::Ok(target)) => {
+                        let result = ContextRead::<SelectBetPhiCtx>::read(result)
+                            .result;
+                        assert!(
+                            result == *target,
+                            "step {} \nresult: {:?}\ntarget: {:?}",
+                            step,
+                            result,
+                            target
+                        );
+                    }
+                    (CtxResult::Err(_), CtxResult::Err(_)) => {},
+                    (CtxResult::None, CtxResult::None) => {},
+                    _ => panic!("step {} \nresult: {:?}\ntarget: {:?}", step, result, target),
                 }
-                (CtxResult::Err(_), CtxResult::Err(_)) => {},
-                (CtxResult::None, CtxResult::None) => {},
-                _ => panic!("step {} \nresult: {:?}\ntarget: {:?}", step, result, target),
             }
+            check(step, initial, target).await;
         }
         test_duration.exit();
     }
@@ -121,9 +125,9 @@ mod select_bet_phi {
     //
     //
     #[async_trait]
-    impl Eval<Context> for MocEval {
+    impl<'a> Eval<'a, Context> for MocEval {
         async fn eval(
-            &mut self,
+            &'a mut self,
         ) -> CtxResult<Context, crate::kernel::str_err::str_err::StrErr> {
             CtxResult::Ok(self.ctx.clone())
         }

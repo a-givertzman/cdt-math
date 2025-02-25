@@ -49,14 +49,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             LoadHandDeviceMass::new(
                 UserBearing::new(
                     switch.link(),
-                    Request::<ChooseUserBearingReply>::new(|ctx: &Context, link: &mut Link| async move {
+                    Request::<ChooseUserBearingReply>::new(|ctx: Context, link: &mut Link| async move {
                         let variants: &BearingFilterCtx = ctx.read();
                         let query = Query::ChooseUserBearing(ChooseUserBearingQuery::new(variants.result.clone()));
                         link.req(query).await.expect("{}.req | Error to send request")
                     }),
                     UserHook::new(
                         switch.link(),
-                        Request::<ChooseUserHookReply>::new(|ctx: &Context, link: &mut Link| async move {
+                        Request::<ChooseUserHookReply>::new(|ctx: Context, link: &mut Link| async move {
                             let variants: &HookFilterCtx = ctx.read();
                             let query = Query::ChooseUserHook(ChooseUserHookQuery::test(variants.result.clone()));
                             link.req(query).await.expect("{}.req | Error to send request")
@@ -80,7 +80,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 ),
             ),
         ),
-    ).eval();
+    )
+    .eval()
+    .await;
     mok_user_reply.exit();
     switch.exit();
     switch_handle.join_all().await;

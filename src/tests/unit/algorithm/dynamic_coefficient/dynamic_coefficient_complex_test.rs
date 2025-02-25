@@ -1,8 +1,8 @@
 #[cfg(test)]
 
 mod dynamic_coefficient {
-    use async_trait::async_trait;
     use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
+    use futures::future::BoxFuture;
     use std::{
         sync::Once,
         time::Duration,
@@ -71,7 +71,7 @@ mod dynamic_coefficient {
             ),
         ];
         for (step, initial, target) in test_data {
-            let result = DynamicCoefficient::new(
+            let mut v: DynamicCoefficient<'_> = DynamicCoefficient::new(
                 SelectBettaPhi::new(
                     LiftingSpeed::new(
                         MocEval {
@@ -79,9 +79,10 @@ mod dynamic_coefficient {
                         },
                     ),
                 ),
-            )
-            .eval()
-            .await;
+            );
+            let result = v
+            .eval().await;
+            // let result= result.await;
             match (&result, &target) {
                 (CtxResult::Ok(result), CtxResult::Ok(target)) => {
                     let result = ContextRead::<DynamicCoefficientCtx>::read(result)
@@ -109,12 +110,11 @@ mod dynamic_coefficient {
     }
     //
     //
-    #[async_trait]
-    impl Eval<Context> for MocEval {
-        async fn eval(
-            &mut self,
-        ) -> CtxResult<Context, crate::kernel::str_err::str_err::StrErr> {
-            CtxResult::Ok(self.ctx.take().unwrap())
+    impl<'a> Eval<'a, Context> for MocEval {
+        fn eval(&'a mut self) -> BoxFuture<'a, CtxResult<Context, StrErr>> {
+            Box::pin(async {
+                CtxResult::Ok(self.ctx.take().unwrap())
+            })
         }
     }
 }

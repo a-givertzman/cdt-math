@@ -1,5 +1,6 @@
 use futures::future::BoxFuture;
 use crate::algorithm::context::context::Context;
+
 use super::sync::link::Link;
 ///
 /// Used for declarative `Rrequest` implementation
@@ -17,46 +18,35 @@ use super::sync::link::Link;
 ///     eval: AlgFirst::new(initial),
 /// )
 /// ```
-pub struct Request<'a, T> {
-    op: Box<dyn AsyncFn<'a, T> + Send + Sync + 'a>,
+pub struct Request<T> {
+    op: Box<dyn AsyncFn<T> + Send + Sync>,
 }
 //
 //
-impl<'a, T> Request<'a, T> {
+impl<T> Request<T> {
     ///
     /// Returns [Request] new instance
     /// - `op` - the body of the request
-    pub fn new(op: impl AsyncFn<'a, T> + Send + Sync + 'a) -> Self {
+    pub fn new(op: impl AsyncFn<T> + Send + Sync + 'static) -> Self {
         Self { op: Box::new(op) }
     }
     ///
     /// Performs the request defined in the `op`
-    pub async fn fetch(&'a self, ctx: Context, link: &'a mut Link) -> T {
-        self.op.eval(ctx, link).await
+    pub async fn fetch<'a>(&'a self, ctx: &'a Context, link: &'a mut Link) -> T {
+        self.op.call(ctx, link).await
     }
 }
-
-
-// #[async_trait]
-// pub trait AsyncFn<'a, Out> {
-//     ///
-//     /// Pervorms a calculation
-//     /// - Returns [Out] contains results inside
-//     async fn eval(&'a self, ctx: Context, link: &'a mut Link) -> Out;
-// }
-
 ///
 /// 
-// #[async_trait]
-trait AsyncFn<'a, Out> {
-    fn eval(&'a self, ctx: Context, link: &'a mut Link) -> BoxFuture<'a, Out>;
+trait AsyncFn<Out> {
+    fn call<'a>(&'a self, ctx: &'a Context, link: &'a mut Link) -> BoxFuture<'a, Out>;
 }
-impl<'a, T, F, Out> AsyncFn<'a, Out> for T
+impl<'a, T, F, Out> AsyncFn<Out> for T
 where
-    T: Fn(Context, &'a mut Link) -> F,
+    T: Fn(&'a Context, &'a mut Link) -> F,
     F: std::future::Future<Output = Out> + Send + 'a,
 {
-    fn eval(&'a self, ctx: Context, link: &'a mut Link) -> BoxFuture<'a, Out> {
+    fn call(&'a self, ctx: &'a Context, link: &'a mut Link) -> BoxFuture<'a, Out> {
         Box::pin(self(ctx, link))
     }
 }

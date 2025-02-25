@@ -109,9 +109,7 @@ mod dynamic_coefficient {
             ),
         ];
         for (step, ctx, target) in test_data {
-            let ctx = MocEval {
-                ctx,
-            };
+            let ctx = MocEval { ctx };
             let result = DynamicCoefficient::new(ctx).eval().await;
             match (&result, &target) {
                 (CtxResult::Ok(result), CtxResult::Ok(target)) => {
@@ -141,10 +139,8 @@ mod dynamic_coefficient {
     //
     //
     #[async_trait]
-    impl Eval<Context> for MocEval {
-        async fn eval(
-            &mut self,
-        ) -> CtxResult<Context, crate::kernel::str_err::str_err::StrErr> {
+    impl<'a> Eval<'a, Context> for MocEval {
+        async fn eval(&'a mut self) -> CtxResult<Context, crate::kernel::str_err::str_err::StrErr> {
             CtxResult::Ok(self.ctx.clone())
         }
     }

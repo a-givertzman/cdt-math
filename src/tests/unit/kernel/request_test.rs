@@ -53,7 +53,7 @@ mod request {
         let (mut local, _) = Link::split(dbg);
         for (step, initial, target) in test_data {
             let value = target.clone();
-            let request = Request::new(|ctx: &Context, _link: &mut Link| async move {
+            let request = Request::<'_, MokUserReplyTestCtx>::new(|ctx: &Context, _link: &mut Link| async move {
                 let reply = ctx
                     .testing.clone()
                     .unwrap()
