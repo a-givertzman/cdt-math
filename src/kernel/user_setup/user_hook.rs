@@ -50,7 +50,7 @@ impl<'a> Eval<'a, Context> for UserHook<'a> {
                     "{}.eval | Read context error: {:?}",
                     self.dbgid, err
                 ))),
-                CtxResult::None => todo!(),
+                CtxResult::None => CtxResult::None,
             }
         })
     }

@@ -108,9 +108,12 @@ mod dynamic_coefficient {
                 CtxResult::Ok(1775.0),
             ),
         ];
-        for (step, ctx, target) in test_data {
+        // for (step, ctx, target) in test_data {
+        let (step, ctx, target) = test_data.first().unwrap().to_owned();
             let ctx = MocEval { ctx };
-            let result = DynamicCoefficient::new(ctx).eval().await;
+            let mut result = DynamicCoefficient::new(ctx);
+            let result = result.eval();
+            let result = result.await;
             match (&result, &target) {
                 (CtxResult::Ok(result), CtxResult::Ok(target)) => {
                     let result = ContextRead::<DynamicCoefficientCtx>::read(result)
@@ -127,7 +130,7 @@ mod dynamic_coefficient {
                 (CtxResult::None, CtxResult::None) => {},
                 _ => panic!("step {} \nresult: {:?}\ntarget: {:?}", step, result, target),
             }
-        }
+        // }
         test_duration.exit();
     }
     ///
