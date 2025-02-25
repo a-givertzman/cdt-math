@@ -12,9 +12,9 @@ pub struct UserBearing {
     value: Option<UserBearingCtx>,
     /// Event interface
     link: Link,
+    req: Request<ChooseUserBearingReply>,
     /// [Context] instance, where store all info about initial data and each algorithm result's
     ctx: Box<dyn Eval>,
-    req: Request<ChooseUserBearingReply>,
 }
 //
 //
@@ -28,8 +28,8 @@ impl UserBearing {
             dbgid: DbgId("UserBearing".to_string()), 
             value: None,
             link,
-            ctx: Box::new(ctx),
             req: req,
+            ctx: Box::new(ctx),
         }
     }
 }
