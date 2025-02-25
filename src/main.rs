@@ -24,10 +24,9 @@ use infrostructure::client::{
     query::Query,
 };
 use kernel::{
-    eval::Eval, sync::link::Link, mok_user_reply::mok_user_reply::MokUserReply,
-    request::Request, run::Run, storage::storage::Storage,
-    user_setup::{user_bearing::UserBearing, user_hook::UserHook},
+    eval::Eval, mok_user_reply::mok_user_reply::MokUserReply, request::Request, run::Run, storage::storage::Storage, sync::{link::Link, switch::Switch}, user_setup::{user_bearing::UserBearing, user_hook::UserHook}
 };
+use tokio::sync::mpsc;
 ///
 /// Application entry point
 #[tokio::main]
@@ -40,21 +39,23 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         log::error!("main | Error: {:#?}", err);
     }
     let cache_path = "./src/tests/unit/kernel/storage/cache/test_2";
-    let (local, remote) = Link::split(&dbg);
-    let mut mok_user_reply = MokUserReply::new(&dbg, remote);
+    let (send, recv) = mpsc::channel(10_000);
+    let mut switch = Switch::new(dbg, send, recv);
+    let switch_handle = switch.run().unwrap();
+    let mut mok_user_reply = MokUserReply::new(dbg, switch.link());
     let mok_user_reply_handle = mok_user_reply.run().await.unwrap();
-    let _test = RopeCount::new(
+let _test = RopeCount::new(
         RopeEffort::new(
             LoadHandDeviceMass::new(
                 UserBearing::new(
-                    link,
+                    switch.link(),
                     Request::<ChooseUserBearingReply>::new(|ctx: &Context, link: &mut Link| async move {
                         let variants: &BearingFilterCtx = ctx.read();
                         let query = Query::ChooseUserBearing(ChooseUserBearingQuery::new(variants.result.clone()));
                         link.req(query).await.expect("{}.req | Error to send request")
                     }),
                     UserHook::new(
-                        link,
+                        switch.link(),
                         Request::<ChooseUserHookReply>::new(|ctx: &Context, link: &mut Link| async move {
                             let variants: &HookFilterCtx = ctx.read();
                             let query = Query::ChooseUserHook(ChooseUserHookQuery::test(variants.result.clone()));

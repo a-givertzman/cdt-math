@@ -14,7 +14,7 @@ mod user_hook {
             select_betta_phi::select_betta_phi::SelectBettaPhi,
         },
         infrostructure::client::{choose_user_hook::{ChooseUserHookQuery, ChooseUserHookReply}, query::Query},
-        kernel::{eval::Eval, link::Link, mok_user_reply::mok_user_reply::MokUserReply, request::Request, storage::storage::Storage, sync::switch::Switch, user_setup::{user_hook::UserHook, user_hook_ctx::UserHookCtx}}
+        kernel::{eval::Eval, sync::link::Link, mok_user_reply::mok_user_reply::MokUserReply, request::Request, storage::storage::Storage, sync::switch::Switch, user_setup::{user_hook::UserHook, user_hook_ctx::UserHookCtx}}
     };
     ///
     ///
@@ -59,7 +59,7 @@ mod user_hook {
             )
         ];
         let (send, recv) = mpsc::channel(10_000);
-        let switch = Switch::new(dbg, send, recv);
+        let mut switch = Switch::new(dbg, send, recv);
         let switch_handle = switch.run().unwrap();
         let mut mok_user_reply = MokUserReply::new(dbg, switch.link());
         let mok_user_reply_handle = mok_user_reply.run().await.unwrap();
