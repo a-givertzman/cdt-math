@@ -1,6 +1,4 @@
-use async_trait::async_trait;
 use futures::future::BoxFuture;
-
 use crate::{
     algorithm::{
         context::{context::Context, context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult},
@@ -41,7 +39,6 @@ impl<'a> LiftingSpeed<'a> {
 }
 //
 //
-#[async_trait]
 impl<'a> Eval<'a, Context> for LiftingSpeed<'a> {
     ///
     /// Method of calculating the steady-state lifting speed of the load

@@ -1,4 +1,3 @@
-use async_trait::async_trait;
 use futures::future::BoxFuture;
 use sal_sync::services::entity::dbg_id::DbgId;
 use crate::kernel::{eval::Eval, str_err::str_err::StrErr};
@@ -26,7 +25,6 @@ impl Initial {
 }
 //
 //
-#[async_trait]
 impl<'a> Eval<'a, Context> for Initial {
     //
     //

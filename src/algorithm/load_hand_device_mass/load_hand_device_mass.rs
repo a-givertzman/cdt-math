@@ -1,6 +1,4 @@
-use async_trait::async_trait;
 use futures::future::BoxFuture;
-
 use crate::{algorithm::{context::{context::Context, context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult}, initial_ctx::initial_ctx::InitialCtx}, kernel::{dbgid::dbgid::DbgId, eval::Eval, str_err::str_err::StrErr, user_setup::user_hook_ctx::UserHookCtx}};
 use super::load_hand_device_mass_ctx::LoadHandDeviceMassCtx;
 ///
@@ -28,7 +26,6 @@ impl<'a> LoadHandDeviceMass<'a> {
 }
 //
 //
-#[async_trait]
 impl<'a> Eval<'a, Context> for LoadHandDeviceMass<'a> {
     fn eval(&'a mut self) -> BoxFuture<'a, CtxResult<Context, StrErr>> {
         Box::pin(async {

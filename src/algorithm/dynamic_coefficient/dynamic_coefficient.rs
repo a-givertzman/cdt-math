@@ -34,7 +34,7 @@ impl<'a> Eval<'a, Context> for DynamicCoefficient<'a> {
     /// Method of calculating the dynamic coefficient
     /// [reference to dynamic coefficient documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
     fn eval(&'a mut self) -> BoxFuture<'a, CtxResult<Context, StrErr>> {
-        Box::pin(async {
+        Box::pin(async move {
             match self.ctx.eval().await {
                 CtxResult::Ok(ctx) => {
                     let result = match self.value.clone() {

@@ -1,6 +1,4 @@
-use async_trait::async_trait;
 use futures::future::BoxFuture;
-
 use crate::{algorithm::{context::{context::Context, context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult}, initial_ctx::initial_ctx::InitialCtx, load_hand_device_mass::load_hand_device_mass_ctx::LoadHandDeviceMassCtx, rope_effort::rope_effort_ctx::RopeEffortCtx}, kernel::{dbgid::dbgid::DbgId, eval::Eval, str_err::str_err::StrErr}};
 use super::rope_count_ctx::RopeCountCtx;
 ///
@@ -39,7 +37,6 @@ impl<'a> RopeCount<'a> {
 }
 //
 //
-#[async_trait]
 impl<'a> Eval<'a, Context> for RopeCount<'a> {
     fn eval(&'a mut self) -> BoxFuture<'a, CtxResult<Context, StrErr>> {
         Box::pin(async {

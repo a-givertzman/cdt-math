@@ -1,6 +1,4 @@
-use async_trait::async_trait;
 use futures::future::BoxFuture;
-
 use super::hook_filter_ctx::HookFilterCtx;
 use crate::{
     algorithm::{
@@ -34,7 +32,6 @@ impl<'a> HookFilter<'a> {
 }
 //
 //
-#[async_trait]
 impl<'a> Eval<'a, Context> for HookFilter<'a> {
     ///
     /// Method of filtering hooks by user loading capacity
