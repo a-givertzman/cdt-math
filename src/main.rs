@@ -42,7 +42,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cache_path = "./src/tests/unit/kernel/storage/cache/test_2";
     let (local, remote) = Link::split(&dbg);
     let mut mok_user_reply = MokUserReply::new(&dbg, remote);
-    let mok_user_reply_handle = mok_user_reply.run().unwrap();
+    let mok_user_reply_handle = mok_user_reply.run().await.unwrap();
     let _test = RopeCount::new(
         RopeEffort::new(
             LoadHandDeviceMass::new(
