@@ -81,8 +81,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         ),
     ).eval();
     mok_user_reply.exit();
-    for (_id, h) in mok_user_reply_handle.into_iter() {
-        h.join().unwrap();
-    }
+    mok_user_reply_handle.join_all().await;
     Ok(())
 }
