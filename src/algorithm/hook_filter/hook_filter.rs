@@ -1,3 +1,5 @@
+use async_trait::async_trait;
+
 use super::hook_filter_ctx::HookFilterCtx;
 use crate::{
     algorithm::{
@@ -31,12 +33,13 @@ impl HookFilter {
 }
 //
 //
+#[async_trait(?Send)]
 impl Eval<Context> for HookFilter {
     ///
     /// Method of filtering hooks by user loading capacity
     /// [reference to filtering documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
-    fn eval(&mut self) -> CtxResult<Context, StrErr> {
-        match self.ctx.eval() {
+    async fn eval(&mut self) -> CtxResult<Context, StrErr> {
+        match self.ctx.eval().await {
             CtxResult::Ok(ctx) => {
                 match self.value.clone() {
                     Some(hook_filter) => ctx.write(hook_filter),

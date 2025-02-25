@@ -114,7 +114,9 @@ mod bearing_filter {
                         )
                     )
                 )
-            ).eval();
+            )
+            .eval()
+            .await;
             match result {
                 CtxResult::Ok(result) => {
                     let result = ContextRead::<BearingFilterCtx>::read(&result)

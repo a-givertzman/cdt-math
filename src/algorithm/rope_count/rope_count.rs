@@ -1,3 +1,5 @@
+use async_trait::async_trait;
+
 use crate::{algorithm::{context::{context::Context, context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult}, initial_ctx::initial_ctx::InitialCtx, load_hand_device_mass::load_hand_device_mass_ctx::LoadHandDeviceMassCtx, rope_effort::rope_effort_ctx::RopeEffortCtx}, kernel::{dbgid::dbgid::DbgId, eval::Eval, str_err::str_err::StrErr}};
 use super::rope_count_ctx::RopeCountCtx;
 ///
@@ -36,9 +38,10 @@ impl RopeCount {
 }
 //
 //
+#[async_trait(?Send)]
 impl Eval<Context> for RopeCount {
-    fn eval(&mut self) -> CtxResult<Context, StrErr> {
-        match self.ctx.eval() {
+    async fn eval(&mut self) -> CtxResult<Context, StrErr> {
+        match self.ctx.eval().await {
             CtxResult::Ok(ctx) => {
                 let initial = ContextRead::<InitialCtx>::read(&ctx);
                 let hook_weight = ContextRead::<LoadHandDeviceMassCtx>::read(&ctx).total_mass.clone();

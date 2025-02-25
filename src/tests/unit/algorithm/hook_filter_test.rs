@@ -1,6 +1,7 @@
 #[cfg(test)]
 
 mod hook_filter {
+    use async_trait::async_trait;
     use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
     use std::{
         sync::Once,
@@ -34,8 +35,8 @@ mod hook_filter {
     fn init_each() {}
     ///
     /// Testing to 'eval()' method
-    #[test]
-    fn eval() {
+    #[tokio::test]
+    async fn eval() {
         DebugSession::init(LogLevel::Info, Backtrace::Short);
         init_once();
         init_each();
@@ -109,7 +110,7 @@ mod hook_filter {
             let ctx = MocEval {
                 ctx: Context::new(initial),
             };
-            let result = HookFilter::new(ctx).eval();
+            let result = HookFilter::new(ctx).eval().await;
             match (&result, &target) {
                 (CtxResult::Ok(result), CtxResult::Ok(target)) => {
                     let result = ContextRead::<HookFilterCtx>::read(result)
@@ -138,8 +139,9 @@ mod hook_filter {
     }
     //
     //
+    #[async_trait(?Send)]
     impl Eval<Context> for MocEval {
-        fn eval(
+        async fn eval(
             &mut self,
         ) -> CtxResult<Context, crate::kernel::str_err::str_err::StrErr> {
             CtxResult::Ok(self.ctx.clone())

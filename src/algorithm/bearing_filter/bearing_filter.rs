@@ -1,3 +1,5 @@
+use async_trait::async_trait;
+
 use crate::{algorithm::{context::{context::Context, context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult}, dynamic_coefficient::dynamic_coefficient_ctx::DynamicCoefficientCtx, entities::bearing::Bearing, initial_ctx::initial_ctx::InitialCtx}, kernel::{dbgid::dbgid::DbgId, eval::Eval, str_err::str_err::StrErr, user_setup::user_hook_ctx::UserHookCtx}};
 use super::bearing_filter_ctx::BearingFilterCtx;
 ///
@@ -28,9 +30,10 @@ impl BearingFilter {
 }
 //
 //
+#[async_trait(?Send)]
 impl Eval<Context> for BearingFilter {
-    fn eval(&mut self) -> CtxResult<Context, StrErr> {
-        match self.ctx.eval() {
+    async fn eval(&mut self) -> CtxResult<Context, StrErr> {
+        match self.ctx.eval().await {
             CtxResult::Ok(ctx) => {
                 let initial = ContextRead::<InitialCtx>::read(&ctx);
                 let user_loading_capacity = initial.load_capacity.clone(); 

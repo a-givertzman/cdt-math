@@ -1,6 +1,7 @@
 #[cfg(test)]
 mod rope_count {
     use std::{sync::Once, time::Duration};
+    use async_trait::async_trait;
     use testing::stuff::max_test_duration::TestDuration;
     use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
     use crate::{algorithm::{context::{context::Context, context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult}, initial_ctx::initial_ctx::InitialCtx, load_hand_device_mass::load_hand_device_mass_ctx::LoadHandDeviceMassCtx, rope_count::{rope_count::RopeCount, rope_count_ctx::RopeCountCtx}, rope_effort::rope_effort_ctx::RopeEffortCtx}, kernel::{eval::Eval, storage::storage::Storage}};
@@ -20,8 +21,8 @@ mod rope_count {
     fn init_each() -> () {}
     ///
     /// Testing 'eval'
-    #[test]
-    fn eval() {
+    #[tokio::test]
+    async fn eval() {
         DebugSession::init(LogLevel::Info, Backtrace::Short);
         init_once();
         init_each();
@@ -87,9 +88,7 @@ mod rope_count {
             ctx.ctx = ctx.ctx.clone().write(
                 effort
             ).unwrap();
-            let result = RopeCount::new(
-                ctx
-            ).eval();
+            let result = RopeCount::new(ctx).eval().await;
             match &result {
                 CtxResult::Ok(result) => {
                     let result = ContextRead::<RopeCountCtx>::read(result)
@@ -116,8 +115,9 @@ mod rope_count {
     }
     //
     //
+    #[async_trait(?Send)]
     impl Eval<Context> for MocEval {
-        fn eval(
+        async fn eval(
             &mut self,
         ) -> CtxResult<Context, crate::kernel::str_err::str_err::StrErr> {
             CtxResult::Ok(self.ctx.clone())

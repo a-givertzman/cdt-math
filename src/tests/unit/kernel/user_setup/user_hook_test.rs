@@ -86,7 +86,9 @@ mod user_hook {
                         ),
                     ),
                 ),
-            ).eval();
+            )
+            .eval()
+            .await;
             match result {
                 CtxResult::Ok(result) => {
                     let result = ContextRead::<UserHookCtx>::read(&result)

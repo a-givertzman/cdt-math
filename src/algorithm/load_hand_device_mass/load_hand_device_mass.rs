@@ -1,3 +1,5 @@
+use async_trait::async_trait;
+
 use crate::{algorithm::{context::{context::Context, context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult}, initial_ctx::initial_ctx::InitialCtx}, kernel::{dbgid::dbgid::DbgId, eval::Eval, str_err::str_err::StrErr, user_setup::user_hook_ctx::UserHookCtx}};
 use super::load_hand_device_mass_ctx::LoadHandDeviceMassCtx;
 ///
@@ -25,9 +27,10 @@ impl LoadHandDeviceMass {
 }
 //
 //
+#[async_trait(?Send)]
 impl Eval<Context> for LoadHandDeviceMass {
-    fn eval(&mut self) -> CtxResult<Context, StrErr> {
-        match self.ctx.eval() {
+    async fn eval(&mut self) -> CtxResult<Context, StrErr> {
+        match self.ctx.eval().await {
             CtxResult::Ok(ctx) => {
                 let initial = ContextRead::<InitialCtx>::read(&ctx);
                 let user_hook = ContextRead::<UserHookCtx>::read(&ctx).result.clone();

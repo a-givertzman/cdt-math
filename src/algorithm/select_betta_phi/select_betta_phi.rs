@@ -1,3 +1,5 @@
+use async_trait::async_trait;
+
 use crate::{
     algorithm::{
         context::{context::Context, context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult},
@@ -31,12 +33,13 @@ impl SelectBettaPhi {
 }
 //
 //
+#[async_trait(?Send)]
 impl Eval<Context> for SelectBettaPhi {
     ///
     /// Method make choice β2 and ϕ2 coefficients, based on user [lifting class](design\docs\algorithm\part01\initial_data.md)
     /// [reference to β2 and ϕ2 coefficients documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
-    fn eval(&mut self) -> CtxResult<Context, StrErr> {
-        match self.ctx.eval() {
+    async fn eval(&mut self) -> CtxResult<Context, StrErr> {
+        match self.ctx.eval().await {
             CtxResult::Ok(ctx) => {
                 let initial = ContextRead::<InitialCtx>::read(&ctx);
                 let result = match initial.lift_class {

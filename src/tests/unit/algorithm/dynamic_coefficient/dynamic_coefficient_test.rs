@@ -1,6 +1,7 @@
 #[cfg(test)]
 
 mod dynamic_coefficient {
+    use async_trait::async_trait;
     use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
     use std::{
         sync::Once,
@@ -29,8 +30,8 @@ mod dynamic_coefficient {
     fn init_each() {}
     ///
     /// Testing to 'eval()' method
-    #[test]
-    fn eval() {
+    #[tokio::test]
+    async fn eval() {
         DebugSession::init(LogLevel::Info, Backtrace::Short);
         init_once();
         init_each();
@@ -111,7 +112,7 @@ mod dynamic_coefficient {
             let ctx = MocEval {
                 ctx,
             };
-            let result = DynamicCoefficient::new(ctx).eval();
+            let result = DynamicCoefficient::new(ctx).eval().await;
             match (&result, &target) {
                 (CtxResult::Ok(result), CtxResult::Ok(target)) => {
                     let result = ContextRead::<DynamicCoefficientCtx>::read(result)
@@ -139,8 +140,9 @@ mod dynamic_coefficient {
     }
     //
     //
+    #[async_trait(?Send)]
     impl Eval<Context> for MocEval {
-        fn eval(
+        async fn eval(
             &mut self,
         ) -> CtxResult<Context, crate::kernel::str_err::str_err::StrErr> {
             CtxResult::Ok(self.ctx.clone())

@@ -95,7 +95,9 @@ mod user_bearing {
                         ),
                     ),
                 ),
-            ).eval();
+            )
+            .eval()
+            .await;
             match result {
                 CtxResult::Ok(result) => {
                     let result = ContextRead::<LoadHandDeviceMassCtx>::read(&result)

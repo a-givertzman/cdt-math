@@ -1,3 +1,5 @@
+use async_trait::async_trait;
+
 use crate::{algorithm::{context::{context::Context, context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult}, initial_ctx::initial_ctx::InitialCtx}, kernel::{dbgid::dbgid::DbgId, eval::Eval, str_err::str_err::StrErr}};
 use super::rope_effort_ctx::RopeEffortCtx;
 ///
@@ -25,11 +27,12 @@ impl RopeEffort {
 }
 //
 //
+#[async_trait(?Send)]
 impl Eval<Context> for RopeEffort {
     ///
     /// Method of calculating [rope effort](design\docs\algorithm\part02\chapter_03_choose_hoisting_tackle.md), based on user loading capacity
-    fn eval(&mut self) -> CtxResult<Context, StrErr> {
-        match self.ctx.eval() {
+    async fn eval(&mut self) -> CtxResult<Context, StrErr> {
+        match self.ctx.eval().await {
             CtxResult::Ok(ctx) => {
                 let initial = ContextRead::<InitialCtx>::read(&ctx);
                 let result = match initial.load_capacity {

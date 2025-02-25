@@ -1,3 +1,5 @@
+use async_trait::async_trait;
+
 use crate::{
     algorithm::{
         context::{context::Context, context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult},
@@ -38,12 +40,13 @@ impl LiftingSpeed {
 }
 //
 //
+#[async_trait(?Send)]
 impl Eval<Context> for LiftingSpeed {
     ///
     /// Method of calculating the steady-state lifting speed of the load
     /// [reference to steady-state lifting speed choice documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
-    fn eval(&mut self) -> CtxResult<Context, StrErr> {
-        match self.ctx.eval() {
+    async fn eval(&mut self) -> CtxResult<Context, StrErr> {
+        match self.ctx.eval().await {
             CtxResult::Ok(ctx) => {
                 let initial = ContextRead::<InitialCtx>::read(&ctx);
                 let result = match initial.load_comb {

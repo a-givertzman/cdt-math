@@ -1,3 +1,5 @@
+use async_trait::async_trait;
+
 use crate::{
     algorithm::context::{context::Context, context_access::ContextWrite, ctx_result::CtxResult},
     infrostructure::client::choose_user_bearing::ChooseUserBearingReply,
@@ -35,9 +37,10 @@ impl UserBearing {
 }
 //
 //
+#[async_trait(?Send)]
 impl Eval<Context> for UserBearing {
-    fn eval(&mut self) -> CtxResult<Context, StrErr> {
-        match self.ctx.eval() {
+    async fn eval(&mut self) -> CtxResult<Context, StrErr> {
+        match self.ctx.eval().await {
             CtxResult::Ok(ctx) => {
                 let reply = self.req.fetch(&ctx, &mut self.link).await;
                 let result = UserBearingCtx { result: reply.answer };

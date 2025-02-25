@@ -1,6 +1,7 @@
 #[cfg(test)]
 mod rope_effort {
     use std::{sync::Once, time::Duration};
+    use async_trait::async_trait;
     use testing::stuff::max_test_duration::TestDuration;
     use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
     use crate::{algorithm::{context::{context::Context, context_access::ContextRead, ctx_result::CtxResult}, initial_ctx::initial_ctx::InitialCtx, rope_effort::{rope_effort::RopeEffort, rope_effort_ctx::RopeEffortCtx}}, kernel::{eval::Eval, storage::storage::Storage}};
@@ -20,8 +21,8 @@ mod rope_effort {
     fn init_each() -> () {}
     ///
     /// Testing 'eval'
-    #[test]
-    fn eval() {
+    #[tokio::test]
+    async fn eval() {
         DebugSession::init(LogLevel::Info, Backtrace::Short);
         init_once();
         init_each();
@@ -60,7 +61,7 @@ mod rope_effort {
             let ctx = MocEval {
                 ctx: Context::new(initial),
             };
-            let result = RopeEffort::new(ctx).eval();
+            let result = RopeEffort::new(ctx).eval().await;
             match &result {
                 CtxResult::Ok(result) => {
                     let result = ContextRead::<RopeEffortCtx>::read(result)
@@ -87,8 +88,9 @@ mod rope_effort {
     }
     //
     //
+    #[async_trait(?Send)]
     impl Eval<Context> for MocEval {
-        fn eval(
+        async fn eval(
             &mut self,
         ) -> CtxResult<Context, crate::kernel::str_err::str_err::StrErr> {
             CtxResult::Ok(self.ctx.clone())
