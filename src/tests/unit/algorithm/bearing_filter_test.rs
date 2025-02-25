@@ -82,7 +82,7 @@ mod bearing_filter {
             )
         ];
         let (send, recv) = mpsc::channel(10_000);
-        let switch = Switch::new(dbg, send, recv);
+        let mut switch = Switch::new(dbg, send, recv);
         let switch_handle = switch.run().unwrap();
         let mut mok_user_reply = MokUserReply::new(dbg, switch.link());
         let mok_user_reply_handle = mok_user_reply.run().await.unwrap();
