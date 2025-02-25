@@ -53,7 +53,7 @@ mod request {
         let (mut local, _) = Link::split(dbg);
         for (step, initial, target) in test_data {
             let value = target.clone();
-            let request = Request::new(|ctx: &Context, _link: &mut Link| -> MokUserReplyTestCtx {
+            let request = Request::new(|ctx: &Context, _link: &mut Link| async move {
                 let reply = ctx
                     .testing.clone()
                     .unwrap()
@@ -62,7 +62,7 @@ mod request {
             });
             let mut ctx = Context::new(initial.clone());
             ctx.testing = Some(TestingCtx { mok_user_reply: value });
-            let result = request.fetch(&ctx, &mut local);
+            let result = request.fetch(&ctx, &mut local).await;
             assert!(result == target, "step {} \nresult: {:?}\ntarget: {:?}", step, result, target);
         }
         test_duration.exit();
