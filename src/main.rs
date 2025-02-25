@@ -44,7 +44,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let switch_handle = switch.run().unwrap();
     let mut mok_user_reply = MokUserReply::new(&dbg, switch.link());
     let mok_user_reply_handle = mok_user_reply.run().await.unwrap();
-let _test = RopeCount::new(
+    let _test = RopeCount::new(
         RopeEffort::new(
             LoadHandDeviceMass::new(
                 UserBearing::new(
