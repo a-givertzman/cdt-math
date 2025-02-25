@@ -1,10 +1,10 @@
 use super::str_err::str_err::StrErr;
-use crate::algorithm::context::{context::Context, ctx_result::CtxResult};
+use crate::algorithm::context::ctx_result::CtxResult;
 ///
 /// Trate defines common evaluation function for calculations classes
 pub trait Eval<Out> {
     ///
     /// Pervorms a calculation
-    /// - Returns [Context] contains result inside
+    /// - Returns [Out] contains results inside
     fn eval(&mut self) -> CtxResult<Out, StrErr>;
 }
