@@ -71,7 +71,7 @@ mod dynamic_coefficient {
             ),
         ];
         for (step, initial, target) in test_data {
-            let mut v: DynamicCoefficient<'_> = DynamicCoefficient::new(
+            let mut result = DynamicCoefficient::new(
                 SelectBettaPhi::new(
                     LiftingSpeed::new(
                         MocEval {
@@ -80,7 +80,7 @@ mod dynamic_coefficient {
                     ),
                 ),
             );
-            let result = v
+            let result = result
             .eval().await;
             // let result= result.await;
             match (&result, &target) {
