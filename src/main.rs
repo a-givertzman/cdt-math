@@ -24,11 +24,10 @@ use infrostructure::client::{
     query::Query,
 };
 use kernel::{
-    eval::Eval, link::Link, mok_user_reply::mok_user_reply::MokUserReply,
+    eval::Eval, sync::link::Link, mok_user_reply::mok_user_reply::MokUserReply,
     request::Request, run::Run, storage::storage::Storage,
     user_setup::{user_bearing::UserBearing, user_hook::UserHook},
 };
-use sal_sync::services::service::service::Service;
 ///
 /// Application entry point
 #[tokio::main]
