@@ -66,10 +66,10 @@ mod user_hook {
         for (step, cache_path, target) in test_data {
             let result = UserHook::new(
                 switch.link(),
-                Request::<ChooseUserHookReply>::new(|ctx: &Context, link: &mut Link| {
+                Request::<ChooseUserHookReply>::new(|ctx: &Context, link: &mut Link| async move {
                     let variants: &HookFilterCtx = ctx.read();
                     let query = Query::ChooseUserHook(ChooseUserHookQuery::test(variants.result.clone()));
-                    link.req(query).expect("{}.req | Error to send request")
+                    link.req(query).await.expect("{}.req | Error to send request")
                 }),
                 HookFilter::new(
                     DynamicCoefficient::new(

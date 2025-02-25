@@ -11,7 +11,7 @@ pub struct UserBearing {
     /// value of user hook
     value: Option<UserBearingCtx>,
     /// Event interface
-    pub link: Link,
+    link: Link,
     /// [Context] instance, where store all info about initial data and each algorithm result's
     ctx: Box<dyn Eval>,
     req: Request<ChooseUserBearingReply>,

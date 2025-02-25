@@ -11,10 +11,10 @@ pub struct UserHook {
     /// value of user hook
     value: Option<UserHookCtx>,
     /// Event interface
-    pub link: Link,
+    link: Link,
+    req: Request<ChooseUserHookReply>,
     /// [Context] instance, where store all info about initial data and each algorithm result's
     ctx: Box<dyn Eval>,
-    req: Request<ChooseUserHookReply>,
 }
 //
 //
@@ -28,8 +28,8 @@ impl UserHook {
             dbgid: DbgId("UserHook".to_string()), 
             value: None,
             link,
-            ctx: Box::new(ctx),
             req: req,
+            ctx: Box::new(ctx),
         }
     }
 }
