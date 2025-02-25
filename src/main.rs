@@ -82,6 +82,8 @@ let _test = RopeCount::new(
         ),
     ).eval();
     mok_user_reply.exit();
+    switch.exit();
+    switch_handle.join_all().await;
     mok_user_reply_handle.join_all().await;
     Ok(())
 }
