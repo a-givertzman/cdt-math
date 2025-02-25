@@ -106,7 +106,7 @@ mod dynamic_coefficient {
     }
     //
     //
-    impl Eval for MocEval {
+    impl Eval<Context> for MocEval {
         fn eval(
             &mut self,
         ) -> CtxResult<Context, crate::kernel::str_err::str_err::StrErr> {

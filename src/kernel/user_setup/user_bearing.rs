@@ -14,7 +14,7 @@ pub struct UserBearing {
     link: Link,
     req: Request<ChooseUserBearingReply>,
     /// [Context] instance, where store all info about initial data and each algorithm result's
-    ctx: Box<dyn Eval>,
+    ctx: Box<dyn Eval<Context>>,
 }
 //
 //
@@ -23,7 +23,7 @@ impl UserBearing {
     /// New instance [UserBearing]
     /// - `ctx` - [Context]
     /// - `req` - [Request] for user
-    pub fn new(link: Link, req: Request<ChooseUserBearingReply>, ctx: impl Eval + 'static) -> Self{
+    pub fn new(link: Link, req: Request<ChooseUserBearingReply>, ctx: impl Eval<Context> + 'static) -> Self{
         Self { 
             dbgid: DbgId("UserBearing".to_string()), 
             value: None,
@@ -35,7 +35,7 @@ impl UserBearing {
 }
 //
 //
-impl Eval for UserBearing {
+impl Eval<Context> for UserBearing {
     fn eval(&mut self) -> CtxResult<Context, StrErr> {
         match self.ctx.eval() {
             CtxResult::Ok(ctx) => {

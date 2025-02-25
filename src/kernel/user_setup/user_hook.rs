@@ -14,7 +14,7 @@ pub struct UserHook {
     link: Link,
     req: Request<ChooseUserHookReply>,
     /// [Context] instance, where store all info about initial data and each algorithm result's
-    ctx: Box<dyn Eval>,
+    ctx: Box<dyn Eval<Context>>,
 }
 //
 //
@@ -23,7 +23,7 @@ impl UserHook {
     /// New instance [UserHook]
     /// - `ctx` - [Context]
     /// - `req` - [Request] for user
-    pub fn new(link: Link, req: Request<ChooseUserHookReply>, ctx: impl Eval + 'static) -> Self{
+    pub fn new(link: Link, req: Request<ChooseUserHookReply>, ctx: impl Eval<Context> + 'static) -> Self{
         Self { 
             dbgid: DbgId("UserHook".to_string()), 
             value: None,
@@ -35,7 +35,7 @@ impl UserHook {
 }
 //
 //
-impl Eval for UserHook {
+impl Eval<Context> for UserHook {
     fn eval(&mut self) -> CtxResult<Context, StrErr> {
         match self.ctx.eval() {
             CtxResult::Ok(ctx) => {
