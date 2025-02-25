@@ -1,3 +1,5 @@
+use async_trait::async_trait;
+
 use crate::{
     algorithm::{context::{context::Context, context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult}, lifting_speed::lifting_speed_ctx::LiftingSpeedCtx, select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx},
     kernel::{dbgid::dbgid::DbgId, eval::Eval, str_err::str_err::StrErr},
@@ -28,12 +30,13 @@ impl DynamicCoefficient {
 }
 //
 //
+#[async_trait(?Send)]
 impl Eval<Context> for DynamicCoefficient {
     ///
     /// Method of calculating the dynamic coefficient
     /// [reference to dynamic coefficient documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
-    fn eval(&mut self) -> CtxResult<Context, StrErr> {
-        match self.ctx.eval() {
+    async fn eval(&mut self) -> CtxResult<Context, StrErr> {
+        match self.ctx.eval().await {
             CtxResult::Ok(ctx) => {
                 let result = match self.value.clone() {
                     Some(dynamic_coefficient) => dynamic_coefficient,
