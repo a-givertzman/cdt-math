@@ -39,14 +39,14 @@ impl<T> Request<T> {
 ///
 /// 
 trait AsyncFn<Out> {
-    fn call(&self, ctx: &Context, link: &mut Link) -> BoxFuture<Out>;
+    fn call<'a>(&self, ctx: &'a Context, link: &'a mut Link) -> BoxFuture<'a, Out>;
 }
 impl<T, F, Out> AsyncFn<Out> for T
 where
     T: Fn(&Context, &mut Link) -> F,
     F: std::future::Future<Output = Out> + Send + 'static,
 {
-    fn call(&self, ctx: &Context, link: &mut Link) -> BoxFuture<Out> {
+    fn call<'a>(&self, ctx: &'a Context, link: &'a mut Link) -> BoxFuture<'a, Out> {
         Box::pin(self(ctx, link))
     }
 }
