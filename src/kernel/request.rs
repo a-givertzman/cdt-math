@@ -7,8 +7,7 @@ use super::sync::link::Link;
 /// Example:
 /// ```ignore
 /// let math = AlgoSecond::new(
-///     req: Request<T>::new(op: |ctx: Context| -> T {
-///         let link: Link = ctx.read();
+///     req: Request<T>::new(op: async |ctx: Context, link: &mut Link| -> T {
 ///         // Query: Some Struct comtains all neccessary info and implements `Serialize`
 ///         let query = QueryStruct::new();
 ///         // Reply: Returns `T`, implements `Deserialize`
@@ -35,20 +34,13 @@ impl<'a, T> Request<'a, T> {
         self.op.eval(ctx, link).await
     }
 }
-
-
-// pub trait AsyncFn<'a, Out> {
-//     ///
-//     /// Pervorms a calculation
-//     /// - Returns [Out] contains results inside
-//     async fn eval(&'a self, ctx: Context, link: &'a mut Link) -> Out;
-// }
-
 ///
 /// 
 trait AsyncFn<'a, Out> {
     fn eval(&'a self, ctx: Context, link: &'a mut Link) -> BoxFuture<'a, Out>;
 }
+//
+//
 impl<'a, T, F, Out> AsyncFn<'a, Out> for T
 where
     T: Fn(Context, &'a mut Link) -> F,
