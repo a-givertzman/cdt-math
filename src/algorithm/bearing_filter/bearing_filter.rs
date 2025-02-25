@@ -7,7 +7,7 @@ pub struct BearingFilter {
     /// vector of [filtered bearings](design\docs\algorithm\part02\chapter_01_choose_hook.md)
     value: Option<BearingFilterCtx>,
     /// [Context] instance, where store all info about initial data and each algorithm result's
-    ctx: Box<dyn Eval>,
+    ctx: Box<dyn Eval<Context>>,
 }
 //
 //
@@ -18,7 +18,7 @@ impl BearingFilter {
     ///
     /// New instance [BearingFilter]
     /// - `ctx` - [Context]
-    pub fn new(ctx: impl Eval + 'static) -> Self {
+    pub fn new(ctx: impl Eval<Context> + 'static) -> Self {
         Self {
             dbgid: DbgId("HookFilter".to_string()),
             value: None,
@@ -28,7 +28,7 @@ impl BearingFilter {
 }
 //
 //
-impl Eval for BearingFilter {
+impl Eval<Context> for BearingFilter {
     fn eval(&mut self) -> CtxResult<Context, StrErr> {
         match self.ctx.eval() {
             CtxResult::Ok(ctx) => {

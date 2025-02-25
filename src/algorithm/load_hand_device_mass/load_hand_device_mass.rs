@@ -7,7 +7,7 @@ pub struct LoadHandDeviceMass {
     /// value of [total mass and net weight](design\docs\algorithm\part02\chapter_01_choose_hook.md)
     value: Option<LoadHandDeviceMassCtx>,
     /// [Context] instance, where store all info about initial data and each algorithm result's
-    ctx: Box<dyn Eval>,
+    ctx: Box<dyn Eval<Context>>,
 }
 //
 //
@@ -15,7 +15,7 @@ impl LoadHandDeviceMass {
     ///
     /// New instance [LoadHandDeviceMass]
     /// - `ctx` - [Context]
-    pub fn new(ctx: impl Eval + 'static) -> Self {
+    pub fn new(ctx: impl Eval<Context> + 'static) -> Self {
         Self {
             dbgid: DbgId("LoadHandDeviceMass".to_string()),
             value: None,
@@ -25,7 +25,7 @@ impl LoadHandDeviceMass {
 }
 //
 //
-impl Eval for LoadHandDeviceMass {
+impl Eval<Context> for LoadHandDeviceMass {
     fn eval(&mut self) -> CtxResult<Context, StrErr> {
         match self.ctx.eval() {
             CtxResult::Ok(ctx) => {

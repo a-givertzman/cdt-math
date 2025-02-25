@@ -24,7 +24,7 @@ impl Initial {
 }
 //
 //
-impl Eval for Initial {
+impl Eval<Context> for Initial {
     //
     //
     fn eval(&mut self) -> CtxResult<Context, crate::kernel::str_err::str_err::StrErr> {

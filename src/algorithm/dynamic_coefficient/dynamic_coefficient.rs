@@ -10,7 +10,7 @@ pub struct DynamicCoefficient {
     /// value of [dynamic coefficient](design\docs\algorithm\part02\chapter_01_choose_hook.md)
     value: Option<DynamicCoefficientCtx>,
     /// [Context] instance, where store all info about initial data and each algorithm result's
-    ctx: Box<dyn Eval>,
+    ctx: Box<dyn Eval<Context>>,
 }
 //
 //
@@ -18,7 +18,7 @@ impl DynamicCoefficient {
     ///
     /// New instance [DynamicCoefficient]
     /// - `ctx` - [Context]
-    pub fn new(ctx: impl Eval + 'static) -> Self {
+    pub fn new(ctx: impl Eval<Context> + 'static) -> Self {
         Self {
             dbgid: DbgId("DynamicCoefficient".to_string()),
             value: None,
@@ -28,7 +28,7 @@ impl DynamicCoefficient {
 }
 //
 //
-impl Eval for DynamicCoefficient {
+impl Eval<Context> for DynamicCoefficient {
     ///
     /// Method of calculating the dynamic coefficient
     /// [reference to dynamic coefficient documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)

@@ -7,7 +7,7 @@ pub struct RopeEffort {
     /// value of [rope effort](design\docs\algorithm\part02\chapter_03_choose_hoisting_tackle.md)
     value: Option<RopeEffortCtx>,
     /// [Context] instance, where store all info about initial data and each algorithm result's
-    ctx: Box<dyn Eval>,
+    ctx: Box<dyn Eval<Context>>,
 }
 //
 //
@@ -15,7 +15,7 @@ impl RopeEffort {
     ///
     /// New instance [RopeEffort]
     /// - 'ctx' - [Context] instance, where store all info about initial data and each algorithm result's
-    pub fn new(ctx: impl Eval + 'static) -> Self {
+    pub fn new(ctx: impl Eval<Context> + 'static) -> Self {
         Self {
             dbgid: DbgId("RopeEffort".to_string()),
             value: None,
@@ -25,7 +25,7 @@ impl RopeEffort {
 }
 //
 //
-impl Eval for RopeEffort {
+impl Eval<Context> for RopeEffort {
     ///
     /// Method of calculating [rope effort](design\docs\algorithm\part02\chapter_03_choose_hoisting_tackle.md), based on user loading capacity
     fn eval(&mut self) -> CtxResult<Context, StrErr> {
