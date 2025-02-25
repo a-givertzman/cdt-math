@@ -37,7 +37,6 @@ impl<'a, T> Request<'a, T> {
 }
 
 
-// #[async_trait]
 // pub trait AsyncFn<'a, Out> {
 //     ///
 //     /// Pervorms a calculation
@@ -47,7 +46,6 @@ impl<'a, T> Request<'a, T> {
 
 ///
 /// 
-// #[async_trait]
 trait AsyncFn<'a, Out> {
     fn eval(&'a self, ctx: Context, link: &'a mut Link) -> BoxFuture<'a, Out>;
 }

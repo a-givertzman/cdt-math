@@ -32,7 +32,6 @@ impl<'a> SelectBettaPhi<'a> {
 }
 //
 //
-// #[async_trait]
 impl<'a> Eval<'a, Context> for SelectBettaPhi<'a> {
     ///
     /// Method make choice β2 and ϕ2 coefficients, based on user [lifting class](design\docs\algorithm\part01\initial_data.md)

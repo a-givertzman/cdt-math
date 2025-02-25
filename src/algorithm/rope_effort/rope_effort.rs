@@ -26,7 +26,6 @@ impl<'a> RopeEffort<'a> {
 }
 //
 //
-// #[async_trait]
 impl<'a> Eval<'a, Context> for RopeEffort<'a> {
     ///
     /// Method of calculating [rope effort](design\docs\algorithm\part02\chapter_03_choose_hoisting_tackle.md), based on user loading capacity

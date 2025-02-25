@@ -2,8 +2,8 @@
 
 mod lifting_speed {
     use api_tools::error::str_err::StrErr;
-    use async_trait::async_trait;
     use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
+    use futures::future::BoxFuture;
     use std::{
         sync::Once,
         time::Duration,
@@ -141,12 +141,11 @@ mod lifting_speed {
     }
     //
     //
-    #[async_trait]
-    impl Eval<'_, Context> for MocEval {
-        async fn eval(
-            &mut self,
-        ) -> CtxResult<Context, crate::kernel::str_err::str_err::StrErr> {
-            CtxResult::Ok(self.ctx.clone())
+    impl<'a> Eval<'a, Context> for MocEval {
+        fn eval(&'a mut self) -> BoxFuture<'a, CtxResult<Context, StrErr>> {
+            Box::pin(async {
+                CtxResult::Ok(self.ctx.clone())
+            })
         }
     }
 }

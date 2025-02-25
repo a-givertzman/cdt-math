@@ -1,10 +1,10 @@
 #[cfg(test)]
 mod rope_effort {
     use std::{sync::Once, time::Duration};
-    use async_trait::async_trait;
+    use futures::future::BoxFuture;
     use testing::stuff::max_test_duration::TestDuration;
     use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
-    use crate::{algorithm::{context::{context::Context, context_access::ContextRead, ctx_result::CtxResult}, initial_ctx::initial_ctx::InitialCtx, rope_effort::{rope_effort::RopeEffort, rope_effort_ctx::RopeEffortCtx}}, kernel::{eval::Eval, storage::storage::Storage}};
+    use crate::{algorithm::{context::{context::Context, context_access::ContextRead, ctx_result::CtxResult}, initial_ctx::initial_ctx::InitialCtx, rope_effort::{rope_effort::RopeEffort, rope_effort_ctx::RopeEffortCtx}}, kernel::{eval::Eval, storage::storage::Storage, str_err::str_err::StrErr}};
     ///
     ///
     static INIT: Once = Once::new();
@@ -88,12 +88,11 @@ mod rope_effort {
     }
     //
     //
-    #[async_trait]
-    impl Eval<'_, Context> for MocEval {
-        async fn eval(
-            &mut self,
-        ) -> CtxResult<Context, crate::kernel::str_err::str_err::StrErr> {
-            CtxResult::Ok(self.ctx.clone())
+    impl<'a> Eval<'a, Context> for MocEval {
+        fn eval(&'a mut self) -> BoxFuture<'a, CtxResult<Context, StrErr>> {
+            Box::pin(async {
+                CtxResult::Ok(self.ctx.clone())
+            })
         }
     }
 }

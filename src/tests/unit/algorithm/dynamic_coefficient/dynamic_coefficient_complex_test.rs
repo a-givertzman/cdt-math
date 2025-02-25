@@ -81,7 +81,8 @@ mod dynamic_coefficient {
                 ),
             );
             let result = result
-            .eval().await;
+            .eval()
+            .await;
             // let result= result.await;
             match (&result, &target) {
                 (CtxResult::Ok(result), CtxResult::Ok(target)) => {

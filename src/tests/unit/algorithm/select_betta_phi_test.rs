@@ -1,8 +1,8 @@
 #[cfg(test)]
 
 mod select_bet_phi {
-    use async_trait::async_trait;
     use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
+    use futures::future::BoxFuture;
     use std::{
         sync::Once,
         time::Duration,
@@ -124,12 +124,11 @@ mod select_bet_phi {
     }
     //
     //
-    #[async_trait]
     impl<'a> Eval<'a, Context> for MocEval {
-        async fn eval(
-            &'a mut self,
-        ) -> CtxResult<Context, crate::kernel::str_err::str_err::StrErr> {
-            CtxResult::Ok(self.ctx.clone())
+        fn eval(&'a mut self) -> BoxFuture<'a, CtxResult<Context, StrErr>> {
+            Box::pin(async {
+                CtxResult::Ok(self.ctx.clone())
+            })
         }
     }
 }

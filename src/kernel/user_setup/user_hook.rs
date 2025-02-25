@@ -36,7 +36,6 @@ impl<'a> UserHook<'a> {
 }
 //
 //
-// #[async_trait]
 impl<'a> Eval<'a, Context> for UserHook<'a> {
     fn eval(&'a mut self) -> BoxFuture<'a, CtxResult<Context, StrErr>> {
         Box::pin(async {
