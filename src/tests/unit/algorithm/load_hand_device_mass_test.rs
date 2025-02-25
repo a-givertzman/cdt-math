@@ -2,7 +2,6 @@
 
 mod user_bearing {
     use std::{sync::Once, time::Duration};
-    use sal_sync::services::service::service::Service;
     use testing::stuff::max_test_duration::TestDuration;
     use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
     use tokio::sync::mpsc;
@@ -95,7 +94,7 @@ mod user_bearing {
                             ),
                         ),
                     ),
-                )
+                ),
             ).eval();
             match result {
                 CtxResult::Ok(result) => {
