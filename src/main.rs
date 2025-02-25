@@ -51,14 +51,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     Request::<ChooseUserBearingReply>::new(|ctx: &Context, link: &mut Link| -> ChooseUserBearingReply {
                         let variants: &BearingFilterCtx = ctx.read();
                         let query = Query::ChooseUserBearing(ChooseUserBearingQuery::new(variants.result.clone()));
-                        link.req(query).expect("{}.req | Error to send request")
+                        link.req(query).await.expect("{}.req | Error to send request")
                     }),
                     UserHook::new(
                         link,
                         Request::<ChooseUserHookReply>::new(|ctx: &Context, link: &mut Link| -> ChooseUserHookReply {
                             let variants: &HookFilterCtx = ctx.read();
                             let query = Query::ChooseUserHook(ChooseUserHookQuery::test(variants.result.clone()));
-                            link.req(query).expect("{}.req | Error to send request")
+                            link.req(query).await.expect("{}.req | Error to send request")
                         }),
                         HookFilter::new(
                             DynamicCoefficient::new(
