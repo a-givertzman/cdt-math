@@ -13,7 +13,7 @@ pub struct UserHook<'a> {
     value: Option<UserHookCtx>,
     /// Event interface
     link: Link,
-    req: Request<'a, ChooseUserHookReply>,
+    req: Request<ChooseUserHookReply>,
     /// [Context] instance, where store all info about initial data and each algorithm result's
     ctx: Box<dyn Eval<Context> + Send + 'a>,
 }
@@ -24,7 +24,7 @@ impl<'a> UserHook<'a> {
     /// New instance [UserHook]
     /// - `ctx` - [Context]
     /// - `req` - [Request] for user
-    pub fn new(link: Link, req: Request<'a, ChooseUserHookReply>, ctx: impl Eval<Context> + Send + 'a) -> Self{
+    pub fn new(link: Link, req: Request<ChooseUserHookReply>, ctx: impl Eval<Context> + Send + 'a) -> Self{
         Self { 
             dbgid: DbgId("UserHook".to_string()), 
             value: None,

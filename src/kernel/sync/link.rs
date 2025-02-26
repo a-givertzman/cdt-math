@@ -1,10 +1,7 @@
-use std::{fmt::Debug, time::Duration};
+use std::{fmt::Debug, sync::mpsc::{self, Receiver, Sender}, time::Duration};
 use sal_sync::services::entity::{error::str_err::StrErr, name::Name, point::{point::Point, point_tx_id::PointTxId}};
 use serde::{de::DeserializeOwned, Serialize};
-use tokio::sync::mpsc::{self, Receiver, Sender};
 use crate::algorithm::context::ctx_result::CtxResult;
-
-use super::recv_timeout::RecvTimeout;
 ///
 /// Contains local side `send` & `recv` of `channel`
 /// - provides simple direct to `send` & `recv`
@@ -46,8 +43,8 @@ impl Link {
     /// Returns `local: [Link] remote: [Link]` new instance
     pub fn split(parent: impl Into<String>) -> (Self, Self) {
         let name = Name::new(parent, "Link");
-        let (loc_send, rem_recv) = mpsc::channel(10_000);
-        let (rem_send, loc_recv) = mpsc::channel(10_000);
+        let (loc_send, rem_recv) = mpsc::channel();
+        let (rem_send, loc_recv) = mpsc::channel();
         (
             Self { 
                 txid: PointTxId::from_str(&name.join()),
@@ -67,13 +64,13 @@ impl Link {
     /// - Sends a request, 
     /// - Await reply,
     /// - Returns parsed reply
-    pub async fn req<T: DeserializeOwned + Debug>(&mut self, query: impl Serialize + Debug) -> Result<T, StrErr> {
+    pub fn req<T: DeserializeOwned + Debug>(&self, query: impl Serialize + Debug) -> Result<T, StrErr> {
         match serde_json::to_string(&query) {
             Ok(query) => {
                 let query = Point::new(self.txid, &self.name.join(), query);
-                match self.send.send(query).await {
+                match self.send.send(query) {
                     Ok(_) => {
-                        match self.recv.recv_timeout(self.timeout).await {
+                        match self.recv.recv_timeout(self.timeout) {
                             Ok(reply) => {
                                 let reply = reply.as_string().value;
                                 match serde_json::from_str::<T>(reply.as_str()) {
@@ -98,8 +95,8 @@ impl Link {
     /// - Returns Ok<T> if channel has query
     /// - Returns None if channel is empty for now
     /// - Returns Err if channel is closed
-    pub async fn recv_query<T: DeserializeOwned + Debug>(&mut self) -> CtxResult<T, StrErr> {
-        match self.recv.recv_timeout(self.timeout).await {
+    pub fn recv_query<T: DeserializeOwned + Debug>(&self) -> CtxResult<T, StrErr> {
+        match self.recv.recv_timeout(self.timeout) {
             Ok(quyru) => {
                 let quyru = quyru.as_string().value;
                 match serde_json::from_str::<T>(quyru.as_str()) {
@@ -126,11 +123,11 @@ impl Link {
     }
     ///
     /// Sending event
-    pub async fn send_reply(&self, reply: impl Serialize + Debug) -> Result<(), StrErr> {
+    pub fn send_reply(&self, reply: impl Serialize + Debug) -> Result<(), StrErr> {
         match serde_json::to_string(&reply) {
             Ok(reply) => {
                 let reply = Point::new(self.txid, &self.name.join(), reply);
-                match self.send.send(reply).await {
+                match self.send.send(reply) {
                     Ok(_) => Ok(()),
                     Err(err) => Err(StrErr(format!("{}.reply | Send request error: {:#?}", self.name, err))),
                 }

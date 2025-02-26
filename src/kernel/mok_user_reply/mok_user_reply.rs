@@ -51,12 +51,12 @@ impl MokUserReply {
             // .name(format!("{} - main", dbg))
             .spawn(async move {
                 async fn send_reply(dbg: &str, link: &mut Link, reply: impl Serialize + Debug) {
-                    if let Err(err) = link.send_reply(reply).await {
+                    if let Err(err) = link.send_reply(reply) {
                         log::debug!("{}.run | Send reply error: {:?}", dbg, err);
                     };
                 }
                 'main: loop {
-                    match link.recv_query::<Query>().await {
+                    match link.recv_query::<Query>() {
                         CtxResult::Ok(query) => match query {
                             Query::ChooseUserHook(query) => {
                                 let query: ChooseUserHookQuery = query;

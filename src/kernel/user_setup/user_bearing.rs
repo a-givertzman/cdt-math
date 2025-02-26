@@ -13,7 +13,7 @@ pub struct UserBearing<'a> {
     value: Option<UserBearingCtx>,
     /// Event interface
     link: Link,
-    req: Request<'a, ChooseUserBearingReply>,
+    req: Request<ChooseUserBearingReply>,
     /// [Context] instance, where store all info about initial data and each algorithm result's
     ctx: Box<dyn Eval<Context> + Send + 'a>,
 }
@@ -24,7 +24,7 @@ impl<'a> UserBearing<'a> {
     /// New instance [UserBearing]
     /// - `ctx` - [Context]
     /// - `req` - [Request] for user
-    pub fn new(link: Link, req: Request<'a, ChooseUserBearingReply>, ctx: impl Eval<Context> + Send + 'a) -> Self {
+    pub fn new(link: Link, req: Request<ChooseUserBearingReply>, ctx: impl Eval<Context> + Send + 'a) -> Self {
         Self { 
             dbgid: DbgId("UserBearing".to_string()), 
             value: None,
@@ -38,10 +38,10 @@ impl<'a> UserBearing<'a> {
 //
 impl Eval<Context> for UserBearing<'_> {
     fn eval(&'_ mut self) -> BoxFuture<'_, CtxResult<Context, StrErr>> {
+        let reply = self.req.fetch(&ctx, &self.link);
         Box::pin(async {
             match self.ctx.eval().await {
                 CtxResult::Ok(ctx) => {
-                    let reply = self.req.fetch(ctx.clone(), &mut self.link).await;
                     let result = UserBearingCtx { result: reply.answer };
                     self.value = Some(result.clone());
                     ctx.write(result)

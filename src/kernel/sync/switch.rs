@@ -1,8 +1,7 @@
-use std::{hash::BuildHasherDefault, sync::{atomic::{AtomicBool, Ordering}, Arc}, time::Duration};
+use std::{hash::BuildHasherDefault, sync::{atomic::{AtomicBool, Ordering}, mpsc::{self, Receiver, Sender}, Arc}, time::Duration};
 use sal_sync::{collections::map::IndexMapFxHasher, services::entity::{cot::Cot, error::str_err::StrErr, name::Name, point::{point::Point, point_tx_id::PointTxId}}};
-use tokio::{sync::mpsc::{self, Receiver, Sender}, task::JoinSet};
-use tokio_stream::{wrappers::ReceiverStream, StreamExt, StreamMap};
-use super::{link::Link, recv_timeout::RecvTimeout};
+use tokio::task::JoinSet;
+use super::link::Link;
 trait SizedStream: tokio_stream::Stream<Item = Point> + Sized {}
 ///
 /// 
@@ -12,7 +11,7 @@ pub struct Switch {
     send: Sender<Point>,
     recv: Option<Receiver<Point>>,
     subscribers: IndexMapFxHasher<String, Sender<Point>>,
-    stream: Option<StreamMap<String, ReceiverStream<Point>>>,
+    receivers: IndexMapFxHasher<String, Receiver<Point>>,
     timeout: Duration,
     exit: Arc<AtomicBool>,
 }
@@ -35,7 +34,7 @@ impl Switch {
             send, 
             recv: Some(recv),
             subscribers: IndexMapFxHasher::with_hasher(BuildHasherDefault::default()),
-            stream: None,
+            receivers: IndexMapFxHasher::with_hasher(BuildHasherDefault::default()),
             timeout: Self::DEFAULT_TIMEOUT,
             exit: Arc::new(AtomicBool::new(false)),
         }
@@ -43,20 +42,12 @@ impl Switch {
     ///
     /// Returns connected `Link`
     pub fn link(&mut self) -> Link {
-        let (loc_send, rem_recv) = mpsc::channel(10_000);
-        let (rem_send, loc_recv) = mpsc::channel(10_000);
+        let (loc_send, rem_recv) = mpsc::channel();
+        let (rem_send, loc_recv) = mpsc::channel();
         let remote = Link::new(&self.name, rem_send, rem_recv);
         let key = remote.name().join();
         self.subscribers.insert(key.clone(), loc_send);
-        let stream = ReceiverStream::new(loc_recv);
-        match &mut self.stream {
-            Some(self_stream) => {
-                self_stream.insert(key, stream);
-            },
-            None => {
-                self.stream = Some(tokio_stream::StreamMap::new())
-            },
-        };
+        self.receivers.insert(key, loc_recv);
         remote
     }
     ///
@@ -65,17 +56,17 @@ impl Switch {
         let dbg = self.name.join();
         let subscribers: IndexMapFxHasher<String, Sender<Point>> = self.subscribers.drain(0..).collect();
         let exit = self.exit.clone();
-        let mut recv = self.recv.take().unwrap();
+        let recv = self.recv.take().unwrap();
         let timeout = self.timeout.clone();
         let mut join_set = JoinSet::new();
         join_set.spawn(async move {
             'main: loop {
-                match recv.recv_timeout(timeout).await {
+                match recv.recv_timeout(timeout) {
                     Ok(event) => {
                         match event.cot() {
                             Cot::Inf | Cot::Act | Cot::Req => {
                                 for (_key, subscriber) in &subscribers {
-                                    if let Err(err) = subscriber.send(event.clone()).await {
+                                    if let Err(err) = subscriber.send(event.clone()) {
                                         log::warn!("{}.run | Send error: {:?}", dbg, err);
                                     }
                                 }
@@ -84,7 +75,7 @@ impl Switch {
                                 let key = event.name();
                                 match subscribers.get(&key) {
                                     Some(subscriber) => {
-                                        if let Err(err) = subscriber.send(event.clone()).await {
+                                        if let Err(err) = subscriber.send(event.clone()) {
                                             log::warn!("{}.run | Send error: {:?}", dbg, err);
                                         }
                                     },
@@ -107,22 +98,25 @@ impl Switch {
         });
         let dbg = self.name.join();
         let send = self.send.clone();
-        let mut recv_stream = self.stream.take().unwrap();
+        let receivers: IndexMapFxHasher<String, Receiver<Point>> = self.receivers.drain(0..).collect();
         let exit = self.exit.clone();
         join_set.spawn(async move {
             'main: loop {
-                match recv_stream.next().await {
-                    Some((_key, event)) => {
-                        if let Err(err) = send.send(event).await {
-                            log::warn!("{}.run | Send error: {:?}", dbg, err)
+                for (_key, receiver) in receivers.iter() {
+                    match receiver.try_recv() {
+                        Ok(event) => {
+                            if let Err(err) = send.send(event) {
+                                log::warn!("{}.run | Send error: {:?}", dbg, err)
+                            }
                         }
-                    },
-                    None => {
-                        panic!("{}.run | Receive error, all senders has been closed", dbg)
-                    },
-                }
-                if exit.load(Ordering::SeqCst) {
-                    break 'main;
+                        Err(err) => match err {
+                            mpsc::TryRecvError::Empty => {} //tokio::time::sleep(Duration::from_millis(1)).await,
+                            mpsc::TryRecvError::Disconnected => panic!("{}.run | Receive error, all senders has been closed", dbg),
+                        }
+                    }
+                    if exit.load(Ordering::SeqCst) {
+                        break 'main;
+                    }
                 }
             }
         });

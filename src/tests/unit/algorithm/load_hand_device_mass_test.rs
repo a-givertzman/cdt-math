@@ -66,17 +66,17 @@ mod user_bearing {
             let result = LoadHandDeviceMass::new(
                 UserBearing::new(
                     switch.link(),
-                    Request::<ChooseUserBearingReply>::new(async |ctx: Context, link: &mut Link| {
+                    Request::<ChooseUserBearingReply>::new(|ctx: &Context, link: &Link| {
                         let variants: &BearingFilterCtx = ctx.read();
                         let query = Query::ChooseUserBearing(ChooseUserBearingQuery::new(variants.result.clone()));
-                        link.req(query).await.expect("{}.req | Error to send request")
+                        link.req(query).expect("{}.req | Error to send request")
                     }),
                     UserHook::new(
                         switch.link(),
-                        Request::<ChooseUserHookReply>::new(async |ctx: Context, link: &mut Link| {
+                        Request::<ChooseUserHookReply>::new(|ctx: &Context, link: &Link| {
                             let variants: &HookFilterCtx = ctx.read();
                             let query = Query::ChooseUserHook(ChooseUserHookQuery::test(variants.result.clone()));
-                            link.req(query).await.expect("{}.req | Error to send request")
+                            link.req(query).expect("{}.req | Error to send request")
                         }),
                         HookFilter::new(
                             DynamicCoefficient::new(
