@@ -115,8 +115,8 @@ mod rope_count {
     }
     //
     //
-    impl<'a> Eval<'a, Context> for MocEval {
-        fn eval(&'a mut self) -> BoxFuture<'a, CtxResult<Context, StrErr>> {
+    impl Eval<Context> for MocEval {
+        fn eval<'a>(&'a mut self) -> BoxFuture<'a, CtxResult<Context, StrErr>> {
             Box::pin(async {
                 CtxResult::Ok(self.ctx.clone())
             })

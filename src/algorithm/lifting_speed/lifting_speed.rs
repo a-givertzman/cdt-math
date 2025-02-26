@@ -14,7 +14,7 @@ pub struct LiftingSpeed<'a> {
     /// value of [steady-state lifting speed](design\docs\algorithm\part02\chapter_01_choose_hook.md)
     value: Option<LiftingSpeedCtx>,
     /// [Context] instance, where store all info about initial data and each algorithm result's
-    ctx: Box<dyn Eval<'a, Context> + Send + 'a>,
+    ctx: Box<dyn Eval<Context> + Send + 'a>,
 }
 //
 //
@@ -22,7 +22,7 @@ impl<'a> LiftingSpeed<'a> {
     ///
     /// New instance [LiftingSpeed]
     /// - 'ctx' - [Context] instance, where store all info about initial data and each algorithm result's
-    pub fn new(ctx: impl Eval<'a, Context> + Send + 'a) -> Self {
+    pub fn new(ctx: impl Eval<Context> + Send + 'a) -> Self {
         Self {
             dbgid: DbgId("LiftingSpeed".to_string()),
             value: None,
@@ -39,11 +39,11 @@ impl<'a> LiftingSpeed<'a> {
 }
 //
 //
-impl<'a> Eval<'a, Context> for LiftingSpeed<'a> {
+impl Eval<Context> for LiftingSpeed<'_> {
     ///
     /// Method of calculating the steady-state lifting speed of the load
     /// [reference to steady-state lifting speed choice documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
-    fn eval(&'a mut self) -> BoxFuture<'a, CtxResult<Context, StrErr>> {
+    fn eval(&'_ mut self) -> BoxFuture<'_, CtxResult<Context, StrErr>> {
         Box::pin(async {
             match self.ctx.eval().await {
                 CtxResult::Ok(ctx) => {

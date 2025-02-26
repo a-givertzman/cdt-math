@@ -8,7 +8,7 @@ pub struct BearingFilter<'a> {
     /// vector of [filtered bearings](design\docs\algorithm\part02\chapter_01_choose_hook.md)
     value: Option<BearingFilterCtx>,
     /// [Context] instance, where store all info about initial data and each algorithm result's
-    ctx: Box<dyn Eval<'a, Context> + Send + 'a>,
+    ctx: Box<dyn Eval<Context> + Send + 'a>,
 }
 //
 //
@@ -19,7 +19,7 @@ impl<'a> BearingFilter<'a> {
     ///
     /// New instance [BearingFilter]
     /// - `ctx` - [Context]
-    pub fn new(ctx: impl Eval<'a, Context> + Send + 'a) -> Self {
+    pub fn new(ctx: impl Eval<Context> + Send + 'a) -> Self {
         Self {
             dbgid: DbgId("HookFilter".to_string()),
             value: None,
@@ -29,8 +29,8 @@ impl<'a> BearingFilter<'a> {
 }
 //
 //
-impl<'a> Eval<'a, Context> for BearingFilter<'a> {
-    fn eval(&'a mut self) -> BoxFuture<'a, CtxResult<Context, StrErr>> {
+impl Eval<Context> for BearingFilter<'_> {
+    fn eval(&'_ mut self) -> BoxFuture<'_, CtxResult<Context, StrErr>> {
         Box::pin(async move {
             match self.ctx.eval().await {
                 CtxResult::Ok(ctx) => {

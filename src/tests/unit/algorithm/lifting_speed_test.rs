@@ -1,7 +1,5 @@
 #[cfg(test)]
-
 mod lifting_speed {
-    use api_tools::error::str_err::StrErr;
     use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
     use futures::future::BoxFuture;
     use std::{
@@ -15,7 +13,7 @@ mod lifting_speed {
             initial_ctx::initial_ctx::InitialCtx,
             lifting_speed::{lifting_speed::LiftingSpeed, lifting_speed_ctx::LiftingSpeedCtx},
         },
-        kernel::{dbgid::dbgid::DbgId, eval::Eval, storage::storage::Storage},
+        kernel::{dbgid::dbgid::DbgId, eval::Eval, storage::storage::Storage, str_err::str_err::StrErr},
     };
 
     ///
@@ -141,8 +139,8 @@ mod lifting_speed {
     }
     //
     //
-    impl<'a> Eval<'a, Context> for MocEval {
-        fn eval(&'a mut self) -> BoxFuture<'a, CtxResult<Context, StrErr>> {
+    impl Eval<Context> for MocEval {
+        fn eval<'a>(&'a mut self) -> BoxFuture<'a, CtxResult<Context, StrErr>> {
             Box::pin(async {
                 CtxResult::Ok(self.ctx.clone())
             })

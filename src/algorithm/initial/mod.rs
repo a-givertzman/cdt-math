@@ -25,10 +25,10 @@ impl Initial {
 }
 //
 //
-impl<'a> Eval<'a, Context> for Initial {
+impl Eval<Context> for Initial {
     //
     //
-    fn eval(&'a mut self) -> BoxFuture<'a, CtxResult<Context, StrErr>> {
+    fn eval(&'_ mut self) -> BoxFuture<'_, CtxResult<Context, StrErr>> {
         Box::pin(async {
             let ctx = self.ctx.take().unwrap();
             log::debug!("{}.eval | Start with contect: {:#?}", self.dbg, ctx);
