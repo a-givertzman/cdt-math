@@ -52,7 +52,7 @@ impl Switch {
     }
     ///
     /// Entry point
-    pub fn run(&mut self) -> Result<JoinSet<()>, StrErr> {
+    pub async fn run(&mut self) -> Result<JoinSet<()>, StrErr> {
         let dbg = self.name.join();
         let subscribers: IndexMapFxHasher<String, Sender<Point>> = self.subscribers.drain(0..).collect();
         let exit = self.exit.clone();

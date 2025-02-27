@@ -45,7 +45,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cache_path = "./src/tests/unit/kernel/storage/cache/test_2";
     let (send, recv) = mpsc::channel();
     let mut switch = Switch::new(&dbg, send, recv);
-    let switch_handle = switch.run().unwrap();
+    let switch_handle = switch.run().await.unwrap();
     let mut mok_user_reply = MokUserReply::new(&dbg, switch.link());
     let mok_user_reply_handle = mok_user_reply.run().await.unwrap();
     let (switch, _test) = RopeCount::new(

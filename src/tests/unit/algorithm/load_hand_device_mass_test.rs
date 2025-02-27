@@ -56,10 +56,12 @@ mod user_bearing {
                 },
             )
         ];
-        let (send, recv) = mpsc::channel();
-        let mut switch = Switch::new(dbg, send, recv);
-        let switch_handle = switch.run().unwrap();
-        let mut mok_user_reply = MokUserReply::new(dbg, switch.link());
+        let (loc_send, rem_recv) = mpsc::channel();
+        let (rem_send, loc_recv) = mpsc::channel();
+        let rem_link = Link::new(dbg, rem_send, rem_recv);
+        let mut mok_user_reply = MokUserReply::new(dbg, rem_link);
+        let mut switch = Switch::new(dbg, loc_send, loc_recv);
+        let switch_handle = switch.run().await.unwrap();
         let mok_user_reply_handle = mok_user_reply.run().await.unwrap();
         for (step, cache_path, target) in test_data {
             let (switch_, result) = LoadHandDeviceMass::new(
