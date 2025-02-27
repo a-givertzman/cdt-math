@@ -14,7 +14,7 @@ pub struct SelectBettaPhi<'a> {
     /// [BetPhi] instance, where store value of coefficients β2 and ϕ2
     value: Option<SelectBetPhiCtx>,
     /// [Context] instance, where store all info about initial data and each algorithm result's
-    ctx: Box<dyn Eval<Switch, EvalResult> + Send + 'a>,
+    ctx: Box<dyn Eval<'a, Switch, EvalResult> + Send + 'a>,
 }
 //
 //
@@ -22,7 +22,7 @@ impl<'a> SelectBettaPhi<'a> {
     ///
     /// New instance [SelectBettaPhi]
     /// - 'ctx' - [Context] instance, where store all info about initial data and each algorithm result's
-    pub fn new(ctx: impl Eval<Switch, EvalResult> + Send + 'a) -> Self {
+    pub fn new(ctx: impl Eval<'a, Switch, EvalResult> + Send + 'a) -> Self {
         Self {
             dbgid: DbgId("SelectBetPhi".to_string()),
             value: None,
@@ -32,11 +32,11 @@ impl<'a> SelectBettaPhi<'a> {
 }
 //
 //
-impl Eval<Switch, EvalResult> for SelectBettaPhi<'_> {
+impl<'b, 'a:'b> Eval<'a, Switch, EvalResult> for SelectBettaPhi<'b> {
     ///
     /// Method make choice β2 and ϕ2 coefficients, based on user [lifting class](design\docs\algorithm\part01\initial_data.md)
     /// [reference to β2 and ϕ2 coefficients documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
-    fn eval(&'_ mut self, switch: Switch) -> BoxFuture<'_, EvalResult> {
+    fn eval(&'a mut self, switch: Switch) -> BoxFuture<'a, EvalResult> {
         Box::pin(async {
             let (switch, result) = self.ctx.eval(switch).await;
             (switch, match result {

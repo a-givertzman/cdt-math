@@ -19,14 +19,14 @@ pub struct Switch {
 impl Switch {
     ///
     /// Default timeout to await `recv`` operation, 300 ms
-    const DEFAULT_TIMEOUT: Duration = Duration::from_millis(300);
+    const DEFAULT_TIMEOUT: Duration = Duration::from_millis(500);
     ///
     /// Returns [Switch] new instance
     /// - `send` - local side of channel.send
     /// - `recv` - local side of channel.recv
     /// - `exit` - exit signal for `recv_query` method
     pub fn new(parent: impl Into<String>, send: Sender<Point>, recv: Receiver<Point>) -> Self {
-        let name = Name::new(parent, "Link");
+        let name = Name::new(parent, "Switch");
         Self {
             txid: PointTxId::from_str(&name.join()),
             name,
@@ -43,7 +43,7 @@ impl Switch {
     pub fn link(&mut self) -> Link {
         let (loc_send, rem_recv) = mpsc::channel();
         let (rem_send, loc_recv) = mpsc::channel();
-        let remote = Link::new(&self.name, rem_send, rem_recv);
+        let remote = Link::new(&format!("{}:{}", self.name, self.subscribers.len()), rem_send, rem_recv);
         let key = remote.name().join();
         self.subscribers.insert(key.clone(), loc_send);
         self.receivers.insert(key, loc_recv);
@@ -53,12 +53,14 @@ impl Switch {
     /// Entry point
     pub async fn run(&mut self) -> Result<JoinSet<()>, StrErr> {
         let dbg = self.name.join();
+        log::info!("{}.run | Starting Listen remote...", dbg);
         let subscribers: IndexMapFxHasher<String, Sender<Point>> = self.subscribers.drain(0..).collect();
         let exit = self.exit.clone();
         let recv = self.recv.take().unwrap();
         let timeout = self.timeout.clone();
         let mut join_set = JoinSet::new();
         join_set.spawn(async move {
+            log::debug!("{}.run | Start - Listen remote", dbg);
             'main: loop {
                 match recv.recv_timeout(timeout) {
                     Ok(event) => {
@@ -79,14 +81,18 @@ impl Switch {
                                             log::warn!("{}.run | Send error: {:?}", dbg, err);
                                         }
                                     },
-                                    None => {},
+                                    None => {
+                                        log::warn!("{}.run | Subscriber not found: {:?}", dbg, key);
+                                    },
                                 }
                             }
                             _ => log::warn!("{}.run | Uncnown message received: {:?}", dbg, event),
                         }
                     },
                     Err(err) => match err {
-                        std::sync::mpsc::RecvTimeoutError::Timeout => {},
+                        std::sync::mpsc::RecvTimeoutError::Timeout => {
+                            log::warn!("{}.run | Listening Remote...", dbg);
+                        },
                         std::sync::mpsc::RecvTimeoutError::Disconnected => panic!("{}.run | Receive error, all receivers has been closed", dbg),
                     },
                 }
@@ -94,22 +100,28 @@ impl Switch {
                     break 'main;
                 }
             }
+            log::info!("{}.run | Exit - Listen remote", dbg);
         });
         let dbg = self.name.join();
+        log::info!("{}.run | Starting Listen locals...", dbg);
         let send = self.send.clone();
         let receivers: IndexMapFxHasher<String, Receiver<Point>> = self.receivers.drain(0..).collect();
         let exit = self.exit.clone();
         join_set.spawn(async move {
+            log::debug!("{}.run | Start- Listen locals", dbg);
             'main: loop {
                 for (_key, receiver) in receivers.iter() {
                     match receiver.try_recv() {
                         Ok(event) => {
+                            log::debug!("{}.run | Received from locals: {:?}", dbg, event);
                             if let Err(err) = send.send(event) {
-                                log::warn!("{}.run | Send error: {:?}", dbg, err)
+                                log::warn!("{}.run | Send error: {:?}", dbg, err);
                             }
                         }
                         Err(err) => match err {
-                            mpsc::TryRecvError::Empty => {} //tokio::time::sleep(Duration::from_millis(1)).await,
+                            mpsc::TryRecvError::Empty => {
+                                log::warn!("{}.run | Listening Locals...", dbg);
+                            } //tokio::time::sleep(Duration::from_millis(1)).await,
                             mpsc::TryRecvError::Disconnected => panic!("{}.run | Receive error, all senders has been closed", dbg),
                         }
                     }
@@ -118,7 +130,10 @@ impl Switch {
                     }
                 }
             }
+            log::info!("{}.run | Exit - Listen locals", dbg);
         });
+        let dbg = self.name.join();
+        log::info!("{}.run | All started", dbg);
         Ok(join_set)
     }
     ///

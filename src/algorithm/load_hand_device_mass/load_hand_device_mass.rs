@@ -4,11 +4,11 @@ use super::load_hand_device_mass_ctx::LoadHandDeviceMassCtx;
 ///
 /// Calculation step: [total mass and net weight](design\docs\algorithm\part02\chapter_02_choose_another_load_handing_device.md)
 pub struct LoadHandDeviceMass<'a> {
-    dbgid: DbgId,
+    dbg: DbgId,
     /// value of [total mass and net weight](design\docs\algorithm\part02\chapter_01_choose_hook.md)
     value: Option<LoadHandDeviceMassCtx>,
     /// [Context] instance, where store all info about initial data and each algorithm result's
-    ctx: Box<dyn Eval<Switch, EvalResult> + Send + 'a>,
+    ctx: Box<dyn Eval<'a, Switch, EvalResult> + Send + 'a>,
 }
 //
 //
@@ -16,9 +16,9 @@ impl<'a> LoadHandDeviceMass<'a> {
     ///
     /// New instance [LoadHandDeviceMass]
     /// - `ctx` - [Context]
-    pub fn new(ctx: impl Eval<Switch, EvalResult> + Send + 'a) -> Self {
+    pub fn new(ctx: impl Eval<'a, Switch, EvalResult> + Send + 'a) -> Self {
         Self {
-            dbgid: DbgId("LoadHandDeviceMass".to_string()),
+            dbg: DbgId("LoadHandDeviceMass".to_string()),
             value: None,
             ctx: Box::new(ctx),
         }
@@ -26,9 +26,10 @@ impl<'a> LoadHandDeviceMass<'a> {
 }
 //
 //
-impl Eval<Switch, EvalResult> for LoadHandDeviceMass<'_> {
-    fn eval(&'_ mut self, switch: Switch) -> BoxFuture<'_, EvalResult> {
-        Box::pin(async {
+impl<'b, 'a:'b> Eval<'a, Switch, EvalResult> for LoadHandDeviceMass<'b> {
+    fn eval(&'a mut self, switch: Switch) -> BoxFuture<'a, EvalResult> {
+        log::debug!("{}.eval | Start", self.dbg);
+        let result = Box::pin(async {
             let (switch, result) = self.ctx.eval(switch).await;
             (switch, match result {
                 CtxResult::Ok(ctx) => {
@@ -53,11 +54,13 @@ impl Eval<Switch, EvalResult> for LoadHandDeviceMass<'_> {
                 },
                 CtxResult::Err(err) => CtxResult::Err(StrErr(format!(
                     "{}.eval | Read context error: {:?}",
-                    self.dbgid, err
+                    self.dbg, err
                 ))),
                 CtxResult::None => CtxResult::None,
             })
-        })
+        });
+        log::debug!("{}.eval | Exit", self.dbg);
+        result
     }
 }
 //
@@ -65,7 +68,7 @@ impl Eval<Switch, EvalResult> for LoadHandDeviceMass<'_> {
 impl std::fmt::Debug for LoadHandDeviceMass<'_> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("LoadHandDeviceMass")
-            .field("dbgid", &self.dbgid)
+            .field("dbgid", &self.dbg)
             .field("value", &self.value)
             // .field("ctx", &self.ctx)
             .finish()

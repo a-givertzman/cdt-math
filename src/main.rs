@@ -7,7 +7,7 @@ mod tests;
 use std::sync::mpsc;
 
 use algorithm::{
-    context::{context::Context, context_access::ContextRead}, 
+    context::context::Context, 
     initial::Initial, initial_ctx::initial_ctx::InitialCtx,
     bearing_filter::bearing_filter_ctx::BearingFilterCtx, 
     dynamic_coefficient::dynamic_coefficient::DynamicCoefficient,
@@ -22,8 +22,8 @@ use api_tools::debug::dbg_id::DbgId;
 use app::app::App;
 use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
 use infrostructure::client::{
-    choose_user_bearing::{ChooseUserBearingQuery, ChooseUserBearingReply},
-    choose_user_hook::{ChooseUserHookQuery, ChooseUserHookReply},
+    choose_user_bearing::ChooseUserBearingQuery,
+    choose_user_hook::ChooseUserHookQuery,
     query::Query,
 };
 use kernel::{
@@ -33,7 +33,7 @@ use kernel::{
 };
 ///
 /// Application entry point
-#[tokio::main]
+#[tokio::main(flavor = "multi_thread", worker_threads = 10)]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     DebugSession::init(LogLevel::Debug, Backtrace::Short);
     let dbg = DbgId("main".into());
@@ -52,16 +52,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         RopeEffort::new(
             LoadHandDeviceMass::new(
                 UserBearing::new(
-                    Request::<ChooseUserBearingReply>::new(|ctx: &Context, link: Link| {
-                        let variants: &BearingFilterCtx = ctx.read();
+                    Request::new(async |variants: BearingFilterCtx, link: Link| {
                         let query = Query::ChooseUserBearing(ChooseUserBearingQuery::new(variants.result.clone()));
-                        link.req(query).expect("{}.req | Error to send request")
+                        link.req(query).await.expect("{}.req | Error to send request")
                     }),
                     UserHook::new(
-                        Request::<ChooseUserHookReply>::new(|ctx: &Context, link: Link| {
-                            let variants: &HookFilterCtx = ctx.read();
+                        Request::new(async |variants: HookFilterCtx, link: Link| {
                             let query = Query::ChooseUserHook(ChooseUserHookQuery::test(variants.result.clone()));
-                            link.req(query).expect("{}.req | Error to send request")
+                            link.req(query).await.expect("{}.req | Error to send request")
                         }),
                         HookFilter::new(
                             DynamicCoefficient::new(

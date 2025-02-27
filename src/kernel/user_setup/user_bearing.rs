@@ -1,6 +1,6 @@
 use futures::future::BoxFuture;
 use crate::{
-    algorithm::context::{context_access::ContextWrite, ctx_result::CtxResult},
+    algorithm::{bearing_filter::bearing_filter_ctx::BearingFilterCtx, context::{context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult}},
     infrostructure::client::choose_user_bearing::ChooseUserBearingReply,
     kernel::{dbgid::dbgid::DbgId, eval::Eval, request::Request, str_err::str_err::StrErr, sync::switch::Switch, types::eval_result::EvalResult},
 };
@@ -12,9 +12,9 @@ pub struct UserBearing<'a> {
     /// value of user hook
     value: Option<UserBearingCtx>,
     /// Event interface
-    req: Request<ChooseUserBearingReply>,
+    req: Request<'a, BearingFilterCtx, ChooseUserBearingReply>,
     /// [Context] instance, where store all info about initial data and each algorithm result's
-    ctx: Box<dyn Eval<Switch, EvalResult> + Send + 'a>,
+    ctx: Box<dyn Eval<'a, Switch, EvalResult> + Send + 'a>,
 }
 //
 //
@@ -23,7 +23,7 @@ impl<'a> UserBearing<'a> {
     /// New instance [UserBearing]
     /// - `ctx` - [Context]
     /// - `req` - [Request] for user
-    pub fn new(req: Request<ChooseUserBearingReply>, ctx: impl Eval<Switch, EvalResult> + Send + 'a) -> Self {
+    pub fn new(req: Request<'a, BearingFilterCtx, ChooseUserBearingReply>, ctx: impl Eval<'a, Switch, EvalResult> + Send + 'a) -> Self {
         Self { 
             dbgid: DbgId("UserBearing".to_string()), 
             value: None,
@@ -34,14 +34,16 @@ impl<'a> UserBearing<'a> {
 }
 //
 //
-impl Eval<Switch, EvalResult> for UserBearing<'_> {
-    fn eval(&'_ mut self, mut switch: Switch) -> BoxFuture<'_, EvalResult> {
+impl<'b, 'a:'b> Eval<'a, Switch, EvalResult> for UserBearing<'b> {
+    fn eval(&'a mut self, mut switch: Switch) -> BoxFuture<'a, EvalResult> {
         let link = switch.link();
         Box::pin(async {
             let (switch, result) = self.ctx.eval(switch).await;
             (switch, match result {
                 CtxResult::Ok(ctx) => {
-                    let reply = self.req.fetch(&ctx, link);
+                    let variants: &BearingFilterCtx = ctx.read();
+                    let variants = variants.to_owned();
+                    let reply = self.req.fetch(variants, link).await;
                     let result = UserBearingCtx { result: reply.answer };
                     self.value = Some(result.clone());
                     ctx.write(result)

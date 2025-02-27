@@ -1,6 +1,6 @@
 use futures::future::BoxFuture;
 use crate::{
-    algorithm::context::{context_access::ContextWrite, ctx_result::CtxResult},
+    algorithm::{context::{context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult}, hook_filter::hook_filter_ctx::HookFilterCtx},
     infrostructure::client::choose_user_hook::ChooseUserHookReply,
     kernel::{dbgid::dbgid::DbgId, eval::Eval, request::Request, str_err::str_err::StrErr, sync::switch::Switch, types::eval_result::EvalResult},
 };
@@ -12,9 +12,9 @@ pub struct UserHook<'a> {
     /// value of user hook
     value: Option<UserHookCtx>,
     /// Event interface
-    req: Request<ChooseUserHookReply>,
+    req: Request<'a, HookFilterCtx, ChooseUserHookReply>,
     /// [Context] instance, where store all info about initial data and each algorithm result's
-    ctx: Box<dyn Eval<Switch, EvalResult> + Send + 'a>,
+    ctx: Box<dyn Eval<'a, Switch, EvalResult> + Send + 'a>,
 }
 //
 //
@@ -23,7 +23,7 @@ impl<'a> UserHook<'a> {
     /// New instance [UserHook]
     /// - `ctx` - [Context]
     /// - `req` - [Request] for user
-    pub fn new(req: Request<ChooseUserHookReply>, ctx: impl Eval<Switch, EvalResult> + Send + 'a) -> Self{
+    pub fn new(req: Request<'a, HookFilterCtx, ChooseUserHookReply>, ctx: impl Eval<'a, Switch, EvalResult> + Send + 'a) -> Self{
         Self { 
             dbgid: DbgId("UserHook".to_string()), 
             value: None,
@@ -34,14 +34,15 @@ impl<'a> UserHook<'a> {
 }
 //
 //
-impl Eval<Switch, EvalResult> for UserHook<'_> {
-    fn eval<'a>(&'a mut self, mut switch: Switch) -> BoxFuture<'a, EvalResult> {
+impl<'b, 'a:'b> Eval<'a, Switch, EvalResult> for UserHook<'b> {
+    fn eval(&'a mut self, mut switch: Switch) -> BoxFuture<'a, EvalResult> {
         let link = switch.link();
         Box::pin(async {
             let (switch, result) = self.ctx.eval(switch).await;
             (switch, match result {
                 CtxResult::Ok(ctx) => {
-                    let reply = self.req.fetch(&ctx, link);
+                    let variants: &HookFilterCtx = ctx.read();
+                    let reply = self.req.fetch(variants.to_owned(), link).await;
                     let result = UserHookCtx { result: reply.choosen };
                     self.value = Some(result.clone());
                     ctx.write(result)

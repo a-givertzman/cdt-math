@@ -88,11 +88,10 @@ mod bearing_filter {
         for (step, cache_path, target) in test_data {
             let (switch_, result) = BearingFilter::new(
                 UserHook::new(
-                    Request::new(|ctx: &Context, link: Link| {
-                        let variants: &HookFilterCtx = ctx.read();
+                    Request::new(async |variants: HookFilterCtx, link: Link| {
                         let variants = variants.result.clone();
                         let query = Query::ChooseUserHook(ChooseUserHookQuery::test(variants));
-                        link.req::<ChooseUserHookReply>(query).expect("{}.req | Error to send request")
+                        link.req::<ChooseUserHookReply>(query).await.expect("{}.req | Error to send request")
                     }),
                     HookFilter::new(
                         DynamicCoefficient::new(

@@ -8,7 +8,7 @@ mod user_bearing {
         algorithm::{
             bearing_filter::bearing_filter_ctx::BearingFilterCtx, context::{context::Context, context_access::ContextRead, ctx_result::CtxResult}, dynamic_coefficient::dynamic_coefficient::DynamicCoefficient, hook_filter::{hook_filter::HookFilter, hook_filter_ctx::HookFilterCtx}, initial::Initial, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed::LiftingSpeed, load_hand_device_mass::{load_hand_device_mass::LoadHandDeviceMass, load_hand_device_mass_ctx::LoadHandDeviceMassCtx}, select_betta_phi::select_betta_phi::SelectBettaPhi
         },
-        infrostructure::client::{choose_user_bearing::{ChooseUserBearingQuery, ChooseUserBearingReply}, choose_user_hook::{ChooseUserHookQuery, ChooseUserHookReply}, query::Query},
+        infrostructure::client::{choose_user_bearing::ChooseUserBearingQuery, choose_user_hook::ChooseUserHookQuery, query::Query},
         kernel::{eval::Eval, mok_user_reply::mok_user_reply::MokUserReply, request::Request, storage::storage::Storage, sync::{link::Link, switch::Switch}, user_setup::{user_bearing::UserBearing, user_hook::UserHook}}
     };
     ///
@@ -36,7 +36,7 @@ mod user_bearing {
         log::debug!("");
         let dbg = "test";
         log::debug!("\n{}", dbg);
-        let test_duration = TestDuration::new(dbg, Duration::from_secs(1));
+        let test_duration = TestDuration::new(dbg, Duration::from_secs(10));
         test_duration.run().unwrap();
         let test_data = [
             (
@@ -61,21 +61,25 @@ mod user_bearing {
         let rem_link = Link::new(dbg, rem_send, rem_recv);
         let mut mok_user_reply = MokUserReply::new(dbg, rem_link);
         let mut switch = Switch::new(dbg, loc_send, loc_recv);
+        log::debug!("{} | Switch run...", dbg);
         let switch_handle = switch.run().await.unwrap();
+        log::debug!("{} | Switch run - ok", dbg);
+        log::debug!("{} | MokUserReply run...", dbg);
         let mok_user_reply_handle = mok_user_reply.run().await.unwrap();
+        log::debug!("{} | MokUserReply run - ok", dbg);
+        log::debug!("{} | All executed", dbg);
+        log::debug!("{} | Evals...", dbg);
         for (step, cache_path, target) in test_data {
             let (switch_, result) = LoadHandDeviceMass::new(
                 UserBearing::new(
-                    Request::<ChooseUserBearingReply>::new(|ctx: &Context, link: Link| {
-                        let variants: &BearingFilterCtx = ctx.read();
+                    Request::new(async |variants: BearingFilterCtx, link: Link| {
                         let query = Query::ChooseUserBearing(ChooseUserBearingQuery::new(variants.result.clone()));
-                        link.req(query).expect("{}.req | Error to send request")
+                        link.req(query).await.expect("{}.req | Error to send request")
                     }),
                     UserHook::new(
-                        Request::<ChooseUserHookReply>::new(|ctx: &Context, link: Link| {
-                            let variants: &HookFilterCtx = ctx.read();
+                        Request::new(async |variants: HookFilterCtx, link: Link| {
                             let query = Query::ChooseUserHook(ChooseUserHookQuery::test(variants.result.clone()));
-                            link.req(query).expect("{}.req | Error to send request")
+                            link.req(query).await.expect("{}.req | Error to send request")
                         }),
                         HookFilter::new(
                             DynamicCoefficient::new(

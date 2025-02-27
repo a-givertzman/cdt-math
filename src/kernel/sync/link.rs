@@ -18,7 +18,7 @@ pub struct Link {
 impl Link {
     ///
     /// Default timeout to await `recv`` operation, 300 ms
-    const DEFAULT_TIMEOUT: Duration = Duration::from_millis(300);
+    const DEFAULT_TIMEOUT: Duration = Duration::from_millis(900);
     ///
     /// Returns [Link] new instance
     /// - `send` - local side of channel.send
@@ -64,7 +64,7 @@ impl Link {
     /// - Sends a request, 
     /// - Await reply,
     /// - Returns parsed reply
-    pub fn req<T: DeserializeOwned + Debug>(&self, query: impl Serialize + Debug) -> Result<T, StrErr> {
+    pub async fn req<T: DeserializeOwned + Debug + Send>(&self, query: impl Serialize + Debug) -> Result<T, StrErr> {
         match serde_json::to_string(&query) {
             Ok(query) => {
                 let query = Point::String(PointHlr::new(
@@ -75,21 +75,26 @@ impl Link {
                     Cot::Req,
                     chrono::offset::Utc::now(),
                 ));
-                match self.send.send(query) {
+                match self.send.send(query.clone()) {
                     Ok(_) => {
-                        match self.recv.recv_timeout(self.timeout) {
-                            Ok(reply) => {
-                                let reply = reply.as_string().value;
-                                match serde_json::from_str::<T>(reply.as_str()) {
-                                    Ok(reply) => {
-                                        Ok(reply)
+                        log::debug!("{}.req | Sent request: {:#?}", self.name, query);
+                        let h = tokio::task::block_in_place(move|| {
+                            let r = match self.recv.recv_timeout(Duration::from_secs(3)) {
+                                Ok(reply) => {
+                                    log::debug!("{}.req | Received reply: {:#?}", self.name, reply);
+                                    let reply = reply.as_string().value;
+                                    match serde_json::from_str::<T>(reply.as_str()) {
+                                        Ok(reply) => {
+                                            Ok(reply)
+                                        }
+                                        Err(err) => Err(StrErr(format!("{}.req | Deserialize error for {:?} in {}, \n\terror: {:#?}", self.name, std::any::type_name::<T>(), reply, err))),
                                     }
-                                    Err(err) => Err(StrErr(format!("{}.req | Deserialize error for {:?} in {}, \n\terror: {:#?}", self.name, std::any::type_name::<T>(), reply, err))),
                                 }
-                            }
-                            _ => Err(StrErr(format!("{}.req | Request timeout ({:?})", self.name, self.timeout))),
-
-                        }
+                                _ => Err(StrErr(format!("{}.req | Request timeout ({:?})", self.name, self.timeout))),
+                            };
+                            r
+                        });
+                        h
                     },
                     Err(err) => Err(StrErr(format!("{}.req | Send request error: {:#?}", self.name, err))),
                 }
@@ -104,8 +109,9 @@ impl Link {
     /// - Returns Err if channel is closed
     pub fn recv_query<T: DeserializeOwned + Debug>(&self) -> CtxResult<T, StrErr> {
         match self.recv.recv_timeout(self.timeout) {
-            Ok(quyru) => {
-                let quyru = quyru.as_string().value;
+            Ok(query) => {
+                log::debug!("{}.recv_query | Received query: {:#?}", self.name, query);
+                let quyru = query.as_string().value;
                 match serde_json::from_str::<T>(quyru.as_str()) {
                     Ok(query) => {
                         return CtxResult::Ok(query)

@@ -8,7 +8,7 @@ pub struct RopeCount<'a> {
     /// value of [rope count](design\docs\algorithm\part02\chapter_03_choose_hoisting_tackle.md)
     value: Option<RopeCountCtx>,
     /// [Context] instance, where store all info about initial data and each algorithm result's
-    ctx: Box<dyn Eval<Switch, EvalResult> + Send + 'a>,
+    ctx: Box<dyn Eval<'a, Switch, EvalResult> + Send + 'a>,
 }
 //
 //
@@ -16,7 +16,7 @@ impl<'a> RopeCount<'a> {
     ///
     /// New instance [RopeCount]
     /// - `ctx` - [Context]
-    pub fn new(ctx: impl Eval<Switch, EvalResult> + Send + 'a) -> Self {
+    pub fn new(ctx: impl Eval<'a, Switch, EvalResult> + Send + 'a) -> Self {
         Self {
             dbgid: DbgId("RopeCount".to_string()),
             value: None,
@@ -37,8 +37,8 @@ impl<'a> RopeCount<'a> {
 }
 //
 //
-impl Eval<Switch, EvalResult> for RopeCount<'_> {
-    fn eval(&'_ mut self, switch: Switch) -> BoxFuture<'_, EvalResult> {
+impl<'b, 'a:'b> Eval<'a, Switch, EvalResult> for RopeCount<'b> {
+    fn eval(&'a mut self, switch: Switch) -> BoxFuture<'a, EvalResult> {
         Box::pin(async {
             let (switch, result) = self.ctx.eval(switch).await;
             (switch, match result {

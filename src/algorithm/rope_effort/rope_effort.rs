@@ -8,7 +8,7 @@ pub struct RopeEffort<'a> {
     /// value of [rope effort](design\docs\algorithm\part02\chapter_03_choose_hoisting_tackle.md)
     value: Option<RopeEffortCtx>,
     /// [Context] instance, where store all info about initial data and each algorithm result's
-    ctx: Box<dyn Eval<Switch, EvalResult> + Send + 'a>,
+    ctx: Box<dyn Eval<'a, Switch, EvalResult> + Send + 'a>,
 }
 //
 //
@@ -16,7 +16,7 @@ impl<'a> RopeEffort<'a> {
     ///
     /// New instance [RopeEffort]
     /// - 'ctx' - [Context] instance, where store all info about initial data and each algorithm result's
-    pub fn new(ctx: impl Eval<Switch, EvalResult> + Send + 'a) -> Self {
+    pub fn new(ctx: impl Eval<'a, Switch, EvalResult> + Send + 'a) -> Self {
         Self {
             dbgid: DbgId("RopeEffort".to_string()),
             value: None,
@@ -26,10 +26,10 @@ impl<'a> RopeEffort<'a> {
 }
 //
 //
-impl Eval<Switch, EvalResult> for RopeEffort<'_> {
+impl<'b, 'a:'b> Eval<'a, Switch, EvalResult> for RopeEffort<'b> {
     ///
     /// Method of calculating [rope effort](design\docs\algorithm\part02\chapter_03_choose_hoisting_tackle.md), based on user loading capacity
-    fn eval(&'_ mut self, switch: Switch) -> BoxFuture<'_, EvalResult> {
+    fn eval(&'a mut self, switch: Switch) -> BoxFuture<'a, EvalResult> {
         Box::pin(async {
             let (switch, result) = self.ctx.eval(switch).await;
             let result = match result {

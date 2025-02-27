@@ -50,6 +50,7 @@ impl MokUserReply {
             // .build_task()
             // .name(format!("{} - main", dbg))
             .spawn(async move {
+                log::info!("{}.run | Start", dbg);
                 async fn send_reply(dbg: &str, link: &mut Link, reply: impl Serialize + Debug) {
                     if let Err(err) = link.send_reply(reply) {
                         log::debug!("{}.run | Send reply error: {:?}", dbg, err);
@@ -122,17 +123,6 @@ impl MokUserReply {
                 log::debug!("{}.run | Exit", dbg);
             });
         Ok(join_set)
-        // match handle {
-        //     Ok(handle) => {
-        //         log::info!("{}.run | Starting - ok", self.id());
-        //         Ok(ServiceHandles::new(vec![(self.id().to_string(), handle)]))
-        //     }
-        //     Err(err) => {
-        //         let message = format!("{}.run | Start failed: {:#?}", self.id(), err);
-        //         log::warn!("{}", message);
-        //         Err(message)
-        //     }
-        // }
     }
     ///
     /// Sends "exit" signal to the service's thread

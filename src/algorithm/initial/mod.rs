@@ -25,11 +25,13 @@ impl Initial {
 }
 //
 //
-impl Eval<Switch, EvalResult> for Initial {
+impl Eval<'_, Switch, EvalResult> for Initial {
     fn eval(&'_ mut self, switch: Switch) -> BoxFuture<'_, EvalResult> {
         Box::pin(async {
             let ctx = self.ctx.take().unwrap();
-            log::debug!("{}.eval | Start with contect: {:#?}", self.dbg, ctx);
+            log::debug!("{}.eval | Start", self.dbg);
+            log::trace!("{}.eval | Start with contect: {:#?}", self.dbg, ctx);
+            log::debug!("{}.eval | Done", self.dbg);
             (switch, CtxResult::Ok(ctx))
         })
     }

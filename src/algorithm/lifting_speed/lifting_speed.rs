@@ -10,11 +10,11 @@ use super::lifting_speed_ctx::LiftingSpeedCtx;
 ///
 /// Calculation step: [steady-state lifting speed of the load](design\docs\algorithm\part02\chapter_01_choose_hook.md)
 pub struct LiftingSpeed<'a> {
-    dbgid: DbgId,
+    dbg: DbgId,
     /// value of [steady-state lifting speed](design\docs\algorithm\part02\chapter_01_choose_hook.md)
     value: Option<LiftingSpeedCtx>,
     /// [Context] instance, where store all info about initial data and each algorithm result's
-    ctx: Box<dyn Eval<Switch, EvalResult> + Send + 'a>,
+    ctx: Box<dyn Eval<'a, Switch, EvalResult> + Send + 'a>,
 }
 //
 //
@@ -22,9 +22,9 @@ impl<'a> LiftingSpeed<'a> {
     ///
     /// New instance [LiftingSpeed]
     /// - 'ctx' - [Context] instance, where store all info about initial data and each algorithm result's
-    pub fn new(ctx: impl Eval<Switch, EvalResult> + Send + 'a) -> Self {
+    pub fn new(ctx: impl Eval<'a, Switch, EvalResult> + Send + 'a) -> Self {
         Self {
-            dbgid: DbgId("LiftingSpeed".to_string()),
+            dbg: DbgId("LiftingSpeed".to_string()),
             value: None,
             ctx: Box::new(ctx),
         }
@@ -39,12 +39,12 @@ impl<'a> LiftingSpeed<'a> {
 }
 //
 //
-impl Eval<Switch, EvalResult> for LiftingSpeed<'_> {
+impl<'b, 'a:'b> Eval<'a, Switch, EvalResult> for LiftingSpeed<'b> {
     ///
     /// Method of calculating the steady-state lifting speed of the load
     /// [reference to steady-state lifting speed choice documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
-    fn eval(&'_ mut self, switch: Switch) -> BoxFuture<'_, EvalResult> {
-        Box::pin(async {
+    fn eval(&'a mut self, switch: Switch) -> BoxFuture<'a, EvalResult> {
+        let result = Box::pin(async {
             let (switch, result) = self.ctx.eval(switch).await;
             (switch, match result {
                 CtxResult::Ok(ctx) => {
@@ -69,11 +69,13 @@ impl Eval<Switch, EvalResult> for LiftingSpeed<'_> {
                 }
                 CtxResult::Err(err) => CtxResult::Err(StrErr(format!(
                     "{}.eval | Read context error: {:?}",
-                    self.dbgid, err
+                    self.dbg, err
                 ))),
                 CtxResult::None => CtxResult::None,
             })
-        })
+        });
+        log::debug!("{}.eval | Done", self.dbg);
+        result
     }
 }
 //
@@ -81,7 +83,7 @@ impl Eval<Switch, EvalResult> for LiftingSpeed<'_> {
 impl std::fmt::Debug for LiftingSpeed<'_> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("LiftingSpeed")
-            .field("dbgid", &self.dbgid)
+            .field("dbgid", &self.dbg)
             .field("value", &self.value)
             // .field("ctx", &self.ctx)
             .finish()
