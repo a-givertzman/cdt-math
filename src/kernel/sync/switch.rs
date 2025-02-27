@@ -2,7 +2,6 @@ use std::{fmt::Debug, hash::BuildHasherDefault, sync::{atomic::{AtomicBool, Orde
 use sal_sync::{collections::map::IndexMapFxHasher, services::entity::{cot::Cot, error::str_err::StrErr, name::Name, point::{point::Point, point_tx_id::PointTxId}}};
 use tokio::task::JoinSet;
 use super::link::Link;
-trait SizedStream: tokio_stream::Stream<Item = Point> + Sized {}
 ///
 /// 
 pub struct Switch {
@@ -63,6 +62,7 @@ impl Switch {
             'main: loop {
                 match recv.recv_timeout(timeout) {
                     Ok(event) => {
+                        log::debug!("{}.run | Request: {:?}", dbg, event);
                         match event.cot() {
                             Cot::Inf | Cot::Act | Cot::Req => {
                                 for (_key, subscriber) in &subscribers {

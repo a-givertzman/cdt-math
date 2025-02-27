@@ -1,5 +1,5 @@
 use std::{fmt::Debug, sync::mpsc::{self, Receiver, Sender}, time::Duration};
-use sal_sync::services::entity::{error::str_err::StrErr, name::Name, point::{point::Point, point_tx_id::PointTxId}};
+use sal_sync::services::entity::{cot::Cot, error::str_err::StrErr, name::Name, point::{point::Point, point_hlr::PointHlr, point_tx_id::PointTxId}, status::status::Status};
 use serde::{de::DeserializeOwned, Serialize};
 use crate::algorithm::context::ctx_result::CtxResult;
 ///
@@ -67,7 +67,14 @@ impl Link {
     pub fn req<T: DeserializeOwned + Debug>(&self, query: impl Serialize + Debug) -> Result<T, StrErr> {
         match serde_json::to_string(&query) {
             Ok(query) => {
-                let query = Point::new(self.txid, &self.name.join(), query);
+                let query = Point::String(PointHlr::new(
+                    self.txid,
+                    &self.name.join(),
+                    query,
+                    Status::Ok,
+                    Cot::Req,
+                    chrono::offset::Utc::now(),
+                ));
                 match self.send.send(query) {
                     Ok(_) => {
                         match self.recv.recv_timeout(self.timeout) {

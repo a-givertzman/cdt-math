@@ -16,6 +16,9 @@ debugging = { git = "https://github.com/a-givertzman/rust-debuging.git", tag = "
 api-tools = { git = "https://github.com/a-givertzman/rust-api-tools.git", tag = "0.2.0" }
 sal-sync = { git = "https://github.com/a-givertzman/rust-sal-sync.git", tag = "0.0.3" }
 #
+# Time
+chrono = "^0.4"
+#
 # Serde
 serde = { version = "^1.0", features = ["derive"] }
 serde_yaml = "^0.9"

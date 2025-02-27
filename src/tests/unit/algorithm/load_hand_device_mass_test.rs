@@ -30,7 +30,7 @@ mod user_bearing {
     // #[test]
     #[tokio::test]
     async fn eval() {
-        DebugSession::init(LogLevel::Info, Backtrace::Short);
+        DebugSession::init(LogLevel::Debug, Backtrace::Short);
         init_once();
         init_each();
         log::debug!("");

@@ -80,7 +80,7 @@ impl MokUserReply {
                                         weight: 50.0,
                                     }),
                                 };
-                                send_reply(&dbg, &mut link, reply);
+                                send_reply(&dbg, &mut link, reply).await;
                             }
                             Query::ChooseUserBearing(query) => {
                                 let _query: ChooseUserBearingQuery = query;
