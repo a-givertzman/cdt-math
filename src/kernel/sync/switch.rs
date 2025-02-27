@@ -90,7 +90,6 @@ impl Switch {
                         std::sync::mpsc::RecvTimeoutError::Disconnected => panic!("{}.run | Receive error, all receivers has been closed", dbg),
                     },
                 }
-
                 if exit.load(Ordering::SeqCst) {
                     break 'main;
                 }
