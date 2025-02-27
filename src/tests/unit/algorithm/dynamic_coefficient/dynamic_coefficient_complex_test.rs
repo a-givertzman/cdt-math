@@ -4,7 +4,7 @@ mod dynamic_coefficient {
     use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
     use futures::future::BoxFuture;
     use std::{
-        sync::Once,
+        sync::{mpsc, Once},
         time::Duration,
     };
     use testing::stuff::max_test_duration::TestDuration;
@@ -16,7 +16,7 @@ mod dynamic_coefficient {
             lifting_speed::lifting_speed::LiftingSpeed,
             select_betta_phi::select_betta_phi::SelectBettaPhi,
         },
-        kernel::{dbgid::dbgid::DbgId, eval::Eval, storage::storage::Storage, str_err::str_err::StrErr},
+        kernel::{dbgid::dbgid::DbgId, eval::Eval, storage::storage::Storage, str_err::str_err::StrErr, sync::switch::Switch, types::eval_result::EvalResult},
     };
 
     ///
@@ -44,6 +44,8 @@ mod dynamic_coefficient {
         log::debug!("\n{}", dbg);
         let test_duration = TestDuration::new(&dbg, Duration::from_secs(1));
         test_duration.run().unwrap();
+        let (send, recv) = mpsc::channel();
+        let mut switch = Switch::new(&dbg, send, recv);
         let test_data: [(i32, InitialCtx, CtxResult<f64, StrErr>); 3] = [
             (
                 1,
@@ -71,19 +73,16 @@ mod dynamic_coefficient {
             ),
         ];
         for (step, initial, target) in test_data {
-            let mut result = DynamicCoefficient::new(
+            let (switch_, result) = DynamicCoefficient::new(
                 SelectBettaPhi::new(
                     LiftingSpeed::new(
                         MocEval {
-                            ctx: Some(Context::new(initial)),
+                            ctx: Context::new(initial),
                         },
                     ),
                 ),
-            );
-            let result = result
-            .eval()
-            .await;
-            // let result= result.await;
+            ).eval(switch).await;
+            switch = switch_;
             match (&result, &target) {
                 (CtxResult::Ok(result), CtxResult::Ok(target)) => {
                     let result = ContextRead::<DynamicCoefficientCtx>::read(result)
@@ -107,14 +106,14 @@ mod dynamic_coefficient {
     ///
     #[derive(Debug)]
     struct MocEval {
-        pub ctx: Option<Context>,
+        pub ctx: Context,
     }
     //
     //
-    impl Eval<Context> for MocEval {
-        fn eval<'a>(&'a mut self) -> BoxFuture<'a, CtxResult<Context, StrErr>> {
+    impl Eval<Switch, EvalResult> for MocEval {
+        fn eval(&'_ mut self, switch: Switch) -> BoxFuture<'_, EvalResult> {
             Box::pin(async {
-                CtxResult::Ok(self.ctx.take().unwrap())
+                (switch, CtxResult::Ok(self.ctx.clone()))
             })
         }
     }

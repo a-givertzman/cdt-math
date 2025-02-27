@@ -1,10 +1,9 @@
 #[cfg(test)]
 
 mod bearing_filter {
-    use std::{sync::Once, time::Duration};
+    use std::{sync::{mpsc, Once}, time::Duration};
     use testing::stuff::max_test_duration::TestDuration;
     use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
-    use tokio::sync::mpsc;
     use crate::{
         algorithm::{
             bearing_filter::{bearing_filter::BearingFilter, bearing_filter_ctx::BearingFilterCtx}, context::{context::Context, context_access::ContextRead, ctx_result::CtxResult}, dynamic_coefficient::dynamic_coefficient::DynamicCoefficient, entities::bearing::Bearing, hook_filter::{hook_filter::HookFilter, hook_filter_ctx::HookFilterCtx}, initial::Initial, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed::LiftingSpeed, select_betta_phi::select_betta_phi::SelectBettaPhi
@@ -81,20 +80,19 @@ mod bearing_filter {
                 ],
             )
         ];
-        let (send, recv) = mpsc::channel(10_000);
+        let (send, recv) = mpsc::channel();
         let mut switch = Switch::new(dbg, send, recv);
         let switch_handle = switch.run().unwrap();
         let mut mok_user_reply = MokUserReply::new(dbg, switch.link());
         let mok_user_reply_handle = mok_user_reply.run().await.unwrap();
         for (step, cache_path, target) in test_data {
-            let result = BearingFilter::new(
+            let (switch_, result) = BearingFilter::new(
                 UserHook::new(
-                    switch.link(),
-                    Request::new(|ctx: &Context, link: &Link| {
+                    Request::new(|ctx: &Context, link: Link| {
                         let variants: &HookFilterCtx = ctx.read();
                         let variants = variants.result.clone();
                         let query = Query::ChooseUserHook(ChooseUserHookQuery::test(variants));
-                        link.req::<ChooseUserHookReply>(query).expect("{}.req | Error to send request");
+                        link.req::<ChooseUserHookReply>(query).expect("{}.req | Error to send request")
                     }),
                     HookFilter::new(
                         DynamicCoefficient::new(
@@ -113,8 +111,9 @@ mod bearing_filter {
                     ),
                 ),
             )
-            .eval()
+            .eval(switch)
             .await;
+            switch = switch_;
             match result {
                 CtxResult::Ok(result) => {
                     let result = ContextRead::<BearingFilterCtx>::read(&result)

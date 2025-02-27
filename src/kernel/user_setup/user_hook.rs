@@ -1,8 +1,8 @@
 use futures::future::BoxFuture;
 use crate::{
-    algorithm::context::{context::Context, context_access::ContextWrite, ctx_result::CtxResult},
+    algorithm::context::{context_access::ContextWrite, ctx_result::CtxResult},
     infrostructure::client::choose_user_hook::ChooseUserHookReply,
-    kernel::{dbgid::dbgid::DbgId, eval::Eval, sync::link::Link, request::Request, str_err::str_err::StrErr},
+    kernel::{dbgid::dbgid::DbgId, eval::Eval, request::Request, str_err::str_err::StrErr, sync::switch::Switch, types::eval_result::EvalResult},
 };
 use super::user_hook_ctx::UserHookCtx;
 ///
@@ -12,10 +12,9 @@ pub struct UserHook<'a> {
     /// value of user hook
     value: Option<UserHookCtx>,
     /// Event interface
-    link: Link,
     req: Request<ChooseUserHookReply>,
     /// [Context] instance, where store all info about initial data and each algorithm result's
-    ctx: Box<dyn Eval<Context> + Send + 'a>,
+    ctx: Box<dyn Eval<Switch, EvalResult> + Send + 'a>,
 }
 //
 //
@@ -24,11 +23,10 @@ impl<'a> UserHook<'a> {
     /// New instance [UserHook]
     /// - `ctx` - [Context]
     /// - `req` - [Request] for user
-    pub fn new(link: Link, req: Request<ChooseUserHookReply>, ctx: impl Eval<Context> + Send + 'a) -> Self{
+    pub fn new(req: Request<ChooseUserHookReply>, ctx: impl Eval<Switch, EvalResult> + Send + 'a) -> Self{
         Self { 
             dbgid: DbgId("UserHook".to_string()), 
             value: None,
-            link,
             req: req,
             ctx: Box::new(ctx),
         }
@@ -36,12 +34,14 @@ impl<'a> UserHook<'a> {
 }
 //
 //
-impl Eval<Context> for UserHook<'_> {
-    fn eval<'a>(&'a mut self) -> BoxFuture<'a, CtxResult<Context, StrErr>> {
+impl Eval<Switch, EvalResult> for UserHook<'_> {
+    fn eval<'a>(&'a mut self, mut switch: Switch) -> BoxFuture<'a, EvalResult> {
+        let link = switch.link();
         Box::pin(async {
-            match self.ctx.eval().await {
+            let (switch, result) = self.ctx.eval(switch).await;
+            (switch, match result {
                 CtxResult::Ok(ctx) => {
-                    let reply = self.req.fetch(ctx.clone(), &mut self.link).await;
+                    let reply = self.req.fetch(&ctx, link);
                     let result = UserHookCtx { result: reply.choosen };
                     self.value = Some(result.clone());
                     ctx.write(result)
@@ -51,7 +51,7 @@ impl Eval<Context> for UserHook<'_> {
                     self.dbgid, err
                 ))),
                 CtxResult::None => CtxResult::None,
-            }
+            })
         })
     }
 }

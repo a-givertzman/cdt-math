@@ -1,5 +1,5 @@
 use futures::future::BoxFuture;
-use crate::{algorithm::{context::{context::Context, context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult}, initial_ctx::initial_ctx::InitialCtx, load_hand_device_mass::load_hand_device_mass_ctx::LoadHandDeviceMassCtx, rope_effort::rope_effort_ctx::RopeEffortCtx}, kernel::{dbgid::dbgid::DbgId, eval::Eval, str_err::str_err::StrErr}};
+use crate::{algorithm::{context::{context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult}, initial_ctx::initial_ctx::InitialCtx, load_hand_device_mass::load_hand_device_mass_ctx::LoadHandDeviceMassCtx, rope_effort::rope_effort_ctx::RopeEffortCtx}, kernel::{dbgid::dbgid::DbgId, eval::Eval, str_err::str_err::StrErr, sync::switch::Switch, types::eval_result::EvalResult}};
 use super::rope_count_ctx::RopeCountCtx;
 ///
 /// Calculation step: [rope count](design\docs\algorithm\part02\chapter_03_choose_hoisting_tackle.md)
@@ -8,7 +8,7 @@ pub struct RopeCount<'a> {
     /// value of [rope count](design\docs\algorithm\part02\chapter_03_choose_hoisting_tackle.md)
     value: Option<RopeCountCtx>,
     /// [Context] instance, where store all info about initial data and each algorithm result's
-    ctx: Box<dyn Eval<Context> + Send + 'a>,
+    ctx: Box<dyn Eval<Switch, EvalResult> + Send + 'a>,
 }
 //
 //
@@ -16,7 +16,7 @@ impl<'a> RopeCount<'a> {
     ///
     /// New instance [RopeCount]
     /// - `ctx` - [Context]
-    pub fn new(ctx: impl Eval<Context> + Send + 'a) -> Self {
+    pub fn new(ctx: impl Eval<Switch, EvalResult> + Send + 'a) -> Self {
         Self {
             dbgid: DbgId("RopeCount".to_string()),
             value: None,
@@ -37,10 +37,11 @@ impl<'a> RopeCount<'a> {
 }
 //
 //
-impl Eval<Context> for RopeCount<'_> {
-    fn eval(&'_ mut self) -> BoxFuture<'_, CtxResult<Context, StrErr>> {
+impl Eval<Switch, EvalResult> for RopeCount<'_> {
+    fn eval(&'_ mut self, switch: Switch) -> BoxFuture<'_, EvalResult> {
         Box::pin(async {
-            match self.ctx.eval().await {
+            let (switch, result) = self.ctx.eval(switch).await;
+            (switch, match result {
                 CtxResult::Ok(ctx) => {
                     let initial = ContextRead::<InitialCtx>::read(&ctx);
                     let hook_weight = ContextRead::<LoadHandDeviceMassCtx>::read(&ctx).total_mass.clone();
@@ -57,7 +58,7 @@ impl Eval<Context> for RopeCount<'_> {
                     self.dbgid, err
                 ))),
                 CtxResult::None => CtxResult::None,
-            }
+            })
         })
     }
 }

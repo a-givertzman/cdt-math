@@ -2,10 +2,10 @@ use futures::future::BoxFuture;
 use super::hook_filter_ctx::HookFilterCtx;
 use crate::{
     algorithm::{
-        context::{context::Context, context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult},
+        context::{context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult},
         entities::{hook::Hook, mechanism_work_type::MechanismWorkType}, initial_ctx::initial_ctx::InitialCtx,
     },
-    kernel::{dbgid::dbgid::DbgId, eval::Eval, str_err::str_err::StrErr},
+    kernel::{dbgid::dbgid::DbgId, eval::Eval, str_err::str_err::StrErr, sync::switch::Switch, types::eval_result::EvalResult},
 };
 ///
 /// Calculation step: [filtering hooks](design\docs\algorithm\part02\chapter_01_choose_hook.md)
@@ -14,7 +14,7 @@ pub struct HookFilter<'a> {
     /// vector of [filtered hooks](design\docs\algorithm\part02\chapter_01_choose_hook.md)
     value: Option<HookFilterCtx>,
     /// [Context] instance, where store all info about initial data and each algorithm result's
-    ctx: Box<dyn Eval<Context> + Send + 'a>,
+    ctx: Box<dyn Eval<Switch, EvalResult> + Send + 'a>,
 }
 //
 //
@@ -22,7 +22,7 @@ impl<'a> HookFilter<'a> {
     ///
     /// New instance [HookFilter]
     /// - `ctx` - [Context]
-    pub fn new(ctx: impl Eval<Context> + Send + 'a) -> Self {
+    pub fn new(ctx: impl Eval<Switch, EvalResult> + Send + 'a) -> Self {
         Self {
             dbgid: DbgId("HookFilter".to_string()),
             value: None,
@@ -32,13 +32,14 @@ impl<'a> HookFilter<'a> {
 }
 //
 //
-impl Eval<Context> for HookFilter<'_> {
+impl Eval<Switch, EvalResult> for HookFilter<'_> {
     ///
     /// Method of filtering hooks by user loading capacity
     /// [reference to filtering documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
-    fn eval(&'_ mut self) -> BoxFuture<'_, CtxResult<Context, StrErr>> {
+    fn eval(&'_ mut self, switch: Switch) -> BoxFuture<'_, EvalResult> {
         Box::pin(async {
-            match self.ctx.eval().await {
+            let (switch, result) = self.ctx.eval(switch).await;
+            (switch, match result {
                 CtxResult::Ok(ctx) => {
                     match self.value.clone() {
                         Some(hook_filter) => ctx.write(hook_filter),
@@ -84,7 +85,7 @@ impl Eval<Context> for HookFilter<'_> {
                     self.dbgid, err
                 ))),
                 CtxResult::None => CtxResult::None,
-            }
+            })
         })
     }
 }

@@ -1,10 +1,10 @@
 use futures::future::BoxFuture;
 use crate::{
     algorithm::{
-        context::{context::Context, context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult},
+        context::{context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult},
         entities::{driver_type::DriverType, loading_combination::LoadingCombination}, initial_ctx::initial_ctx::InitialCtx,
     },
-    kernel::{dbgid::dbgid::DbgId, eval::Eval, str_err::str_err::StrErr},
+    kernel::{dbgid::dbgid::DbgId, eval::Eval, str_err::str_err::StrErr, sync::switch::Switch, types::eval_result::EvalResult},
 };
 use super::lifting_speed_ctx::LiftingSpeedCtx;
 ///
@@ -14,7 +14,7 @@ pub struct LiftingSpeed<'a> {
     /// value of [steady-state lifting speed](design\docs\algorithm\part02\chapter_01_choose_hook.md)
     value: Option<LiftingSpeedCtx>,
     /// [Context] instance, where store all info about initial data and each algorithm result's
-    ctx: Box<dyn Eval<Context> + Send + 'a>,
+    ctx: Box<dyn Eval<Switch, EvalResult> + Send + 'a>,
 }
 //
 //
@@ -22,7 +22,7 @@ impl<'a> LiftingSpeed<'a> {
     ///
     /// New instance [LiftingSpeed]
     /// - 'ctx' - [Context] instance, where store all info about initial data and each algorithm result's
-    pub fn new(ctx: impl Eval<Context> + Send + 'a) -> Self {
+    pub fn new(ctx: impl Eval<Switch, EvalResult> + Send + 'a) -> Self {
         Self {
             dbgid: DbgId("LiftingSpeed".to_string()),
             value: None,
@@ -39,13 +39,14 @@ impl<'a> LiftingSpeed<'a> {
 }
 //
 //
-impl Eval<Context> for LiftingSpeed<'_> {
+impl Eval<Switch, EvalResult> for LiftingSpeed<'_> {
     ///
     /// Method of calculating the steady-state lifting speed of the load
     /// [reference to steady-state lifting speed choice documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
-    fn eval(&'_ mut self) -> BoxFuture<'_, CtxResult<Context, StrErr>> {
+    fn eval(&'_ mut self, switch: Switch) -> BoxFuture<'_, EvalResult> {
         Box::pin(async {
-            match self.ctx.eval().await {
+            let (switch, result) = self.ctx.eval(switch).await;
+            (switch, match result {
                 CtxResult::Ok(ctx) => {
                     let initial = ContextRead::<InitialCtx>::read(&ctx);
                     let result = match initial.load_comb {
@@ -71,7 +72,7 @@ impl Eval<Context> for LiftingSpeed<'_> {
                     self.dbgid, err
                 ))),
                 CtxResult::None => CtxResult::None,
-            }
+            })
         })
     }
 }

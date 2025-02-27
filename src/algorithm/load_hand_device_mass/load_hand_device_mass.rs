@@ -1,5 +1,5 @@
 use futures::future::BoxFuture;
-use crate::{algorithm::{context::{context::Context, context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult}, initial_ctx::initial_ctx::InitialCtx}, kernel::{dbgid::dbgid::DbgId, eval::Eval, str_err::str_err::StrErr, user_setup::user_hook_ctx::UserHookCtx}};
+use crate::{algorithm::{context::{context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult}, initial_ctx::initial_ctx::InitialCtx}, kernel::{dbgid::dbgid::DbgId, eval::Eval, str_err::str_err::StrErr, sync::switch::Switch, types::eval_result::EvalResult, user_setup::user_hook_ctx::UserHookCtx}};
 use super::load_hand_device_mass_ctx::LoadHandDeviceMassCtx;
 ///
 /// Calculation step: [total mass and net weight](design\docs\algorithm\part02\chapter_02_choose_another_load_handing_device.md)
@@ -8,7 +8,7 @@ pub struct LoadHandDeviceMass<'a> {
     /// value of [total mass and net weight](design\docs\algorithm\part02\chapter_01_choose_hook.md)
     value: Option<LoadHandDeviceMassCtx>,
     /// [Context] instance, where store all info about initial data and each algorithm result's
-    ctx: Box<dyn Eval<Context> + Send + 'a>,
+    ctx: Box<dyn Eval<Switch, EvalResult> + Send + 'a>,
 }
 //
 //
@@ -16,7 +16,7 @@ impl<'a> LoadHandDeviceMass<'a> {
     ///
     /// New instance [LoadHandDeviceMass]
     /// - `ctx` - [Context]
-    pub fn new(ctx: impl Eval<Context> + Send + 'a) -> Self {
+    pub fn new(ctx: impl Eval<Switch, EvalResult> + Send + 'a) -> Self {
         Self {
             dbgid: DbgId("LoadHandDeviceMass".to_string()),
             value: None,
@@ -26,10 +26,11 @@ impl<'a> LoadHandDeviceMass<'a> {
 }
 //
 //
-impl Eval<Context> for LoadHandDeviceMass<'_> {
-    fn eval(&'_ mut self) -> BoxFuture<'_, CtxResult<Context, StrErr>> {
+impl Eval<Switch, EvalResult> for LoadHandDeviceMass<'_> {
+    fn eval(&'_ mut self, switch: Switch) -> BoxFuture<'_, EvalResult> {
         Box::pin(async {
-            match self.ctx.eval().await {
+            let (switch, result) = self.ctx.eval(switch).await;
+            (switch, match result {
                 CtxResult::Ok(ctx) => {
                     let initial = ContextRead::<InitialCtx>::read(&ctx);
                     let user_hook = ContextRead::<UserHookCtx>::read(&ctx).result.clone();
@@ -55,7 +56,7 @@ impl Eval<Context> for LoadHandDeviceMass<'_> {
                     self.dbgid, err
                 ))),
                 CtxResult::None => CtxResult::None,
-            }
+            })
         })
     }
 }

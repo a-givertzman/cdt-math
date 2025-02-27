@@ -1,8 +1,8 @@
 use futures::future::BoxFuture;
 use crate::{
-    algorithm::context::{context::Context, context_access::ContextWrite, ctx_result::CtxResult},
+    algorithm::context::{context_access::ContextWrite, ctx_result::CtxResult},
     infrostructure::client::choose_user_bearing::ChooseUserBearingReply,
-    kernel::{dbgid::dbgid::DbgId, eval::Eval, sync::link::Link, request::Request, str_err::str_err::StrErr},
+    kernel::{dbgid::dbgid::DbgId, eval::Eval, request::Request, str_err::str_err::StrErr, sync::switch::Switch, types::eval_result::EvalResult},
 };
 use super::user_bearing_ctx::UserBearingCtx;
 ///
@@ -12,10 +12,9 @@ pub struct UserBearing<'a> {
     /// value of user hook
     value: Option<UserBearingCtx>,
     /// Event interface
-    link: Link,
     req: Request<ChooseUserBearingReply>,
     /// [Context] instance, where store all info about initial data and each algorithm result's
-    ctx: Box<dyn Eval<Context> + Send + 'a>,
+    ctx: Box<dyn Eval<Switch, EvalResult> + Send + 'a>,
 }
 //
 //
@@ -24,11 +23,10 @@ impl<'a> UserBearing<'a> {
     /// New instance [UserBearing]
     /// - `ctx` - [Context]
     /// - `req` - [Request] for user
-    pub fn new(link: Link, req: Request<ChooseUserBearingReply>, ctx: impl Eval<Context> + Send + 'a) -> Self {
+    pub fn new(req: Request<ChooseUserBearingReply>, ctx: impl Eval<Switch, EvalResult> + Send + 'a) -> Self {
         Self { 
             dbgid: DbgId("UserBearing".to_string()), 
             value: None,
-            link,
             req,
             ctx: Box::new(ctx),
         }
@@ -36,12 +34,14 @@ impl<'a> UserBearing<'a> {
 }
 //
 //
-impl Eval<Context> for UserBearing<'_> {
-    fn eval(&'_ mut self) -> BoxFuture<'_, CtxResult<Context, StrErr>> {
-        let reply = self.req.fetch(&ctx, &self.link);
+impl Eval<Switch, EvalResult> for UserBearing<'_> {
+    fn eval(&'_ mut self, mut switch: Switch) -> BoxFuture<'_, EvalResult> {
+        let link = switch.link();
         Box::pin(async {
-            match self.ctx.eval().await {
+            let (switch, result) = self.ctx.eval(switch).await;
+            (switch, match result {
                 CtxResult::Ok(ctx) => {
+                    let reply = self.req.fetch(&ctx, link);
                     let result = UserBearingCtx { result: reply.answer };
                     self.value = Some(result.clone());
                     ctx.write(result)
@@ -51,9 +51,8 @@ impl Eval<Context> for UserBearing<'_> {
                     self.dbgid, err
                 ))),
                 CtxResult::None => CtxResult::None,
-            }
+            })
         })
-
     }
 }
 //

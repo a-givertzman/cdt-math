@@ -4,13 +4,16 @@ mod infrostructure;
 mod kernel;
 #[cfg(test)]
 mod tests;
+use std::sync::mpsc;
+
 use algorithm::{
     context::{context::Context, context_access::ContextRead}, 
     initial::Initial, initial_ctx::initial_ctx::InitialCtx,
     bearing_filter::bearing_filter_ctx::BearingFilterCtx, 
     dynamic_coefficient::dynamic_coefficient::DynamicCoefficient,
     hook_filter::{hook_filter::HookFilter,hook_filter_ctx::HookFilterCtx},
-    lifting_speed::lifting_speed::LiftingSpeed, load_hand_device_mass::load_hand_device_mass::LoadHandDeviceMass,
+    lifting_speed::lifting_speed::LiftingSpeed,
+    load_hand_device_mass::load_hand_device_mass::LoadHandDeviceMass,
     rope_count::rope_count::RopeCount, rope_effort::rope_effort::RopeEffort,
     select_betta_phi::select_betta_phi::SelectBettaPhi,
 };
@@ -24,9 +27,10 @@ use infrostructure::client::{
     query::Query,
 };
 use kernel::{
-    eval::Eval, mok_user_reply::mok_user_reply::MokUserReply, request::Request, run::Run, storage::storage::Storage, sync::{link::Link, switch::Switch}, user_setup::{user_bearing::UserBearing, user_hook::UserHook}
+    eval::Eval, mok_user_reply::mok_user_reply::MokUserReply, request::Request, run::Run,
+    storage::storage::Storage, sync::{link::Link, switch::Switch},
+    user_setup::{user_bearing::UserBearing, user_hook::UserHook},
 };
-use tokio::sync::mpsc;
 ///
 /// Application entry point
 #[tokio::main]
@@ -39,27 +43,25 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         log::error!("main | Error: {:#?}", err);
     }
     let cache_path = "./src/tests/unit/kernel/storage/cache/test_2";
-    let (send, recv) = mpsc::channel(10_000);
+    let (send, recv) = mpsc::channel();
     let mut switch = Switch::new(&dbg, send, recv);
     let switch_handle = switch.run().unwrap();
     let mut mok_user_reply = MokUserReply::new(&dbg, switch.link());
     let mok_user_reply_handle = mok_user_reply.run().await.unwrap();
-    let _test = RopeCount::new(
+    let (switch, _test) = RopeCount::new(
         RopeEffort::new(
             LoadHandDeviceMass::new(
                 UserBearing::new(
-                    switch.link(),
-                    Request::<ChooseUserBearingReply>::new(|ctx: Context, link: &mut Link| {
+                    Request::<ChooseUserBearingReply>::new(|ctx: &Context, link: Link| {
                         let variants: &BearingFilterCtx = ctx.read();
                         let query = Query::ChooseUserBearing(ChooseUserBearingQuery::new(variants.result.clone()));
-                        link.req(query).await.expect("{}.req | Error to send request")
+                        link.req(query).expect("{}.req | Error to send request")
                     }),
                     UserHook::new(
-                        switch.link(),
-                        Request::<ChooseUserHookReply>::new(|ctx: Context, link: &mut Link| async move {
+                        Request::<ChooseUserHookReply>::new(|ctx: &Context, link: Link| {
                             let variants: &HookFilterCtx = ctx.read();
                             let query = Query::ChooseUserHook(ChooseUserHookQuery::test(variants.result.clone()));
-                            link.req(query).await.expect("{}.req | Error to send request")
+                            link.req(query).expect("{}.req | Error to send request")
                         }),
                         HookFilter::new(
                             DynamicCoefficient::new(
@@ -81,7 +83,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             ),
         ),
     )
-    .eval()
+    .eval(switch)
     .await;
     mok_user_reply.exit();
     switch.exit();

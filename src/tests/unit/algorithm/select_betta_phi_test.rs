@@ -4,7 +4,7 @@ mod select_bet_phi {
     use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
     use futures::future::BoxFuture;
     use std::{
-        sync::Once,
+        sync::{mpsc, Once},
         time::Duration,
     };
     use testing::stuff::max_test_duration::TestDuration;
@@ -15,7 +15,7 @@ mod select_bet_phi {
             initial_ctx::initial_ctx::InitialCtx,
             select_betta_phi::{select_betta_phi::SelectBettaPhi, select_betta_phi_ctx::SelectBetPhiCtx},
         },
-        kernel::{dbgid::dbgid::DbgId, eval::Eval, storage::storage::Storage, str_err::str_err::StrErr},
+        kernel::{dbgid::dbgid::DbgId, eval::Eval, storage::storage::Storage, str_err::str_err::StrErr, sync::switch::Switch, types::eval_result::EvalResult},
     };
     ///
     ///
@@ -88,31 +88,31 @@ mod select_bet_phi {
                 }),
             ),
         ];
+        let (send, recv) = mpsc::channel();
+        let mut switch = Switch::new(dbg, send, recv);
         for (step, initial, target) in test_data {
-            async fn check<'a>(step: i32, initial: InitialCtx, target: CtxResult<BetPhi, StrErr>) {
-                let ctx = MocEval {
-                    ctx: Context::new(initial),
-                };
-                let mut select_betta_phi = SelectBettaPhi::<'a>::new(ctx);
-                let result = select_betta_phi.eval().await;
-                match (&result, &target) {
-                    (CtxResult::Ok(result), CtxResult::Ok(target)) => {
-                        let result = ContextRead::<SelectBetPhiCtx>::read(result)
-                            .result;
-                        assert!(
-                            result == *target,
-                            "step {} \nresult: {:?}\ntarget: {:?}",
-                            step,
-                            result,
-                            target
-                        );
-                    }
-                    (CtxResult::Err(_), CtxResult::Err(_)) => {},
-                    (CtxResult::None, CtxResult::None) => {},
-                    _ => panic!("step {} \nresult: {:?}\ntarget: {:?}", step, result, target),
+            let ctx = MocEval {
+                ctx: Context::new(initial),
+            };
+            let mut select_betta_phi = SelectBettaPhi::new(ctx);
+            let (switch_, result) = select_betta_phi.eval(switch).await;
+            switch = switch_;
+            match (&result, &target) {
+                (CtxResult::Ok(result), CtxResult::Ok(target)) => {
+                    let result = ContextRead::<SelectBetPhiCtx>::read(result)
+                        .result;
+                    assert!(
+                        result == *target,
+                        "step {} \nresult: {:?}\ntarget: {:?}",
+                        step,
+                        result,
+                        target
+                    );
                 }
+                (CtxResult::Err(_), CtxResult::Err(_)) => {},
+                (CtxResult::None, CtxResult::None) => {},
+                _ => panic!("step {} \nresult: {:?}\ntarget: {:?}", step, result, target),
             }
-            check(step, initial, target).await;
         }
         test_duration.exit();
     }
@@ -124,10 +124,10 @@ mod select_bet_phi {
     }
     //
     //
-    impl Eval<Context> for MocEval {
-        fn eval<'a>(&'a mut self) -> BoxFuture<'a, CtxResult<Context, StrErr>> {
+    impl Eval<Switch, EvalResult> for MocEval {
+        fn eval(&'_ mut self, switch: Switch) -> BoxFuture<'_, EvalResult> {
             Box::pin(async {
-                CtxResult::Ok(self.ctx.clone())
+                (switch, CtxResult::Ok(self.ctx.clone()))
             })
         }
     }

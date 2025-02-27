@@ -1,10 +1,10 @@
 use futures::future::BoxFuture;
 use crate::{
     algorithm::{
-        context::{context::Context, context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult},
+        context::{context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult},
         entities::{bet_phi::BetPhi, lifting_class::LiftClass}, initial_ctx::initial_ctx::InitialCtx,
     },
-    kernel::{dbgid::dbgid::DbgId, eval::Eval, str_err::str_err::StrErr},
+    kernel::{dbgid::dbgid::DbgId, eval::Eval, str_err::str_err::StrErr, sync::switch::Switch, types::eval_result::EvalResult},
 };
 use super::select_betta_phi_ctx::SelectBetPhiCtx;
 ///
@@ -14,7 +14,7 @@ pub struct SelectBettaPhi<'a> {
     /// [BetPhi] instance, where store value of coefficients β2 and ϕ2
     value: Option<SelectBetPhiCtx>,
     /// [Context] instance, where store all info about initial data and each algorithm result's
-    ctx: Box<dyn Eval<Context> + Send + 'a>,
+    ctx: Box<dyn Eval<Switch, EvalResult> + Send + 'a>,
 }
 //
 //
@@ -22,7 +22,7 @@ impl<'a> SelectBettaPhi<'a> {
     ///
     /// New instance [SelectBettaPhi]
     /// - 'ctx' - [Context] instance, where store all info about initial data and each algorithm result's
-    pub fn new(ctx: impl Eval<Context> + Send + 'a) -> Self {
+    pub fn new(ctx: impl Eval<Switch, EvalResult> + Send + 'a) -> Self {
         Self {
             dbgid: DbgId("SelectBetPhi".to_string()),
             value: None,
@@ -32,13 +32,14 @@ impl<'a> SelectBettaPhi<'a> {
 }
 //
 //
-impl Eval<Context> for SelectBettaPhi<'_> {
+impl Eval<Switch, EvalResult> for SelectBettaPhi<'_> {
     ///
     /// Method make choice β2 and ϕ2 coefficients, based on user [lifting class](design\docs\algorithm\part01\initial_data.md)
     /// [reference to β2 and ϕ2 coefficients documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
-    fn eval(&'_ mut self) -> BoxFuture<'_, CtxResult<Context, StrErr>> {
+    fn eval(&'_ mut self, switch: Switch) -> BoxFuture<'_, EvalResult> {
         Box::pin(async {
-            match self.ctx.eval().await {
+            let (switch, result) = self.ctx.eval(switch).await;
+            (switch, match result {
                 CtxResult::Ok(ctx) => {
                     let initial = ContextRead::<InitialCtx>::read(&ctx);
                     let result = match initial.lift_class {
@@ -56,7 +57,7 @@ impl Eval<Context> for SelectBettaPhi<'_> {
                     self.dbgid, err
                 ))),
                 CtxResult::None => CtxResult::None,
-            }
+            })
         })
     }
 }

@@ -1,11 +1,11 @@
 #[cfg(test)]
 
 mod request {
-    use std::{sync::Once, time::Duration};
+    use std::{sync::{mpsc, Once}, time::Duration};
     use testing::{entities::test_value::Value, stuff::max_test_duration::TestDuration};
     use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
 
-    use crate::{algorithm::{context::{context::Context, testing_ctx::{MokUserReplyTestCtx, TestingCtx}}, initial_ctx::initial_ctx::InitialCtx}, kernel::{sync::link::Link, request::Request, storage::storage::Storage}};
+    use crate::{algorithm::{context::{context::Context, testing_ctx::{MokUserReplyTestCtx, TestingCtx}}, initial_ctx::initial_ctx::InitialCtx}, kernel::{request::Request, storage::storage::Storage, sync::{link::Link, switch::Switch}}};
     ///
     ///
     static INIT: Once = Once::new();
@@ -50,10 +50,11 @@ mod request {
                 MokUserReplyTestCtx {value: Value::Real(123.456) },
             )
         ];
-        let (mut local, _) = Link::split(dbg);
+        let (send, recv) = mpsc::channel();
+        let mut switch = Switch::new(dbg, send, recv);
         for (step, initial, target) in test_data {
             let value = target.clone();
-            let request = Request::<MokUserReplyTestCtx>::new(async |ctx: Context, _link: &mut Link| {
+            let request = Request::<MokUserReplyTestCtx>::new(|ctx: &Context, _link: Link| {
                 let reply = ctx
                     .testing.clone()
                     .unwrap()
@@ -62,7 +63,7 @@ mod request {
             });
             let mut ctx = Context::new(initial.clone());
             ctx.testing = Some(TestingCtx { mok_user_reply: value });
-            let result = request.fetch(ctx, &mut local).await;
+            let result = request.fetch(&ctx, switch.link());
             assert!(result == target, "step {} \nresult: {:?}\ntarget: {:?}", step, result, target);
         }
         test_duration.exit();

@@ -1,5 +1,5 @@
 use futures::future::BoxFuture;
-use crate::{algorithm::{context::{context::Context, context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult}, initial_ctx::initial_ctx::InitialCtx}, kernel::{dbgid::dbgid::DbgId, eval::Eval, str_err::str_err::StrErr}};
+use crate::{algorithm::{context::{context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult}, initial_ctx::initial_ctx::InitialCtx}, kernel::{dbgid::dbgid::DbgId, eval::Eval, str_err::str_err::StrErr, sync::switch::Switch, types::eval_result::EvalResult}};
 use super::rope_effort_ctx::RopeEffortCtx;
 ///
 /// Calculation step: [rope effort](design\docs\algorithm\part02\chapter_03_choose_hoisting_tackle.md)
@@ -8,7 +8,7 @@ pub struct RopeEffort<'a> {
     /// value of [rope effort](design\docs\algorithm\part02\chapter_03_choose_hoisting_tackle.md)
     value: Option<RopeEffortCtx>,
     /// [Context] instance, where store all info about initial data and each algorithm result's
-    ctx: Box<dyn Eval<Context> + Send + 'a>,
+    ctx: Box<dyn Eval<Switch, EvalResult> + Send + 'a>,
 }
 //
 //
@@ -16,7 +16,7 @@ impl<'a> RopeEffort<'a> {
     ///
     /// New instance [RopeEffort]
     /// - 'ctx' - [Context] instance, where store all info about initial data and each algorithm result's
-    pub fn new(ctx: impl Eval<Context> + Send + 'a) -> Self {
+    pub fn new(ctx: impl Eval<Switch, EvalResult> + Send + 'a) -> Self {
         Self {
             dbgid: DbgId("RopeEffort".to_string()),
             value: None,
@@ -26,12 +26,13 @@ impl<'a> RopeEffort<'a> {
 }
 //
 //
-impl Eval<Context> for RopeEffort<'_> {
+impl Eval<Switch, EvalResult> for RopeEffort<'_> {
     ///
     /// Method of calculating [rope effort](design\docs\algorithm\part02\chapter_03_choose_hoisting_tackle.md), based on user loading capacity
-    fn eval(&'_ mut self) -> BoxFuture<'_, CtxResult<Context, StrErr>> {
+    fn eval(&'_ mut self, switch: Switch) -> BoxFuture<'_, EvalResult> {
         Box::pin(async {
-            match self.ctx.eval().await {
+            let (switch, result) = self.ctx.eval(switch).await;
+            let result = match result {
                 CtxResult::Ok(ctx) => {
                     let initial = ContextRead::<InitialCtx>::read(&ctx);
                     let result = match initial.load_capacity {
@@ -46,10 +47,10 @@ impl Eval<Context> for RopeEffort<'_> {
                         x if x <= 150.0 => 130.0,
                         x if x <= 200.0 => 180.0,
                         x if x <= 500.0 => 220.0,
-                        _ => return CtxResult::Err(StrErr(format!(
+                        _ => return (switch, CtxResult::Err(StrErr(format!(
                             "{}.eval | Error value of user loading capacity",
                             self.dbgid
-                        )))
+                        ))))
                     };
                     let result = RopeEffortCtx {
                         result,
@@ -61,7 +62,8 @@ impl Eval<Context> for RopeEffort<'_> {
                     self.dbgid, err
                 ))),
                 CtxResult::None => CtxResult::None,
-            }
+            };
+            (switch, result)
         })
     }
 }

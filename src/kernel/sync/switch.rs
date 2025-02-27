@@ -1,4 +1,4 @@
-use std::{hash::BuildHasherDefault, sync::{atomic::{AtomicBool, Ordering}, mpsc::{self, Receiver, Sender}, Arc}, time::Duration};
+use std::{fmt::Debug, hash::BuildHasherDefault, sync::{atomic::{AtomicBool, Ordering}, mpsc::{self, Receiver, Sender}, Arc}, time::Duration};
 use sal_sync::{collections::map::IndexMapFxHasher, services::entity::{cot::Cot, error::str_err::StrErr, name::Name, point::{point::Point, point_tx_id::PointTxId}}};
 use tokio::task::JoinSet;
 use super::link::Link;
@@ -126,5 +126,21 @@ impl Switch {
     /// Sends "exit" signal to the service's task
     pub fn exit(&self) {
         self.exit.store(true, Ordering::SeqCst);
+    }
+}
+//
+//
+impl Debug for Switch {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Switch")
+            .field("txid", &self.txid)
+            .field("name", &self.name)
+            // .field("send", &self.send)
+            // .field("recv", &self.recv)
+            // .field("subscribers", &self.subscribers)
+            // .field("receivers", &self.receivers)
+            .field("timeout", &self.timeout)
+            .field("exit", &self.exit)
+            .finish()
     }
 }

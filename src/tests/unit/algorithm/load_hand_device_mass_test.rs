@@ -1,10 +1,9 @@
 #[cfg(test)]
 
 mod user_bearing {
-    use std::{sync::Once, time::Duration};
+    use std::{sync::{mpsc, Once}, time::Duration};
     use testing::stuff::max_test_duration::TestDuration;
     use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
-    use tokio::sync::mpsc;
     use crate::{
         algorithm::{
             bearing_filter::bearing_filter_ctx::BearingFilterCtx, context::{context::Context, context_access::ContextRead, ctx_result::CtxResult}, dynamic_coefficient::dynamic_coefficient::DynamicCoefficient, hook_filter::{hook_filter::HookFilter, hook_filter_ctx::HookFilterCtx}, initial::Initial, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed::LiftingSpeed, load_hand_device_mass::{load_hand_device_mass::LoadHandDeviceMass, load_hand_device_mass_ctx::LoadHandDeviceMassCtx}, select_betta_phi::select_betta_phi::SelectBettaPhi
@@ -57,23 +56,21 @@ mod user_bearing {
                 },
             )
         ];
-        let (send, recv) = mpsc::channel(10_000);
+        let (send, recv) = mpsc::channel();
         let mut switch = Switch::new(dbg, send, recv);
         let switch_handle = switch.run().unwrap();
         let mut mok_user_reply = MokUserReply::new(dbg, switch.link());
         let mok_user_reply_handle = mok_user_reply.run().await.unwrap();
         for (step, cache_path, target) in test_data {
-            let result = LoadHandDeviceMass::new(
+            let (switch_, result) = LoadHandDeviceMass::new(
                 UserBearing::new(
-                    switch.link(),
-                    Request::<ChooseUserBearingReply>::new(|ctx: &Context, link: &Link| {
+                    Request::<ChooseUserBearingReply>::new(|ctx: &Context, link: Link| {
                         let variants: &BearingFilterCtx = ctx.read();
                         let query = Query::ChooseUserBearing(ChooseUserBearingQuery::new(variants.result.clone()));
                         link.req(query).expect("{}.req | Error to send request")
                     }),
                     UserHook::new(
-                        switch.link(),
-                        Request::<ChooseUserHookReply>::new(|ctx: &Context, link: &Link| {
+                        Request::<ChooseUserHookReply>::new(|ctx: &Context, link: Link| {
                             let variants: &HookFilterCtx = ctx.read();
                             let query = Query::ChooseUserHook(ChooseUserHookQuery::test(variants.result.clone()));
                             link.req(query).expect("{}.req | Error to send request")
@@ -96,8 +93,9 @@ mod user_bearing {
                     ),
                 ),
             )
-            .eval()
+            .eval(switch)
             .await;
+            switch = switch_;
             match result {
                 CtxResult::Ok(result) => {
                     let result = ContextRead::<LoadHandDeviceMassCtx>::read(&result)
