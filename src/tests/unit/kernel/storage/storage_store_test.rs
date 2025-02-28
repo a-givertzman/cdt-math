@@ -45,8 +45,8 @@ mod storage {
     }
     ///
     /// Testing `store()` method on simple types
-    #[test]
-    fn store() {
+    #[tokio::test(flavor = "multi_thread")]
+    async fn store() {
         DebugSession::init(LogLevel::Info, Backtrace::Short);
         init_once();
         init_each();
@@ -147,8 +147,8 @@ mod storage {
     }
     ///
     /// Testing `store()` method on Map<String, f64>
-    #[test]
-    fn store_map_str_f64() {
+    #[tokio::test(flavor = "multi_thread")]
+    async fn store_map_str_f64() {
         DebugSession::init(LogLevel::Info, Backtrace::Short);
         init_once();
         init_each();
@@ -181,8 +181,8 @@ mod storage {
     }
     ///
     /// Testing storing method on Map<String, String>
-    #[test]
-    fn store_map_str_str() {
+    #[tokio::test(flavor = "multi_thread")]
+    async fn store_map_str_str() {
         DebugSession::init(LogLevel::Info, Backtrace::Short);
         init_once();
         init_each();
@@ -215,8 +215,8 @@ mod storage {
     }
     ///
     /// Testing store() on Vec<String>
-    #[test]
-    fn store_vec_str() {
+    #[tokio::test(flavor = "multi_thread")]
+    async fn store_vec_str() {
         DebugSession::init(LogLevel::Info, Backtrace::Short);
         init_once();
         init_each();
@@ -245,8 +245,8 @@ mod storage {
     }
     ///
     /// Testing store() on Vec<f64>
-    #[test]
-    fn store_vec_f64() {
+    #[tokio::test(flavor = "multi_thread")]
+    async fn store_vec_f64() {
         DebugSession::init(LogLevel::Info, Backtrace::Short);
         init_once();
         init_each();

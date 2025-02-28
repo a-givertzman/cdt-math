@@ -2,8 +2,9 @@
 
 mod hook_filter {
     use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
+    use futures::future::BoxFuture;
     use std::{
-        sync::{Arc, Once},
+        sync::{mpsc, Once},
         time::Duration,
     };
     use testing::stuff::max_test_duration::TestDuration;
@@ -15,7 +16,7 @@ mod hook_filter {
             hook_filter::{hook_filter::HookFilter, hook_filter_ctx::HookFilterCtx},
             initial_ctx::initial_ctx::InitialCtx,
         },
-        kernel::{dbgid::dbgid::DbgId, eval::Eval, link::Link, storage::storage::Storage, str_err::str_err::StrErr},
+        kernel::{dbgid::dbgid::DbgId, eval::Eval, storage::storage::Storage, str_err::str_err::StrErr, sync::switch::Switch, types::eval_result::EvalResult},
     };
 
     ///
@@ -34,8 +35,8 @@ mod hook_filter {
     fn init_each() {}
     ///
     /// Testing to 'eval()' method
-    #[test]
-    fn eval() {
+    #[tokio::test(flavor = "multi_thread")]
+    async fn eval() {
         DebugSession::init(LogLevel::Info, Backtrace::Short);
         init_once();
         init_each();
@@ -105,16 +106,14 @@ mod hook_filter {
                 }]),
             ),
         ];
-        let (local, _) = Link::split(&dbg);
-        let local = Arc::new(local);
+        let (send, recv) = mpsc::channel();
+        let mut switch = Switch::new(&dbg, send, recv);
         for (step, initial, target) in test_data {
             let ctx = MocEval {
-                ctx: Context::new(
-                    initial,
-                    local.clone(),
-                ),
+                ctx: Context::new(initial),
             };
-            let result = HookFilter::new(ctx).eval();
+            let (switch_, result) = HookFilter::new(ctx).eval(switch).await;
+            switch = switch_;
             match (&result, &target) {
                 (CtxResult::Ok(result), CtxResult::Ok(target)) => {
                     let result = ContextRead::<HookFilterCtx>::read(result)
@@ -143,11 +142,11 @@ mod hook_filter {
     }
     //
     //
-    impl Eval for MocEval {
-        fn eval(
-            &mut self,
-        ) -> CtxResult<Context, crate::kernel::str_err::str_err::StrErr> {
-            CtxResult::Ok(self.ctx.clone())
+    impl Eval<Switch, EvalResult> for MocEval {
+        fn eval(&mut self, switch: Switch) -> BoxFuture<'_, EvalResult> {
+            Box::pin(async {
+                (switch, CtxResult::Ok(self.ctx.clone()))
+            })
         }
     }
 }

@@ -1,16 +1,15 @@
 #[cfg(test)]
 
 mod bearing_filter {
-    use std::{sync::{Arc, Once}, time::Duration};
-    use sal_sync::services::service::service::Service;
+    use std::{sync::{mpsc, Once}, time::Duration};
     use testing::stuff::max_test_duration::TestDuration;
     use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
     use crate::{
         algorithm::{
-            bearing_filter::{bearing_filter::BearingFilter, bearing_filter_ctx::BearingFilterCtx}, context::{context::Context, context_access::ContextRead, ctx_result::CtxResult}, dynamic_coefficient::dynamic_coefficient::DynamicCoefficient, entities::{bearing::Bearing, hook::Hook}, hook_filter::{hook_filter::HookFilter, hook_filter_ctx::HookFilterCtx}, initial::Initial, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed::LiftingSpeed, select_betta_phi::select_betta_phi::SelectBettaPhi
+            bearing_filter::{bearing_filter::BearingFilter, bearing_filter_ctx::BearingFilterCtx}, context::{context::Context, context_access::ContextRead, ctx_result::CtxResult}, dynamic_coefficient::dynamic_coefficient::DynamicCoefficient, entities::bearing::Bearing, hook_filter::{hook_filter::HookFilter, hook_filter_ctx::HookFilterCtx}, initial::Initial, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed::LiftingSpeed, select_betta_phi::select_betta_phi::SelectBettaPhi
         },
         infrostructure::client::{choose_user_hook::{ChooseUserHookQuery, ChooseUserHookReply}, query::Query},
-        kernel::{eval::Eval, link::Link, mok_user_reply::mok_user_reply::MokUserReply, request::Request, storage::storage::Storage, user_setup::user_hook::UserHook}
+        kernel::{eval::Eval, sync::link::Link, mok_user_reply::mok_user_reply::MokUserReply, request::Request, storage::storage::Storage, sync::switch::Switch, user_setup::user_hook::UserHook}
     };
     ///
     ///
@@ -28,8 +27,8 @@ mod bearing_filter {
     fn init_each() -> () {}
     ///
     /// Testing 'eval' method
-    // #[test]
-    #[tokio::test]
+    // #[tokio::test(flavor = "multi_thread")]
+    #[tokio::test(flavor = "multi_thread")]
     async fn eval() {
         DebugSession::init(LogLevel::Info, Backtrace::Short);
         init_once();
@@ -81,37 +80,39 @@ mod bearing_filter {
                 ],
             )
         ];
-        let (local, remote) = Link::split(dbg);
-        let mut mok_user_reply = MokUserReply::new(dbg, remote);
-        let mok_user_reply_handle = mok_user_reply.run().unwrap();
-        let local = Arc::new(local);
+        let (send, recv) = mpsc::channel();
+        let mut switch = Switch::new(dbg, send, recv);
+        let switch_handle = switch.run().await.unwrap();
+        let mut mok_user_reply = MokUserReply::new(dbg, switch.link());
+        let mok_user_reply_handle = mok_user_reply.run().await.unwrap();
         for (step, cache_path, target) in test_data {
-            let result = BearingFilter::new(
+            let (switch_, result) = BearingFilter::new(
                 UserHook::new(
-                Request::<ChooseUserHookReply>::new(|ctx: &Context| {
-                    let variants: &HookFilterCtx = ctx.read();
-                    let query = Query::ChooseUserHook(ChooseUserHookQuery::test(variants.result.clone()));
-                    ctx.link.req(query).expect("{}.req | Error to send request")
-                }),
-                HookFilter::new(
-                    DynamicCoefficient::new(
-                        SelectBettaPhi::new(
-                            LiftingSpeed::new(
-                                Initial::new(
-                                    Context::new(
+                    Request::new(async |variants: HookFilterCtx, link: Link| {
+                        let variants = variants.result.clone();
+                        let query = Query::ChooseUserHook(ChooseUserHookQuery::test(variants));
+                        link.req::<ChooseUserHookReply>(query).await.expect("{}.req | Error to send request")
+                    }),
+                    HookFilter::new(
+                        DynamicCoefficient::new(
+                            SelectBettaPhi::new(
+                                LiftingSpeed::new(
+                                    Initial::new(
+                                        Context::new(
                                             InitialCtx::new(
-                                                &mut Storage::new(
-                                                    cache_path
-                                                )
+                                                &mut Storage::new(cache_path)
                                             ).unwrap(),
-                                    local.clone(),
-                                    )
-                                )
-                            )
-                        )
-                    )
-                )
-            )).eval();
+                                        ),
+                                    ),
+                                ),
+                            ),
+                        ),
+                    ),
+                ),
+            )
+            .eval(switch)
+            .await;
+            switch = switch_;
             match result {
                 CtxResult::Ok(result) => {
                     let result = ContextRead::<BearingFilterCtx>::read(&result)
@@ -130,10 +131,10 @@ mod bearing_filter {
                 CtxResult::None => panic!("step {} \nerror: `UserHook` returns None", step),
             }
         }
+        switch.exit();
         mok_user_reply.exit();
-        for (_, h) in mok_user_reply_handle {
-            h.join().unwrap();
-        }
+        switch_handle.join_all().await;
+        mok_user_reply_handle.join_all().await;
         test_duration.exit();
     }
 }
