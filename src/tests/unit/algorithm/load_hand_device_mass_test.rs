@@ -30,9 +30,9 @@ mod user_bearing {
     // #[test]
     #[tokio::test]
     async fn eval() {
+        DebugSession::init(LogLevel::Debug, Backtrace::Short);
         let rt = tokio::runtime::Runtime::new().unwrap();
         rt.spawn(async {
-            DebugSession::init(LogLevel::Debug, Backtrace::Short);
             init_once();
             init_each();
             log::debug!("");

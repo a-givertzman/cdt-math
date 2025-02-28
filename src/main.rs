@@ -35,42 +35,45 @@ use kernel::{
 /// Application entry point
 // #[tokio::main(flavor = "multi_thread", worker_threads = 10)]
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
+async fn main() -> Result<(), tokio::task::JoinError> {
     DebugSession::init(LogLevel::Debug, Backtrace::Short);
-    let dbg = DbgId("main".into());
-    let path = "config.yaml";
-    let mut app = App::new(path);
-    if let Err(err) = app.run() {
-        log::error!("main | Error: {:#?}", err);
-    }
-    let cache_path = "./src/tests/unit/kernel/storage/cache/test_2";
-    let (send, recv) = mpsc::channel();
-    let mut switch = Switch::new(&dbg, send, recv);
-    let switch_handle = switch.run().await.unwrap();
-    let mut mok_user_reply = MokUserReply::new(&dbg, switch.link());
-    let mok_user_reply_handle = mok_user_reply.run().await.unwrap();
-    let mut binding = RopeCount::new(
-        RopeEffort::new(
-            LoadHandDeviceMass::new(
-                UserBearing::new(
-                    Request::new(async |variants: BearingFilterCtx, link: Link| {
-                        let query = Query::ChooseUserBearing(ChooseUserBearingQuery::new(variants.result.clone()));
-                        link.req(query).await.expect("{}.req | Error to send request")
-                    }),
-                    UserHook::new(
-                        Request::new(async |variants: HookFilterCtx, link: Link| {
-                            let query = Query::ChooseUserHook(ChooseUserHookQuery::test(variants.result.clone()));
+    let rt = tokio::runtime::Runtime::new().unwrap();
+    rt.spawn(async {
+        let dbg = DbgId("main".into());
+        let path = "config.yaml";
+        let mut app = App::new(path);
+        if let Err(err) = app.run() {
+            log::error!("main | Error: {:#?}", err);
+        }
+        let cache_path = "./src/tests/unit/kernel/storage/cache/test_2";
+        let (send, recv) = mpsc::channel();
+        let mut switch = Switch::new(&dbg, send, recv);
+        let switch_handle = switch.run().await.unwrap();
+        let mut mok_user_reply = MokUserReply::new(&dbg, switch.link());
+        let mok_user_reply_handle = mok_user_reply.run().await.unwrap();
+        let mut binding = RopeCount::new(
+            RopeEffort::new(
+                LoadHandDeviceMass::new(
+                    UserBearing::new(
+                        Request::new(async |variants: BearingFilterCtx, link: Link| {
+                            let query = Query::ChooseUserBearing(ChooseUserBearingQuery::new(variants.result.clone()));
                             link.req(query).await.expect("{}.req | Error to send request")
                         }),
-                        HookFilter::new(
-                            DynamicCoefficient::new(
-                                SelectBettaPhi::new(
-                                    LiftingSpeed::new(
-                                        Initial::new(
-                                            Context::new(
-                                                InitialCtx::new(
-                                                    &mut Storage::new(cache_path)
-                                                ).unwrap(),
+                        UserHook::new(
+                            Request::new(async |variants: HookFilterCtx, link: Link| {
+                                let query = Query::ChooseUserHook(ChooseUserHookQuery::test(variants.result.clone()));
+                                link.req(query).await.expect("{}.req | Error to send request")
+                            }),
+                            HookFilter::new(
+                                DynamicCoefficient::new(
+                                    SelectBettaPhi::new(
+                                        LiftingSpeed::new(
+                                            Initial::new(
+                                                Context::new(
+                                                    InitialCtx::new(
+                                                        &mut Storage::new(cache_path)
+                                                    ).unwrap(),
+                                                ),
                                             ),
                                         ),
                                     ),
@@ -80,14 +83,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     ),
                 ),
             ),
-        ),
-    );
-    let (switch, _test) = binding
-    .eval(switch)
-    .await;
-    mok_user_reply.exit();
-    switch.exit();
-    switch_handle.join_all().await;
-    mok_user_reply_handle.join_all().await;
-    Ok(())
+        );
+        let (switch, _test) = binding
+        .eval(switch)
+        .await;
+        mok_user_reply.exit();
+        switch.exit();
+        switch_handle.join_all().await;
+        mok_user_reply_handle.join_all().await;
+    }).await
 }
