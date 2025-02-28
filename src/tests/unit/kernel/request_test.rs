@@ -21,7 +21,7 @@ mod request {
     fn init_each() -> () {}
     ///
     /// Testing 'Request::fetch'
-    #[tokio::test]
+    #[tokio::test(flavor = "multi_thread")]
     async fn execute() {
         DebugSession::init(LogLevel::Info, Backtrace::Short);
         init_once();
@@ -59,7 +59,7 @@ mod request {
             let value = target.clone();
             let mut ctx = Context::new(initial.clone());
             ctx.testing = Some(TestingCtx { mok_user_reply: value });
-            let ctx: MokUserReplyTestCtx = ctx.testing.unwrap().mok_user_reply;
+            let ctx = ctx.testing.unwrap().mok_user_reply;
             let result = request.fetch(ctx, switch.link()).await;
             assert!(result == target, "step {} \nresult: {:?}\ntarget: {:?}", step, result, target);
         }

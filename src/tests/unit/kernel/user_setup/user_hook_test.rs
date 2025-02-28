@@ -31,8 +31,7 @@ mod user_hook {
     fn init_each() -> () {}
     ///
     /// Testing such functionality / behavior
-    // #[test]
-    #[tokio::test]
+    #[tokio::test(flavor = "multi_thread")]
     async fn eval() {
         DebugSession::init(LogLevel::Info, Backtrace::Short);
         init_once();

@@ -21,9 +21,9 @@ mod mok_user_reply {
     fn init_each() -> () {}
     ///
     /// Testing 'run' method
-    #[tokio::test]
+    #[tokio::test(flavor = "multi_thread")]
     async fn run() {
-        DebugSession::init(LogLevel::Info, Backtrace::Short);
+        DebugSession::init(LogLevel::Debug, Backtrace::Short);
         init_once();
         init_each();
         log::debug!("");
@@ -62,7 +62,9 @@ mod mok_user_reply {
         for (step, query, target) in test_data {
             let query = Query::ChooseUserHook(query);
             let result: ChooseUserHookReply = local.req(query).await.unwrap();
-            assert!(result.choosen == target, "step {} \nresult: {:?}\ntarget: {:?}", step, result, target);
+            let result = result.choosen;
+            log::debug!("step {} \nresult: {:?}\ntarget: {:?}", step, result, target);
+            assert!(result == target, "step {} \nresult: {:?}\ntarget: {:?}", step, result, target);
         }
         user.exit();
         handle.join_all().await;

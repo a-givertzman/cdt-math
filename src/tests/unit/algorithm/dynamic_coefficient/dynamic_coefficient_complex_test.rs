@@ -35,7 +35,7 @@ mod dynamic_coefficient {
     fn init_each() {}
     ///
     /// Testing to 'eval()' method
-    #[tokio::test]
+    #[tokio::test(flavor = "multi_thread")]
     async fn eval() {
         DebugSession::init(LogLevel::Info, Backtrace::Short);
         init_once();

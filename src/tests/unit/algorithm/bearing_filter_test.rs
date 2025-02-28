@@ -27,8 +27,8 @@ mod bearing_filter {
     fn init_each() -> () {}
     ///
     /// Testing 'eval' method
-    // #[test]
-    #[tokio::test]
+    // #[tokio::test(flavor = "multi_thread")]
+    #[tokio::test(flavor = "multi_thread")]
     async fn eval() {
         DebugSession::init(LogLevel::Info, Backtrace::Short);
         init_once();

@@ -27,8 +27,7 @@ mod user_bearing {
     fn init_each() -> () {}
     ///
     /// Testing 'eval'
-    // #[test]
-    #[tokio::test]
+    #[tokio::test(flavor = "multi_thread")]
     async fn eval() {
         DebugSession::init(LogLevel::Debug, Backtrace::Short);
         let rt = tokio::runtime::Runtime::new().unwrap();

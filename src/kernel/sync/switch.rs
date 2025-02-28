@@ -60,47 +60,49 @@ impl Switch {
         let timeout = self.timeout.clone();
         let mut join_set = JoinSet::new();
         join_set.spawn(async move {
-            log::debug!("{}.run | Start - Listen remote", dbg);
-            'main: loop {
-                match recv.recv_timeout(timeout) {
-                    Ok(event) => {
-                        log::debug!("{}.run | Request: {:?}", dbg, event);
-                        match event.cot() {
-                            Cot::Inf | Cot::Act | Cot::Req => {
-                                for (_key, subscriber) in &subscribers {
-                                    if let Err(err) = subscriber.send(event.clone()) {
-                                        log::warn!("{}.run | Send error: {:?}", dbg, err);
-                                    }
-                                }
-                            }
-                            Cot::ReqCon | Cot::ReqErr => {
-                                let key = event.name();
-                                match subscribers.get(&key) {
-                                    Some(subscriber) => {
+            tokio::task::block_in_place(move|| {
+                log::debug!("{}.run | Start - Listen remote", dbg);
+                'main: loop {
+                    match recv.recv_timeout(timeout) {
+                        Ok(event) => {
+                            log::debug!("{}.run | Request: {:?}", dbg, event);
+                            match event.cot() {
+                                Cot::Inf | Cot::Act | Cot::Req => {
+                                    for (_key, subscriber) in &subscribers {
                                         if let Err(err) = subscriber.send(event.clone()) {
                                             log::warn!("{}.run | Send error: {:?}", dbg, err);
                                         }
-                                    },
-                                    None => {
-                                        log::warn!("{}.run | Subscriber not found: {:?}", dbg, key);
-                                    },
+                                    }
                                 }
+                                Cot::ReqCon | Cot::ReqErr => {
+                                    let key = event.name();
+                                    match subscribers.get(&key) {
+                                        Some(subscriber) => {
+                                            if let Err(err) = subscriber.send(event.clone()) {
+                                                log::warn!("{}.run | Send error: {:?}", dbg, err);
+                                            }
+                                        },
+                                        None => {
+                                            log::warn!("{}.run | Subscriber not found: {:?}", dbg, key);
+                                        },
+                                    }
+                                }
+                                _ => log::warn!("{}.run | Uncnown message received: {:?}", dbg, event),
                             }
-                            _ => log::warn!("{}.run | Uncnown message received: {:?}", dbg, event),
-                        }
-                    },
-                    Err(err) => match err {
-                        std::sync::mpsc::RecvTimeoutError::Timeout => {
-                            log::warn!("{}.run | Listening Remote...", dbg);
                         },
-                        std::sync::mpsc::RecvTimeoutError::Disconnected => panic!("{}.run | Receive error, all receivers has been closed", dbg),
-                    },
+                        Err(err) => match err {
+                            std::sync::mpsc::RecvTimeoutError::Timeout => {
+                                log::warn!("{}.run | Listening Remote...", dbg);
+                            },
+                            std::sync::mpsc::RecvTimeoutError::Disconnected => panic!("{}.run | Receive error, all receivers has been closed", dbg),
+                        },
+                    }
+                    if exit.load(Ordering::SeqCst) {
+                        break 'main;
+                    }
                 }
-                if exit.load(Ordering::SeqCst) {
-                    break 'main;
-                }
-            }
-            log::info!("{}.run | Exit - Listen remote", dbg);
+                log::info!("{}.run | Exit - Listen remote", dbg);
+            })
         });
         let dbg = self.name.join();
         log::info!("{}.run | Starting Listen locals...", dbg);
@@ -108,29 +110,31 @@ impl Switch {
         let receivers: IndexMapFxHasher<String, Receiver<Point>> = self.receivers.drain(0..).collect();
         let exit = self.exit.clone();
         join_set.spawn(async move {
-            log::debug!("{}.run | Start- Listen locals", dbg);
-            'main: loop {
-                for (_key, receiver) in receivers.iter() {
-                    match receiver.try_recv() {
-                        Ok(event) => {
-                            log::debug!("{}.run | Received from locals: {:?}", dbg, event);
-                            if let Err(err) = send.send(event) {
-                                log::warn!("{}.run | Send error: {:?}", dbg, err);
+            tokio::task::block_in_place(move|| {
+                log::debug!("{}.run | Start- Listen locals", dbg);
+                'main: loop {
+                    for (_key, receiver) in receivers.iter() {
+                        match receiver.recv_timeout(Duration::from_millis(50)) {
+                            Ok(event) => {
+                                log::debug!("{}.run | Received from locals: {:?}", dbg, event);
+                                if let Err(err) = send.send(event) {
+                                    log::warn!("{}.run | Send error: {:?}", dbg, err);
+                                }
+                            }
+                            Err(err) => match err {
+                                mpsc::RecvTimeoutError::Timeout => {
+                                    log::warn!("{}.run | Listening Locals...", dbg);
+                                } //tokio::time::sleep(Duration::from_millis(1)).await,
+                                mpsc::RecvTimeoutError::Disconnected => panic!("{}.run | Receive error, all senders has been closed", dbg),
                             }
                         }
-                        Err(err) => match err {
-                            mpsc::TryRecvError::Empty => {
-                                log::warn!("{}.run | Listening Locals...", dbg);
-                            } //tokio::time::sleep(Duration::from_millis(1)).await,
-                            mpsc::TryRecvError::Disconnected => panic!("{}.run | Receive error, all senders has been closed", dbg),
+                        if exit.load(Ordering::SeqCst) {
+                            break 'main;
                         }
                     }
-                    if exit.load(Ordering::SeqCst) {
-                        break 'main;
-                    }
                 }
-            }
-            log::info!("{}.run | Exit - Listen locals", dbg);
+                log::info!("{}.run | Exit - Listen locals", dbg);
+            })
         });
         let dbg = self.name.join();
         log::info!("{}.run | All started", dbg);

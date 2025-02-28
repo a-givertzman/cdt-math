@@ -75,11 +75,13 @@ impl Link {
                     Cot::Req,
                     chrono::offset::Utc::now(),
                 ));
+                let timeout = self.timeout;
+                let timeout = Duration::from_secs(3);
                 match self.send.send(query.clone()) {
                     Ok(_) => {
                         log::debug!("{}.req | Sent request: {:#?}", self.name, query);
                         let h = tokio::task::block_in_place(move|| {
-                            let r = match self.recv.recv_timeout(Duration::from_secs(3)) {
+                            let r = match self.recv.recv_timeout(timeout) {
                                 Ok(reply) => {
                                     log::debug!("{}.req | Received reply: {:#?}", self.name, reply);
                                     let reply = reply.as_string().value;
@@ -90,7 +92,7 @@ impl Link {
                                         Err(err) => Err(StrErr(format!("{}.req | Deserialize error for {:?} in {}, \n\terror: {:#?}", self.name, std::any::type_name::<T>(), reply, err))),
                                     }
                                 }
-                                _ => Err(StrErr(format!("{}.req | Request timeout ({:?})", self.name, self.timeout))),
+                                _ => Err(StrErr(format!("{}.req | Request timeout ({:?})", self.name, timeout))),
                             };
                             r
                         });
@@ -116,6 +118,42 @@ impl Link {
                     match serde_json::from_str::<T>(quyru.as_str()) {
                         Ok(query) => {
                             return CtxResult::Ok(query)
+                        }
+                        Err(err) => CtxResult::Err(
+                            StrErr(
+                                format!("{}.req | Deserialize error for {:?} in {}, \n\terror: {:#?}",
+                                self.name, std::any::type_name::<T>(), quyru, err),
+                            ),
+                        ),
+                    }
+                }
+                Err(err) => {
+                    match err {
+                        std::sync::mpsc::RecvTimeoutError::Timeout => CtxResult::None,
+                        std::sync::mpsc::RecvTimeoutError::Disconnected => CtxResult::Err(
+                            StrErr(format!("{}.req | Recv error: {:#?}", self.name, err)),
+                        ),
+                    }
+                }
+            }
+        });
+        h
+    }
+    ///
+    /// Receiving incomong events with sender name
+    /// - Returns Ok<T> if channel has query
+    /// - Returns None if channel is empty for now
+    /// - Returns Err if channel is closed
+    pub async fn recv_query_from<T: DeserializeOwned + Debug>(&self) -> CtxResult<(String, T), StrErr> {
+        let h = tokio::task::block_in_place(move|| {
+            match self.recv.recv_timeout(self.timeout) {
+                Ok(query) => {
+                    log::debug!("{}.recv_query | Received query: {:#?}", self.name, query);
+                    let name = query.name();
+                    let quyru = query.as_string().value;
+                    match serde_json::from_str::<T>(quyru.as_str()) {
+                        Ok(query) => {
+                            return CtxResult::Ok((name, query))
                         }
                         Err(err) => CtxResult::Err(
                             StrErr(
