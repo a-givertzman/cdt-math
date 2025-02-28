@@ -48,7 +48,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let switch_handle = switch.run().await.unwrap();
     let mut mok_user_reply = MokUserReply::new(&dbg, switch.link());
     let mok_user_reply_handle = mok_user_reply.run().await.unwrap();
-    let (switch, _test) = RopeCount::new(
+    let mut binding = RopeCount::new(
         RopeEffort::new(
             LoadHandDeviceMass::new(
                 UserBearing::new(
@@ -80,7 +80,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 ),
             ),
         ),
-    )
+    );
+    let (switch, _test) = binding
     .eval(switch)
     .await;
     mok_user_reply.exit();

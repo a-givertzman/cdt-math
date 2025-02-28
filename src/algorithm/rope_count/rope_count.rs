@@ -3,20 +3,20 @@ use crate::{algorithm::{context::{context_access::{ContextRead, ContextWrite}, c
 use super::rope_count_ctx::RopeCountCtx;
 ///
 /// Calculation step: [rope count](design\docs\algorithm\part02\chapter_03_choose_hoisting_tackle.md)
-pub struct RopeCount<'a> {
+pub struct RopeCount {
     dbgid: DbgId,
     /// value of [rope count](design\docs\algorithm\part02\chapter_03_choose_hoisting_tackle.md)
     value: Option<RopeCountCtx>,
     /// [Context] instance, where store all info about initial data and each algorithm result's
-    ctx: Box<dyn Eval<'a, Switch, EvalResult> + Send + 'a>,
+    ctx: Box<dyn Eval<Switch, EvalResult> + Send>,
 }
 //
 //
-impl<'a> RopeCount<'a> {
+impl RopeCount {
     ///
     /// New instance [RopeCount]
     /// - `ctx` - [Context]
-    pub fn new(ctx: impl Eval<'a, Switch, EvalResult> + Send + 'a) -> Self {
+    pub fn new(ctx: impl Eval<Switch, EvalResult> + Send + 'static) -> Self {
         Self {
             dbgid: DbgId("RopeCount".to_string()),
             value: None,
@@ -37,8 +37,8 @@ impl<'a> RopeCount<'a> {
 }
 //
 //
-impl<'b, 'a:'b> Eval<'a, Switch, EvalResult> for RopeCount<'b> {
-    fn eval(&'a mut self, switch: Switch) -> BoxFuture<'a, EvalResult> {
+impl Eval<Switch, EvalResult> for RopeCount {
+    fn eval(&mut self, switch: Switch) -> BoxFuture<'_, EvalResult> {
         Box::pin(async {
             let (switch, result) = self.ctx.eval(switch).await;
             (switch, match result {
@@ -64,7 +64,7 @@ impl<'b, 'a:'b> Eval<'a, Switch, EvalResult> for RopeCount<'b> {
 }
 //
 //
-impl std::fmt::Debug for RopeCount<'_> {
+impl std::fmt::Debug for RopeCount {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("RopeCount")
             .field("dbgid", &self.dbgid)

@@ -25,8 +25,8 @@ impl Initial {
 }
 //
 //
-impl Eval<'_, Switch, EvalResult> for Initial {
-    fn eval(&'_ mut self, switch: Switch) -> BoxFuture<'_, EvalResult> {
+impl Eval<Switch, EvalResult> for Initial {
+    fn eval(&mut self, switch: Switch) -> BoxFuture<'_, EvalResult> {
         Box::pin(async {
             let ctx = self.ctx.take().unwrap();
             log::debug!("{}.eval | Start", self.dbg);

@@ -3,20 +3,20 @@ use crate::{algorithm::{context::{context_access::{ContextRead, ContextWrite}, c
 use super::rope_effort_ctx::RopeEffortCtx;
 ///
 /// Calculation step: [rope effort](design\docs\algorithm\part02\chapter_03_choose_hoisting_tackle.md)
-pub struct RopeEffort<'a> {
+pub struct RopeEffort {
     dbgid: DbgId,
     /// value of [rope effort](design\docs\algorithm\part02\chapter_03_choose_hoisting_tackle.md)
     value: Option<RopeEffortCtx>,
     /// [Context] instance, where store all info about initial data and each algorithm result's
-    ctx: Box<dyn Eval<'a, Switch, EvalResult> + Send + 'a>,
+    ctx: Box<dyn Eval<Switch, EvalResult> + Send>,
 }
 //
 //
-impl<'a> RopeEffort<'a> {
+impl RopeEffort {
     ///
     /// New instance [RopeEffort]
     /// - 'ctx' - [Context] instance, where store all info about initial data and each algorithm result's
-    pub fn new(ctx: impl Eval<'a, Switch, EvalResult> + Send + 'a) -> Self {
+    pub fn new(ctx: impl Eval<Switch, EvalResult> + Send + 'static) -> Self {
         Self {
             dbgid: DbgId("RopeEffort".to_string()),
             value: None,
@@ -26,10 +26,10 @@ impl<'a> RopeEffort<'a> {
 }
 //
 //
-impl<'b, 'a:'b> Eval<'a, Switch, EvalResult> for RopeEffort<'b> {
+impl Eval<Switch, EvalResult> for RopeEffort {
     ///
     /// Method of calculating [rope effort](design\docs\algorithm\part02\chapter_03_choose_hoisting_tackle.md), based on user loading capacity
-    fn eval(&'a mut self, switch: Switch) -> BoxFuture<'a, EvalResult> {
+    fn eval(&mut self, switch: Switch) -> BoxFuture<'_, EvalResult> {
         Box::pin(async {
             let (switch, result) = self.ctx.eval(switch).await;
             let result = match result {
@@ -69,7 +69,7 @@ impl<'b, 'a:'b> Eval<'a, Switch, EvalResult> for RopeEffort<'b> {
 }
 //
 //
-impl std::fmt::Debug for RopeEffort<'_> {
+impl std::fmt::Debug for RopeEffort {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("RopeEffort")
             .field("dbgid", &self.dbgid)

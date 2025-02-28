@@ -9,20 +9,20 @@ use crate::{
 use super::select_betta_phi_ctx::SelectBetPhiCtx;
 ///
 /// Calculation step: [β2 and ϕ2 coefficients](design\docs\algorithm\part02\chapter_01_choose_hook.md)
-pub struct SelectBettaPhi<'a> {
+pub struct SelectBettaPhi {
     dbgid: DbgId,
     /// [BetPhi] instance, where store value of coefficients β2 and ϕ2
     value: Option<SelectBetPhiCtx>,
     /// [Context] instance, where store all info about initial data and each algorithm result's
-    ctx: Box<dyn Eval<'a, Switch, EvalResult> + Send + 'a>,
+    ctx: Box<dyn Eval<Switch, EvalResult> + Send>,
 }
 //
 //
-impl<'a> SelectBettaPhi<'a> {
+impl SelectBettaPhi {
     ///
     /// New instance [SelectBettaPhi]
     /// - 'ctx' - [Context] instance, where store all info about initial data and each algorithm result's
-    pub fn new(ctx: impl Eval<'a, Switch, EvalResult> + Send + 'a) -> Self {
+    pub fn new(ctx: impl Eval<Switch, EvalResult> + Send + 'static) -> Self {
         Self {
             dbgid: DbgId("SelectBetPhi".to_string()),
             value: None,
@@ -32,11 +32,11 @@ impl<'a> SelectBettaPhi<'a> {
 }
 //
 //
-impl<'b, 'a:'b> Eval<'a, Switch, EvalResult> for SelectBettaPhi<'b> {
+impl Eval<Switch, EvalResult> for SelectBettaPhi {
     ///
     /// Method make choice β2 and ϕ2 coefficients, based on user [lifting class](design\docs\algorithm\part01\initial_data.md)
     /// [reference to β2 and ϕ2 coefficients documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
-    fn eval(&'a mut self, switch: Switch) -> BoxFuture<'a, EvalResult> {
+    fn eval(&mut self, switch: Switch) -> BoxFuture<'_, EvalResult> {
         Box::pin(async {
             let (switch, result) = self.ctx.eval(switch).await;
             (switch, match result {
@@ -63,7 +63,7 @@ impl<'b, 'a:'b> Eval<'a, Switch, EvalResult> for SelectBettaPhi<'b> {
 }
 //
 //
-impl std::fmt::Debug for SelectBettaPhi<'_> {
+impl std::fmt::Debug for SelectBettaPhi {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("LiftingSpeed")
             .field("dbgid", &self.dbgid)

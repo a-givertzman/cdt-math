@@ -110,8 +110,8 @@ mod dynamic_coefficient {
     }
     //
     //
-    impl Eval<'_, Switch, EvalResult> for MocEval {
-        fn eval(&'_ mut self, switch: Switch) -> BoxFuture<'_, EvalResult> {
+    impl Eval<Switch, EvalResult> for MocEval {
+        fn eval(&mut self, switch: Switch) -> BoxFuture<'_, EvalResult> {
             Box::pin(async {
                 (switch, CtxResult::Ok(self.ctx.clone()))
             })

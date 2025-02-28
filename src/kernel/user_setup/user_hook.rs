@@ -7,23 +7,23 @@ use crate::{
 use super::user_hook_ctx::UserHookCtx;
 ///
 /// Represents user hook and make request to user for choosing one
-pub struct UserHook<'a> {
+pub struct UserHook {
     dbgid: DbgId,
     /// value of user hook
     value: Option<UserHookCtx>,
     /// Event interface
-    req: Request<'a, HookFilterCtx, ChooseUserHookReply>,
+    req: Request<HookFilterCtx, ChooseUserHookReply>,
     /// [Context] instance, where store all info about initial data and each algorithm result's
-    ctx: Box<dyn Eval<'a, Switch, EvalResult> + Send + 'a>,
+    ctx: Box<dyn Eval<Switch, EvalResult> + Send>,
 }
 //
 //
-impl<'a> UserHook<'a> {
+impl UserHook {
     ///
     /// New instance [UserHook]
     /// - `ctx` - [Context]
     /// - `req` - [Request] for user
-    pub fn new(req: Request<'a, HookFilterCtx, ChooseUserHookReply>, ctx: impl Eval<'a, Switch, EvalResult> + Send + 'a) -> Self{
+    pub fn new(req: Request<HookFilterCtx, ChooseUserHookReply>, ctx: impl Eval<Switch, EvalResult> + Send + 'static) -> Self{
         Self { 
             dbgid: DbgId("UserHook".to_string()), 
             value: None,
@@ -34,8 +34,8 @@ impl<'a> UserHook<'a> {
 }
 //
 //
-impl<'b, 'a:'b> Eval<'a, Switch, EvalResult> for UserHook<'b> {
-    fn eval(&'a mut self, mut switch: Switch) -> BoxFuture<'a, EvalResult> {
+impl Eval<Switch, EvalResult> for UserHook {
+    fn eval(&mut self, mut switch: Switch) -> BoxFuture<'_, EvalResult> {
         let link = switch.link();
         Box::pin(async {
             let (switch, result) = self.ctx.eval(switch).await;
@@ -58,7 +58,7 @@ impl<'b, 'a:'b> Eval<'a, Switch, EvalResult> for UserHook<'b> {
 }
 //
 //
-impl std::fmt::Debug for UserHook<'_> {
+impl std::fmt::Debug for UserHook {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("UserHook")
             .field("dbgid", &self.dbgid)

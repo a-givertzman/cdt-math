@@ -6,20 +6,20 @@ use crate::{
 use super::dynamic_coefficient_ctx::DynamicCoefficientCtx;
 ///
 /// Calculation step: [dynamic coefficient](design\docs\algorithm\part02\chapter_01_choose_hook.md)
-pub struct DynamicCoefficient<'a> {
+pub struct DynamicCoefficient {
     dbgid: DbgId,
     /// value of [dynamic coefficient](design\docs\algorithm\part02\chapter_01_choose_hook.md)
     value: Option<DynamicCoefficientCtx>,
     /// [Context] instance, where store all info about initial data and each algorithm result's
-    ctx: Box<dyn Eval<'a, Switch, EvalResult> + Send + 'a>,
+    ctx: Box<dyn Eval<Switch, EvalResult> + Send>,
 }
 //
 //
-impl<'a> DynamicCoefficient<'a> {
+impl  DynamicCoefficient {
     ///
     /// New instance [DynamicCoefficient]
     /// - `ctx` - [Context]
-    pub fn new(ctx: impl Eval<'a, Switch, EvalResult> + Send + 'a) -> Self {
+    pub fn new(ctx: impl Eval<Switch, EvalResult> + Send + 'static) -> Self {
         Self {
             dbgid: DbgId("DynamicCoefficient".to_string()),
             value: None,
@@ -29,11 +29,11 @@ impl<'a> DynamicCoefficient<'a> {
 }
 //
 //
-impl<'b, 'a:'b> Eval<'a, Switch, EvalResult> for DynamicCoefficient<'b> {
+impl  Eval<Switch, EvalResult> for DynamicCoefficient {
     ///
     /// Method of calculating the dynamic coefficient
     /// [reference to dynamic coefficient documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
-    fn eval(&'a mut self, switch: Switch) -> BoxFuture<'a, EvalResult> {
+    fn eval(&mut self, switch: Switch) -> BoxFuture<'_, EvalResult> {
         Box::pin(async {
             let (switch, result) = self.ctx.eval(switch).await;
             (switch, match result {
@@ -63,7 +63,7 @@ impl<'b, 'a:'b> Eval<'a, Switch, EvalResult> for DynamicCoefficient<'b> {
 }
 //
 //
-impl std::fmt::Debug for DynamicCoefficient<'_> {
+impl std::fmt::Debug for DynamicCoefficient {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("DynamicCoefficient")
             .field("dbgid", &self.dbgid)

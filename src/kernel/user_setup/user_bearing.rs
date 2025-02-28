@@ -7,23 +7,23 @@ use crate::{
 use super::user_bearing_ctx::UserBearingCtx;
 ///
 /// Represents user bearing and make request to user for choosing one
-pub struct UserBearing<'a> {
+pub struct UserBearing {
     dbgid: DbgId,
     /// value of user hook
     value: Option<UserBearingCtx>,
     /// Event interface
-    req: Request<'a, BearingFilterCtx, ChooseUserBearingReply>,
+    req: Request<BearingFilterCtx, ChooseUserBearingReply>,
     /// [Context] instance, where store all info about initial data and each algorithm result's
-    ctx: Box<dyn Eval<'a, Switch, EvalResult> + Send + 'a>,
+    ctx: Box<dyn Eval<Switch, EvalResult> + Send>,
 }
 //
 //
-impl<'a> UserBearing<'a> {
+impl UserBearing {
     ///
     /// New instance [UserBearing]
     /// - `ctx` - [Context]
     /// - `req` - [Request] for user
-    pub fn new(req: Request<'a, BearingFilterCtx, ChooseUserBearingReply>, ctx: impl Eval<'a, Switch, EvalResult> + Send + 'a) -> Self {
+    pub fn new(req: Request<BearingFilterCtx, ChooseUserBearingReply>, ctx: impl Eval<Switch, EvalResult> + Send + 'static) -> Self {
         Self { 
             dbgid: DbgId("UserBearing".to_string()), 
             value: None,
@@ -34,8 +34,8 @@ impl<'a> UserBearing<'a> {
 }
 //
 //
-impl<'b, 'a:'b> Eval<'a, Switch, EvalResult> for UserBearing<'b> {
-    fn eval(&'a mut self, mut switch: Switch) -> BoxFuture<'a, EvalResult> {
+impl Eval<Switch, EvalResult> for UserBearing {
+    fn eval(&mut self, mut switch: Switch) -> BoxFuture<'_, EvalResult> {
         let link = switch.link();
         Box::pin(async {
             let (switch, result) = self.ctx.eval(switch).await;
@@ -59,7 +59,7 @@ impl<'b, 'a:'b> Eval<'a, Switch, EvalResult> for UserBearing<'b> {
 }
 //
 //
-impl std::fmt::Debug for UserBearing<'_> {
+impl std::fmt::Debug for UserBearing {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("UserBearing")
             .field("dbgid", &self.dbgid)

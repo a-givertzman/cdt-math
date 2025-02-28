@@ -9,20 +9,20 @@ use crate::{
 use super::lifting_speed_ctx::LiftingSpeedCtx;
 ///
 /// Calculation step: [steady-state lifting speed of the load](design\docs\algorithm\part02\chapter_01_choose_hook.md)
-pub struct LiftingSpeed<'a> {
+pub struct LiftingSpeed {
     dbg: DbgId,
     /// value of [steady-state lifting speed](design\docs\algorithm\part02\chapter_01_choose_hook.md)
     value: Option<LiftingSpeedCtx>,
     /// [Context] instance, where store all info about initial data and each algorithm result's
-    ctx: Box<dyn Eval<'a, Switch, EvalResult> + Send + 'a>,
+    ctx: Box<dyn Eval<Switch, EvalResult> + Send>,
 }
 //
 //
-impl<'a> LiftingSpeed<'a> {
+impl LiftingSpeed {
     ///
     /// New instance [LiftingSpeed]
     /// - 'ctx' - [Context] instance, where store all info about initial data and each algorithm result's
-    pub fn new(ctx: impl Eval<'a, Switch, EvalResult> + Send + 'a) -> Self {
+    pub fn new(ctx: impl Eval<Switch, EvalResult> + Send + 'static) -> Self {
         Self {
             dbg: DbgId("LiftingSpeed".to_string()),
             value: None,
@@ -39,11 +39,11 @@ impl<'a> LiftingSpeed<'a> {
 }
 //
 //
-impl<'b, 'a:'b> Eval<'a, Switch, EvalResult> for LiftingSpeed<'b> {
+impl Eval<Switch, EvalResult> for LiftingSpeed {
     ///
     /// Method of calculating the steady-state lifting speed of the load
     /// [reference to steady-state lifting speed choice documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
-    fn eval(&'a mut self, switch: Switch) -> BoxFuture<'a, EvalResult> {
+    fn eval(&mut self, switch: Switch) -> BoxFuture<'_, EvalResult> {
         let result = Box::pin(async {
             let (switch, result) = self.ctx.eval(switch).await;
             (switch, match result {
@@ -80,7 +80,7 @@ impl<'b, 'a:'b> Eval<'a, Switch, EvalResult> for LiftingSpeed<'b> {
 }
 //
 //
-impl std::fmt::Debug for LiftingSpeed<'_> {
+impl std::fmt::Debug for LiftingSpeed {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("LiftingSpeed")
             .field("dbgid", &self.dbg)

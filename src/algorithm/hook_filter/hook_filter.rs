@@ -9,20 +9,20 @@ use crate::{
 };
 ///
 /// Calculation step: [filtering hooks](design\docs\algorithm\part02\chapter_01_choose_hook.md)
-pub struct HookFilter<'a> {
+pub struct HookFilter {
     dbgid: DbgId,
     /// vector of [filtered hooks](design\docs\algorithm\part02\chapter_01_choose_hook.md)
     value: Option<HookFilterCtx>,
     /// [Context] instance, where store all info about initial data and each algorithm result's
-    ctx: Box<dyn Eval<'a, Switch, EvalResult> + Send + 'a>,
+    ctx: Box<dyn Eval<Switch, EvalResult> + Send>,
 }
 //
 //
-impl<'a> HookFilter<'a> {
+impl  HookFilter {
     ///
     /// New instance [HookFilter]
     /// - `ctx` - [Context]
-    pub fn new(ctx: impl Eval<'a, Switch, EvalResult> + Send + 'a) -> Self {
+    pub fn new(ctx: impl Eval<Switch, EvalResult> + Send + 'static) -> Self {
         Self {
             dbgid: DbgId("HookFilter".to_string()),
             value: None,
@@ -32,11 +32,11 @@ impl<'a> HookFilter<'a> {
 }
 //
 //
-impl<'b, 'a:'b> Eval<'a, Switch, EvalResult> for HookFilter<'b> {
+impl Eval<Switch, EvalResult> for HookFilter {
     ///
     /// Method of filtering hooks by user loading capacity
     /// [reference to filtering documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
-    fn eval(&'a mut self, switch: Switch) -> BoxFuture<'a, EvalResult> {
+    fn eval(&mut self, switch: Switch) -> BoxFuture<'_, EvalResult> {
         Box::pin(async {
             let (switch, result) = self.ctx.eval(switch).await;
             (switch, match result {
@@ -91,7 +91,7 @@ impl<'b, 'a:'b> Eval<'a, Switch, EvalResult> for HookFilter<'b> {
 }
 //
 //
-impl std::fmt::Debug for HookFilter<'_> {
+impl std::fmt::Debug for HookFilter {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("HookFilter")
             .field("dbgid", &self.dbgid)

@@ -6,7 +6,7 @@ use super::sync::link::Link;
 /// Example:
 /// ```ignore
 /// let math = AlgoSecond::new(
-///     req: Request<T>::new(op: async |ctx: Context, link: &mut Link| -> T {
+///     req: Request<T>::new(op: async |ctx: Context, link: Link| -> T {
 ///         // Query: Some Struct comtains all neccessary info and implements `Serialize`
 ///         let query = QueryStruct::new();
 ///         // Reply: Returns `T`, implements `Deserialize`
@@ -15,38 +15,38 @@ use super::sync::link::Link;
 ///     eval: AlgFirst::new(initial),
 /// )
 /// ```
-pub struct Request<'b, In, T> {
-    op: Box<dyn AsyncFn<'b, In, T> + Send + Sync>,
+pub struct Request<In, T> {
+    op: Box<dyn AsyncFn<In, T> + Send + Sync>,
 }
 //
 //
-impl<'b, In, T> Request<'b, In, T> {
+impl<In, T> Request<In, T> {
     ///
     /// Returns [Request] new instance
     /// - `op` - the body of the request
-    pub fn new(op: impl AsyncFn<'b, In, T> + Send + Sync + 'static) -> Self {
+    pub fn new(op: impl AsyncFn<In, T> + Send + Sync + 'static) -> Self {
         let request = Self { op: Box::new(op) };
         request
     }
     ///
     /// Performs the request defined in the `op`
-    pub async fn fetch(&'b self, val: In, link: Link) -> T {
+    pub async fn fetch(&self, val: In, link: Link) -> T {
         self.op.eval(val, link).await
     }
 }
 ///
-/// 
-trait AsyncFn<'b, In, Out> {
-    fn eval<'a>(&'a self, ctx: In, link: Link) -> BoxFuture<'b, Out> where 'a:'b;
+/// Async callback closure
+trait AsyncFn<In, Out> {
+    fn eval(&self, ctx: In, link: Link) -> BoxFuture<'_, Out>;
 }
 //
 //
-impl<'b, T, F, In, Out> AsyncFn<'b, In, Out> for T
+impl<T, F, In, Out> AsyncFn<In, Out> for T
 where
     T: Fn(In, Link) -> F,
-    F: std::future::Future<Output = Out> + Send + 'b,
+    F: std::future::Future<Output = Out> + Send + 'static,
 {
-    fn eval<'a>(&'a self, val: In, link: Link) -> BoxFuture<'b, Out> where 'a:'b {
+    fn eval(&self, val: In, link: Link) -> BoxFuture<'_, Out> {
         Box::pin(self(val, link))
     }
 }

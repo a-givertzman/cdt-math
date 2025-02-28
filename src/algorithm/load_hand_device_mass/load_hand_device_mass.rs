@@ -3,20 +3,20 @@ use crate::{algorithm::{context::{context_access::{ContextRead, ContextWrite}, c
 use super::load_hand_device_mass_ctx::LoadHandDeviceMassCtx;
 ///
 /// Calculation step: [total mass and net weight](design\docs\algorithm\part02\chapter_02_choose_another_load_handing_device.md)
-pub struct LoadHandDeviceMass<'a> {
+pub struct LoadHandDeviceMass {
     dbg: DbgId,
     /// value of [total mass and net weight](design\docs\algorithm\part02\chapter_01_choose_hook.md)
     value: Option<LoadHandDeviceMassCtx>,
     /// [Context] instance, where store all info about initial data and each algorithm result's
-    ctx: Box<dyn Eval<'a, Switch, EvalResult> + Send + 'a>,
+    ctx: Box<dyn Eval<Switch, EvalResult> + Send>,
 }
 //
 //
-impl<'a> LoadHandDeviceMass<'a> {
+impl LoadHandDeviceMass {
     ///
     /// New instance [LoadHandDeviceMass]
     /// - `ctx` - [Context]
-    pub fn new(ctx: impl Eval<'a, Switch, EvalResult> + Send + 'a) -> Self {
+    pub fn new(ctx: impl Eval<Switch, EvalResult> + Send + 'static) -> Self {
         Self {
             dbg: DbgId("LoadHandDeviceMass".to_string()),
             value: None,
@@ -26,8 +26,8 @@ impl<'a> LoadHandDeviceMass<'a> {
 }
 //
 //
-impl<'b, 'a:'b> Eval<'a, Switch, EvalResult> for LoadHandDeviceMass<'b> {
-    fn eval(&'a mut self, switch: Switch) -> BoxFuture<'a, EvalResult> {
+impl Eval<Switch, EvalResult> for LoadHandDeviceMass {
+    fn eval(&mut self, switch: Switch) -> BoxFuture<'_, EvalResult> {
         log::debug!("{}.eval | Start", self.dbg);
         let result = Box::pin(async {
             let (switch, result) = self.ctx.eval(switch).await;
@@ -65,7 +65,7 @@ impl<'b, 'a:'b> Eval<'a, Switch, EvalResult> for LoadHandDeviceMass<'b> {
 }
 //
 //
-impl std::fmt::Debug for LoadHandDeviceMass<'_> {
+impl std::fmt::Debug for LoadHandDeviceMass {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("LoadHandDeviceMass")
             .field("dbgid", &self.dbg)
