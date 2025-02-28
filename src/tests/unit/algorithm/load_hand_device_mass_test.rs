@@ -30,66 +30,69 @@ mod user_bearing {
     // #[test]
     #[tokio::test]
     async fn eval() {
-        DebugSession::init(LogLevel::Debug, Backtrace::Short);
-        init_once();
-        init_each();
-        log::debug!("");
-        let dbg = "test";
-        log::debug!("\n{}", dbg);
-        let test_duration = TestDuration::new(dbg, Duration::from_secs(10));
-        test_duration.run().unwrap();
-        let test_data = [
-            (
-                1,
-                r#"./src/tests/unit/kernel/storage/cache/test_2"#,
-                LoadHandDeviceMassCtx { 
-                    total_mass: 50.0,
-                    net_weight: 8.0 
-                },
-            ),
-            (
-                2,
-                r#"./src/tests/unit/kernel/storage/cache/test_3"#,
-                LoadHandDeviceMassCtx { 
-                    total_mass: 52.0,
-                    net_weight: 18.0 
-                },
-            )
-        ];
-        let (loc_send, rem_recv) = mpsc::channel();
-        let (rem_send, loc_recv) = mpsc::channel();
-        let rem_link = Link::new(dbg, rem_send, rem_recv);
-        let mut mok_user_reply = MokUserReply::new(dbg, rem_link);
-        let mut switch = Switch::new(dbg, loc_send, loc_recv);
-        log::debug!("{} | Switch run...", dbg);
-        let switch_handle = switch.run().await.unwrap();
-        log::debug!("{} | Switch run - ok", dbg);
-        log::debug!("{} | MokUserReply run...", dbg);
-        let mok_user_reply_handle = mok_user_reply.run().await.unwrap();
-        log::debug!("{} | MokUserReply run - ok", dbg);
-        log::debug!("{} | All executed", dbg);
-        log::debug!("{} | Evals...", dbg);
-        for (step, cache_path, target) in test_data {
-            let (switch_, result) = LoadHandDeviceMass::new(
-                UserBearing::new(
-                    Request::new(async |variants: BearingFilterCtx, link: Link| {
-                        let query = Query::ChooseUserBearing(ChooseUserBearingQuery::new(variants.result.clone()));
-                        link.req(query).await.expect("{}.req | Error to send request")
-                    }),
-                    UserHook::new(
-                        Request::new(async |variants: HookFilterCtx, link: Link| {
-                            let query = Query::ChooseUserHook(ChooseUserHookQuery::test(variants.result.clone()));
+        let rt = tokio::runtime::Runtime::new().unwrap();
+        rt.spawn(async {
+            DebugSession::init(LogLevel::Debug, Backtrace::Short);
+            init_once();
+            init_each();
+            log::debug!("");
+            let dbg = "test";
+            log::debug!("\n{}", dbg);
+            let test_duration = TestDuration::new(dbg, Duration::from_secs(10));
+            test_duration.run().unwrap();
+            let test_data = [
+                (
+                    1,
+                    r#"./src/tests/unit/kernel/storage/cache/test_2"#,
+                    LoadHandDeviceMassCtx { 
+                        total_mass: 50.0,
+                        net_weight: 8.0 
+                    },
+                ),
+                (
+                    2,
+                    r#"./src/tests/unit/kernel/storage/cache/test_3"#,
+                    LoadHandDeviceMassCtx { 
+                        total_mass: 52.0,
+                        net_weight: 18.0 
+                    },
+                )
+            ];
+            let (loc_send, rem_recv) = mpsc::channel();
+            let (rem_send, loc_recv) = mpsc::channel();
+            let rem_link = Link::new(dbg, rem_send, rem_recv);
+            let mut mok_user_reply = MokUserReply::new(dbg, rem_link);
+            let mut switch = Switch::new(dbg, loc_send, loc_recv);
+            log::debug!("{} | Switch run...", dbg);
+            let switch_handle = switch.run().await.unwrap();
+            log::debug!("{} | Switch run - ok", dbg);
+            log::debug!("{} | MokUserReply run...", dbg);
+            let mok_user_reply_handle = mok_user_reply.run().await.unwrap();
+            log::debug!("{} | MokUserReply run - ok", dbg);
+            log::debug!("{} | All executed", dbg);
+            log::debug!("{} | Evals...", dbg);
+            for (step, cache_path, target) in test_data {
+                let (switch_, result) = LoadHandDeviceMass::new(
+                    UserBearing::new(
+                        Request::new(async |variants: BearingFilterCtx, link: Link| {
+                            let query = Query::ChooseUserBearing(ChooseUserBearingQuery::new(variants.result.clone()));
                             link.req(query).await.expect("{}.req | Error to send request")
                         }),
-                        HookFilter::new(
-                            DynamicCoefficient::new(
-                                SelectBettaPhi::new(
-                                    LiftingSpeed::new(
-                                        Initial::new(
-                                            Context::new(
-                                                InitialCtx::new(
-                                                    &mut Storage::new(cache_path)
-                                                ).unwrap(),
+                        UserHook::new(
+                            Request::new(async |variants: HookFilterCtx, link: Link| {
+                                let query = Query::ChooseUserHook(ChooseUserHookQuery::test(variants.result.clone()));
+                                link.req(query).await.expect("{}.req | Error to send request")
+                            }),
+                            HookFilter::new(
+                                DynamicCoefficient::new(
+                                    SelectBettaPhi::new(
+                                        LiftingSpeed::new(
+                                            Initial::new(
+                                                Context::new(
+                                                    InitialCtx::new(
+                                                        &mut Storage::new(cache_path)
+                                                    ).unwrap(),
+                                                ),
                                             ),
                                         ),
                                     ),
@@ -97,31 +100,31 @@ mod user_bearing {
                             ),
                         ),
                     ),
-                ),
-            )
-            .eval(switch)
-            .await;
-            switch = switch_;
-            match result {
-                CtxResult::Ok(result) => {
-                    let result = ContextRead::<LoadHandDeviceMassCtx>::read(&result)
-                        .clone();
-                    assert!(
-                        result == target,
-                        "step {} \nresult: {:?}\ntarget: {:?}",
-                        step,
-                        result,
-                        target
-                    );
+                )
+                .eval(switch)
+                .await;
+                switch = switch_;
+                match result {
+                    CtxResult::Ok(result) => {
+                        let result = ContextRead::<LoadHandDeviceMassCtx>::read(&result)
+                            .clone();
+                        assert!(
+                            result == target,
+                            "step {} \nresult: {:?}\ntarget: {:?}",
+                            step,
+                            result,
+                            target
+                        );
+                    }
+                    CtxResult::Err(err) => panic!("step {} \nerror: {:#?}", step, err),
+                    CtxResult::None => panic!("step {} \nerror: `UserHook` returns None", step),
                 }
-                CtxResult::Err(err) => panic!("step {} \nerror: {:#?}", step, err),
-                CtxResult::None => panic!("step {} \nerror: `UserHook` returns None", step),
             }
-        }
-        switch.exit();
-        mok_user_reply.exit();
-        switch_handle.join_all().await;
-        mok_user_reply_handle.join_all().await;
-        test_duration.exit();
+            switch.exit();
+            mok_user_reply.exit();
+            switch_handle.join_all().await;
+            mok_user_reply_handle.join_all().await;
+            test_duration.exit();
+        }).await;
     }
 }

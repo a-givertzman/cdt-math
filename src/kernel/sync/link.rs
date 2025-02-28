@@ -107,32 +107,35 @@ impl Link {
     /// - Returns Ok<T> if channel has query
     /// - Returns None if channel is empty for now
     /// - Returns Err if channel is closed
-    pub fn recv_query<T: DeserializeOwned + Debug>(&self) -> CtxResult<T, StrErr> {
-        match self.recv.recv_timeout(self.timeout) {
-            Ok(query) => {
-                log::debug!("{}.recv_query | Received query: {:#?}", self.name, query);
-                let quyru = query.as_string().value;
-                match serde_json::from_str::<T>(quyru.as_str()) {
-                    Ok(query) => {
-                        return CtxResult::Ok(query)
-                    }
-                    Err(err) => CtxResult::Err(
-                        StrErr(
-                            format!("{}.req | Deserialize error for {:?} in {}, \n\terror: {:#?}",
-                            self.name, std::any::type_name::<T>(), quyru, err),
+    pub async fn recv_query<T: DeserializeOwned + Debug>(&self) -> CtxResult<T, StrErr> {
+        let h = tokio::task::block_in_place(move|| {
+            match self.recv.recv_timeout(self.timeout) {
+                Ok(query) => {
+                    log::debug!("{}.recv_query | Received query: {:#?}", self.name, query);
+                    let quyru = query.as_string().value;
+                    match serde_json::from_str::<T>(quyru.as_str()) {
+                        Ok(query) => {
+                            return CtxResult::Ok(query)
+                        }
+                        Err(err) => CtxResult::Err(
+                            StrErr(
+                                format!("{}.req | Deserialize error for {:?} in {}, \n\terror: {:#?}",
+                                self.name, std::any::type_name::<T>(), quyru, err),
+                            ),
                         ),
-                    ),
+                    }
+                }
+                Err(err) => {
+                    match err {
+                        std::sync::mpsc::RecvTimeoutError::Timeout => CtxResult::None,
+                        std::sync::mpsc::RecvTimeoutError::Disconnected => CtxResult::Err(
+                            StrErr(format!("{}.req | Recv error: {:#?}", self.name, err)),
+                        ),
+                    }
                 }
             }
-            Err(err) => {
-                match err {
-                    std::sync::mpsc::RecvTimeoutError::Timeout => CtxResult::None,
-                    std::sync::mpsc::RecvTimeoutError::Disconnected => CtxResult::Err(
-                        StrErr(format!("{}.req | Recv error: {:#?}", self.name, err)),
-                    ),
-                }
-            }
-        }
+        });
+        h
     }
     ///
     /// Sending event

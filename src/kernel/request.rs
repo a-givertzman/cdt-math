@@ -6,11 +6,11 @@ use super::sync::link::Link;
 /// Example:
 /// ```ignore
 /// let math = AlgoSecond::new(
-///     req: Request<T>::new(op: async |ctx: Context, link: Link| -> T {
+///     req: Request<T>::new(async |ctx: Context, link: Link| -> T {
 ///         // Query: Some Struct comtains all neccessary info and implements `Serialize`
 ///         let query = QueryStruct::new();
 ///         // Reply: Returns `T`, implements `Deserialize`
-///         link.req(query)
+///         link.req(query).await
 ///     }),
 ///     eval: AlgFirst::new(initial),
 /// )
@@ -36,7 +36,7 @@ impl<In, T> Request<In, T> {
 }
 ///
 /// Async callback closure
-trait AsyncFn<In, Out> {
+pub trait AsyncFn<In, Out> {
     fn eval(&self, ctx: In, link: Link) -> BoxFuture<'_, Out>;
 }
 //

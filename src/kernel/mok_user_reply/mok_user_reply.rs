@@ -57,7 +57,7 @@ impl MokUserReply {
                     };
                 }
                 'main: loop {
-                    match link.recv_query::<Query>() {
+                    match link.recv_query::<Query>().await {
                         CtxResult::Ok(query) => match query {
                             Query::ChooseUserHook(query) => {
                                 let query: ChooseUserHookQuery = query;
