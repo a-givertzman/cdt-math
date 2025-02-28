@@ -23,39 +23,43 @@ mod link {
     fn init_each() -> () {}
     ///
     /// Testing 'Request::fetch'
-    #[tokio::test]
+    #[tokio::test(flavor = "multi_thread")]
     async fn req() {
         DebugSession::init(LogLevel::Debug, Backtrace::Short);
-        let rt = tokio::runtime::Runtime::new().unwrap();
-        rt.spawn(async {
-            init_once();
-            init_each();
-            log::debug!("");
-            let dbg = "fetch";
-            log::debug!("\n{}", dbg);
-            let test_duration = TestDuration::new(dbg, Duration::from_secs(5));
-            test_duration.run().unwrap();
-            let test_data: [(i32, Query, Result<Query, StrErr>); 2] = [
-                (1, Query("Query-1".into()), Ok(Query("Reply-1".into()))),
-                (2, Query("Query-2".into()), Ok(Query("Reply-2".into()))),
-            ];
-            let (local, remote) = Link::split(dbg);
-            let mut listener = Listener::new(dbg, remote);
-            log::debug!("{} | Starting Listener", dbg);
-            let listener_handle = listener.run().await.unwrap();
-            log::debug!("{} | Starting Listener - Ok", dbg);
-            for (step, query, target) in test_data {
-                let result = local.req(query).await;
-                log::debug!("step {} \nresult: {:?}\ntarget: {:?}", step, result, target);
-                assert!(result == target, "step {} \nresult: {:?}\ntarget: {:?}", step, result, target);
-            }
-            listener.exit();
-            listener_handle.await.unwrap();
-            test_duration.exit();
-        }).await.unwrap();
+        init_once();
+        init_each();
+        log::debug!("");
+        let dbg = "fetch";
+        log::debug!("\n{}", dbg);
+        let test_duration = TestDuration::new(dbg, Duration::from_secs(5));
+        test_duration.run().unwrap();
+        let test_data: [(i32, Message, Result<Message, StrErr>); 4] = [
+            (1, Message("Query-1".into()), Ok(Message("Reply-1".into()))),
+            (2, Message("Query-2".into()), Ok(Message("Reply-2".into()))),
+            (3, Message("Query-3".into()), Ok(Message("Reply-3".into()))),
+            (4, Message("Query-4".into()), Ok(Message("Reply-4".into()))),
+        ];
+        let (local, remote) = Link::split(dbg);
+        let mut listener = Listener::new(dbg, remote);
+        log::debug!("{} | Starting Listener", dbg);
+        let listener_handle = listener.run().await.unwrap();
+        log::debug!("{} | Starting Listener - Ok", dbg);
+        for (step, query, target) in test_data {
+            let result = local.req(query).await;
+            log::debug!("step {} \nresult: {:?}\ntarget: {:?}", step, result, target);
+            assert!(result == target, "step {} \nresult: {:?}\ntarget: {:?}", step, result, target);
+        }
+        listener.exit();
+        listener_handle.await.unwrap();
+        log::debug!("{} | Starting Listener - Done", dbg);
+        test_duration.exit();
     }
+    ///
+    /// Message container
     #[derive(Debug, Serialize, Deserialize, PartialEq)]
-    struct Query(pub String);
+    struct Message(pub String);
+    ///
+    /// Receives Query, send associated Reply
     struct Listener {
         name: Name,
         /// recieve and sender channel's
@@ -95,6 +99,7 @@ mod link {
                                 "Query-1" => send_reply(&dbg, &mut link, "Reply-1").await,
                                 "Query-2" => send_reply(&dbg, &mut link, "Reply-2").await,
                                 "Query-3" => send_reply(&dbg, &mut link, "Reply-3").await,
+                                "Query-4" => send_reply(&dbg, &mut link, "Reply-4").await,
                                 _ => panic!("Unknown Query: {:?}", query)
                             }
                             CtxResult::Err(err) => {
