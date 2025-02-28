@@ -21,7 +21,7 @@ mod request {
     fn init_each() -> () {}
     ///
     /// Testing 'Request::fetch'
-    // #[tokio::test]
+    #[tokio::test]
     async fn execute() {
         DebugSession::init(LogLevel::Info, Backtrace::Short);
         init_once();
@@ -41,7 +41,7 @@ mod request {
                 MokUserReplyTestCtx { value: Value::String("Hello World!".to_string()) },
             ),
             (
-                1,
+                2,
                 InitialCtx::new(&mut Storage::new(
                     "./src/tests/unit/kernel/storage/cache/test_3",
                 ))
@@ -60,8 +60,8 @@ mod request {
             let mut ctx = Context::new(initial.clone());
             ctx.testing = Some(TestingCtx { mok_user_reply: value });
             let ctx: MokUserReplyTestCtx = ctx.testing.unwrap().mok_user_reply;
-            // let result = request.fetch(ctx, switch.link()).await;
-            // assert!(result == target, "step {} \nresult: {:?}\ntarget: {:?}", step, result, target);
+            let result = request.fetch(ctx, switch.link()).await;
+            assert!(result == target, "step {} \nresult: {:?}\ntarget: {:?}", step, result, target);
         }
         test_duration.exit();
     }

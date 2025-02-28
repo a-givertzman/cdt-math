@@ -1,7 +1,7 @@
 use std::{fmt::Debug, sync::mpsc::{self, Receiver, Sender}, time::Duration};
-use sal_sync::services::entity::{cot::Cot, error::str_err::StrErr, name::Name, point::{point::Point, point_hlr::PointHlr, point_tx_id::PointTxId}, status::status::Status};
+use sal_sync::services::entity::{cot::Cot, name::Name, point::{point::Point, point_hlr::PointHlr, point_tx_id::PointTxId}, status::status::Status};
 use serde::{de::DeserializeOwned, Serialize};
-use crate::algorithm::context::ctx_result::CtxResult;
+use crate::{algorithm::context::ctx_result::CtxResult, kernel::str_err::str_err::StrErr};
 ///
 /// Contains local side `send` & `recv` of `channel`
 /// - provides simple direct to `send` & `recv`

@@ -1,3 +1,4 @@
+mod link_test;
 mod storage;
 mod user_setup;
 mod mok_user_reply_test;
