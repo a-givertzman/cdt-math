@@ -125,6 +125,6 @@ mod user_bearing {
             switch_handle.join_all().await;
             mok_user_reply_handle.join_all().await;
             test_duration.exit();
-        }).await;
+        }).await.unwrap();
     }
 }

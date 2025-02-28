@@ -35,9 +35,9 @@ use kernel::{
 /// Application entry point
 // #[tokio::main(flavor = "multi_thread", worker_threads = 10)]
 #[tokio::main]
-async fn main() -> Result<(), tokio::task::JoinError> {
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
     DebugSession::init(LogLevel::Debug, Backtrace::Short);
-    let rt = tokio::runtime::Runtime::new().unwrap();
+    let rt = tokio::runtime::Runtime::new()?;
     rt.spawn(async {
         let dbg = DbgId("main".into());
         let path = "config.yaml";
@@ -91,5 +91,8 @@ async fn main() -> Result<(), tokio::task::JoinError> {
         switch.exit();
         switch_handle.join_all().await;
         mok_user_reply_handle.join_all().await;
-    }).await
+    })
+    .await
+    .unwrap();
+    Ok(())
 }
