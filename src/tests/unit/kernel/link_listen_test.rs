@@ -51,7 +51,7 @@ mod link_listen {
                 "Query-4" => Point::new(0, "name", serde_json::to_string(&Message("Reply-4".into())).unwrap()),
                 _ => panic!("Link.remote.listen | Unknown event {:#?}", query),
             })
-        }).await;
+        }).await.unwrap();
         log::debug!("{} | Starting Listener - Ok", dbg);
         for (step, query, target) in test_data {
             let result: Result<Message, StrErr> = local.req(query).await;

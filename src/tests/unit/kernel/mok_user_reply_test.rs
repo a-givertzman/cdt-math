@@ -57,8 +57,8 @@ mod mok_user_reply {
             )
         ];
         let (local, remote) = Link::split(dbg);
-        let mut user = MokUserReply::new(dbg, remote);
-        user.run().await.unwrap();
+        let mut user_reply = MokUserReply::new(dbg, remote);
+        let user_reply_handle = user_reply.run().await.unwrap();
         for (step, query, target) in test_data {
             let query = Query::ChooseUserHook(query);
             let result: ChooseUserHookReply = local.req(query).await.unwrap();
@@ -66,7 +66,8 @@ mod mok_user_reply {
             log::debug!("step {} \nresult: {:?}\ntarget: {:?}", step, result, target);
             assert!(result == target, "step {} \nresult: {:?}\ntarget: {:?}", step, result, target);
         }
-        user.exit();
+        user_reply.exit();
+        user_reply_handle.await.unwrap();
         test_duration.exit();
     }
 }

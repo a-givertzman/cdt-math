@@ -1,7 +1,7 @@
 use std::{fmt::Debug, sync::{atomic::{AtomicBool, Ordering}, mpsc::{self, Receiver, Sender}, Arc}, thread, time::Duration};
 use sal_sync::services::entity::{cot::Cot, name::Name, point::{point::Point, point_hlr::PointHlr, point_tx_id::PointTxId}, status::status::Status};
 use serde::{de::DeserializeOwned, Serialize};
-use tokio::task::JoinHandle;
+use tokio::task::JoinHandle; 
 use crate::{algorithm::context::ctx_result::CtxResult, kernel::str_err::str_err::StrErr};
 ///
 /// Contains local side `send` & `recv` of `channel`
@@ -112,46 +112,43 @@ impl Link {
     /// - Callback receives `Point`
     /// - Callback returns `Some<Point>` - to be sent
     /// - Callback returns None - nothing to be sent
-    pub async fn listen(&mut self, op: impl Fn(Point) -> Option<Point> + Send + 'static) -> JoinHandle<()> {
+    pub async fn listen(&mut self, op: impl Fn(Point) -> Option<Point> + Send + 'static) -> Result<JoinHandle<()>, StrErr> {
         let dbg = self.name.join();
         let send = self.send.clone();
         let recv = self.recv.take().unwrap();
         let timeout = Duration::from_millis(100);   // self.timeout;
         let exit = self.exit.clone();
         log::debug!("{}.listen | Starting...", dbg);
-        let handle = tokio::spawn(async move {
-            log::debug!("{}.listen | Start", dbg);
-            tokio::task::block_in_place(move|| {
-                'main: loop {
-                    match recv.recv_timeout(timeout) {
-                        Ok(query) => {
-                            log::debug!("{}.listen | Received query: {:#?}", dbg, query);
-                            match (op)(query) {
-                                Some(reply) => if let Err(err) = send.send(reply) {
-                                    let err = StrErr(format!("{}.listen | Send request error: {:#?}", dbg, err));
-                                    log::error!("{}", err);
-                                }
-                                None => {}
+        let handle = tokio::task::spawn_blocking(move|| {
+            'main: loop {
+                match recv.recv_timeout(timeout) {
+                    Ok(query) => {
+                        log::debug!("{}.listen | Received query: {:#?}", dbg, query);
+                        match (op)(query) {
+                            Some(reply) => if let Err(err) = send.send(reply) {
+                                let err = StrErr(format!("{}.listen | Send request error: {:#?}", dbg, err));
+                                log::error!("{}", err);
                             }
-                        }
-                        Err(err) => match err {
-                            mpsc::RecvTimeoutError::Timeout => {}
-                            mpsc::RecvTimeoutError::Disconnected => {
-                                log::warn!("{}.listen | Recv error: {:#?}", dbg, err);
-                                thread::sleep(timeout);
-                            }
+                            None => {}
                         }
                     }
-                    if exit.load(Ordering::SeqCst) {
-                        break 'main;
+                    Err(err) => match err {
+                        mpsc::RecvTimeoutError::Timeout => {}
+                        mpsc::RecvTimeoutError::Disconnected => {
+                            log::warn!("{}.listen | Recv error: {:#?}", dbg, err);
+                            thread::sleep(timeout);
+                        }
                     }
                 }
-                log::debug!("{}.listen | Exit", dbg);
-            });
+                if exit.load(Ordering::SeqCst) {
+                    break 'main;
+                }
+            }
+            log::debug!("{}.listen | Exit", dbg);
         });
         let dbg = self.name.join();
         log::debug!("{}.listen | Starting - Ok", dbg);
-        handle
+        Ok(handle)
     }
     ///
     /// Receiving incomong events
@@ -243,6 +240,11 @@ impl Link {
             }
             Err(err) => Err(StrErr(format!("{}.reply | Serialize reply error: {:#?}, \n\tquery: {:#?}", self.name, err, reply))),
         }
+    }
+    ///
+    /// Returns internal `exit` signal to be paired
+    pub fn exit_pair(&self) -> Arc<AtomicBool> {
+        self.exit.clone()
     }
     ///
     /// Sends "exit" signal to the `listen` task

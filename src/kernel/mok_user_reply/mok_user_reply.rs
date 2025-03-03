@@ -1,4 +1,5 @@
-use std::sync::atomic::Ordering;
+use std::sync::{atomic::{AtomicBool, Ordering}, Arc};
+
 use sal_sync::services::entity::{cot::Cot, name::Name, object::Object, point::{point::Point, point_hlr::PointHlr, point_tx_id::PointTxId}, status::status::Status};
 use serde::Serialize;
 use tokio::task::JoinHandle;
@@ -14,7 +15,7 @@ use crate::{
         choose_user_hook::{ChooseUserHookQuery, ChooseUserHookReply},
         query::Query
     },
-    kernel::sync::link::Link,
+    kernel::{str_err::str_err::StrErr, sync::link::Link},
 };
 ///
 /// Struct to imitate user's answer's
@@ -25,8 +26,8 @@ pub struct MokUserReply {
     /// recieve and sender channel's
     link: Option<Link>,
     /// value to stop thread that await request's
-    // exit: Arc<AtomicBool>,
-    handle: Option<JoinHandle<()>>,
+    exit: Arc<AtomicBool>,
+    exit_pair: Arc<AtomicBool>,
 }
 //
 //
@@ -35,18 +36,19 @@ impl MokUserReply {
     /// Struct constructor
     pub fn new(parent: impl Into<String>, link: Link) -> Self {
         let name = Name::new(parent, "MokUserReply");
+        let exit_pair = link.exit_pair();
         Self { 
             dbg: name.join(),
             txid: PointTxId::from_str(&name.join()),
             name: name,
             link: Some(link),
-            // exit: Arc::new(AtomicBool::new(false)),
-            handle: None,
+            exit: Arc::new(AtomicBool::new(false)),
+            exit_pair,
         }
     }
     ///
     /// Starts service's main loop in the individual task
-    pub async fn run(&mut self) -> Result<(), String> {
+    pub async fn run(&mut self) -> Result<JoinHandle<()>, StrErr> {
         let mut link = self.link.take().unwrap_or_else(|| panic!("{}.run | Link not found", self.name));
         let dbg = self.name.join().clone();
         let txid = self.txid;
@@ -132,17 +134,14 @@ impl MokUserReply {
                 }
             }
         }).await;
-        self.handle.replace(handle);
         // log::debug!("{}.run | Exit", dbg);
-        Ok(())
+        handle
     }
     ///
     /// Sends "exit" signal to the service's thread
     pub fn exit(&self) {
-        // self.exit.store(true, Ordering::SeqCst);
-        if let Some(h) = &self.handle {
-            h.abort()
-        };
+        self.exit.store(true, Ordering::SeqCst);
+        self.exit_pair.store(true, Ordering::SeqCst);
     }
 }
 //
