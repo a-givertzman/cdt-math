@@ -42,21 +42,22 @@ mod link_listen {
         let (local, mut remote) = Link::split(dbg);
         let remote_handle = remote.listen::<Message, Message>(Box::new(|event| {
             log::debug!("Link.remote.listen | Event {:#?}", event);
-            event
+            match event.0.as_str() {
+                "Query-1" => Message("Reply-1".into()),
+                "Query-2" => Message("Reply-2".into()),
+                "Query-3" => Message("Reply-3".into()),
+                "Query-4" => Message("Reply-4".into()),
+                _ => panic!("Link.remote.listen | Unknown event {:#?}", event),
+            }
         })).await;
-        // let mut listener = Listener::new(dbg, remote);
-        // log::debug!("{} | Starting Listener", dbg);
-        // let listener_handle = listener.run().await.unwrap();
         log::debug!("{} | Starting Listener - Ok", dbg);
         for (step, query, target) in test_data {
-            let result = local.req(query).await;
+            let result: Result<Message, StrErr> = local.req(query).await;
             log::debug!("step {} \nresult: {:?}\ntarget: {:?}", step, result, target);
             assert!(result == target, "step {} \nresult: {:?}\ntarget: {:?}", step, result, target);
         }
         remote.exit();
         remote_handle.await.unwrap();
-        // listener.exit();
-        // listener_handle.await.unwrap();
         log::debug!("{} | All - Done", dbg);
         test_duration.exit();
     }

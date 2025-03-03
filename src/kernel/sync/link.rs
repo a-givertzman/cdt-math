@@ -1,4 +1,4 @@
-use std::{fmt::Debug, sync::{atomic::{AtomicBool, Ordering}, mpsc::{self, Receiver, Sender}, Arc}, time::Duration};
+use std::{fmt::Debug, sync::{atomic::{AtomicBool, Ordering}, mpsc::{self, Receiver, Sender}, Arc}, thread, time::Duration};
 use sal_sync::services::entity::{cot::Cot, name::Name, point::{point::Point, point_hlr::PointHlr, point_tx_id::PointTxId}, status::status::Status};
 use serde::{de::DeserializeOwned, Serialize};
 use tokio::task::JoinHandle;
@@ -119,7 +119,7 @@ impl Link {
         let txid = self.txid;
         let send = self.send.clone();
         let recv = self.recv.take().unwrap();
-        let timeout = self.timeout;
+        let timeout = Duration::from_secs(1);   // self.timeout;
         let exit = self.exit.clone();
         log::debug!("{}.listen | Starting...", dbg);
         let handle = tokio::spawn(async move {
@@ -161,15 +161,12 @@ impl Link {
                                 }
                             }
                         }
-                        Err(err) => {
-                            match err {
-                                std::sync::mpsc::RecvTimeoutError::Timeout => {}
-                                std::sync::mpsc::RecvTimeoutError::Disconnected => {
-                                    log::error!("{}.listen | Recv error: {:#?}", dbg, err);
-                                }
-                            }
+                        Err(err) => match err {
+                            mpsc::RecvTimeoutError::Timeout => {}
+                            mpsc::RecvTimeoutError::Disconnected => panic!("{}.listen | Recv error: {:#?}", dbg, err),
                         }
                     }
+                    thread::sleep(Duration::from_secs(1));
                     if exit.load(Ordering::SeqCst) {
                         break 'main;
                     }
