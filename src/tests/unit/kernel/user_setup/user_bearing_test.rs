@@ -33,7 +33,7 @@ mod user_bearing {
         init_once();
         init_each();
         log::debug!("");
-        let dbg = "user_bearing_test";
+        let dbg = "user_bearing";
         log::debug!("\n{}", dbg);
         let test_duration = TestDuration::new(dbg, Duration::from_secs(1));
         test_duration.run().unwrap();

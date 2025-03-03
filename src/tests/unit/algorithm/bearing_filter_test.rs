@@ -34,7 +34,7 @@ mod bearing_filter {
         init_once();
         init_each();
         log::debug!("");
-        let dbg = "test";
+        let dbg = "bearing_filter";
         log::debug!("\n{}", dbg);
         let test_duration = TestDuration::new(dbg, Duration::from_secs(1));
         test_duration.run().unwrap();
@@ -84,7 +84,7 @@ mod bearing_filter {
         let mut switch = Switch::new(dbg, send, recv);
         let switch_handle = switch.run().await.unwrap();
         let mut mok_user_reply = MokUserReply::new(dbg, switch.link());
-        mok_user_reply.run().await.unwrap();
+        let mok_user_reply_handle = mok_user_reply.run().await.unwrap();
         for (step, cache_path, target) in test_data {
             let (switch_, result) = BearingFilter::new(
                 UserHook::new(
@@ -133,6 +133,7 @@ mod bearing_filter {
         }
         switch.exit();
         mok_user_reply.exit();
+        mok_user_reply_handle.await.unwrap();
         switch_handle.join_all().await;
         test_duration.exit();
     }

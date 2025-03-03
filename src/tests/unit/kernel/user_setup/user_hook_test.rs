@@ -37,7 +37,7 @@ mod user_hook {
         init_once();
         init_each();
         log::debug!("");
-        let dbg = "user_hook_test";
+        let dbg = "user_hook";
         log::debug!("\n{}", dbg);
         let test_duration = TestDuration::new(dbg, Duration::from_secs(1));
         test_duration.run().unwrap();

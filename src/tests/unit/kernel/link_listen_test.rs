@@ -29,7 +29,7 @@ mod link_listen {
         init_once();
         init_each();
         log::debug!("");
-        let dbg = "listen_test";
+        let dbg = "link_listen";
         log::debug!("\n{}", dbg);
         let test_duration = TestDuration::new(dbg, Duration::from_secs(5));
         test_duration.run().unwrap();

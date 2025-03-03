@@ -29,7 +29,7 @@ mod switch {
         init_once();
         init_each();
         log::debug!("");
-        let dbg = "switch_test";
+        let dbg = "switch";
         log::debug!("\n{}", dbg);
         let test_duration = TestDuration::new(dbg, Duration::from_secs(5));
         test_duration.run().unwrap();
@@ -43,10 +43,8 @@ mod switch {
         let (rem_send, loc_recv) = mpsc::channel();
         let mut switch = Switch::new(dbg, loc_send, loc_recv);
         let mut listener = Listener::new(dbg, Link::new(dbg, rem_send, rem_recv));
-        
         let switch_handler = switch.run().await.unwrap();
         log::debug!("{} | Starting Listener", dbg);
-
         let listener_handle = listener.run().await.unwrap();
         log::debug!("{} | Starting Listener - Ok", dbg);
         let local = switch.link();

@@ -27,7 +27,7 @@ mod request {
         init_once();
         init_each();
         log::debug!("");
-        let dbg = "request_test";
+        let dbg = "request";
         log::debug!("\n{}", dbg);
         let test_duration = TestDuration::new(dbg, Duration::from_secs(1));
         test_duration.run().unwrap();

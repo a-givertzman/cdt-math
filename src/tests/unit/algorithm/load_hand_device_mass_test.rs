@@ -1,6 +1,6 @@
 #[cfg(test)]
 
-mod user_bearing {
+mod load_hand_device_mass {
     use std::{sync::{mpsc, Once}, time::Duration};
     use testing::stuff::max_test_duration::TestDuration;
     use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
@@ -35,7 +35,7 @@ mod user_bearing {
             init_once();
             init_each();
             log::debug!("");
-            let dbg = "test";
+            let dbg = "load_hand_device_mass";
             log::debug!("\n{}", dbg);
             let test_duration = TestDuration::new(dbg, Duration::from_secs(10));
             test_duration.run().unwrap();
@@ -61,6 +61,7 @@ mod user_bearing {
             let (rem_send, loc_recv) = mpsc::channel();
             let rem_link = Link::new(dbg, rem_send, rem_recv);
             let mut mok_user_reply = MokUserReply::new(dbg, rem_link);
+            let mok_user_reply_handle = mok_user_reply.run().await.unwrap();
             let mut switch = Switch::new(dbg, loc_send, loc_recv);
             log::debug!("{} | Switch run...", dbg);
             let switch_handle = switch.run().await.unwrap();
@@ -121,6 +122,7 @@ mod user_bearing {
             }
             switch.exit();
             mok_user_reply.exit();
+            mok_user_reply_handle.await.unwrap();
             switch_handle.join_all().await;
             test_duration.exit();
         // }).await.unwrap();

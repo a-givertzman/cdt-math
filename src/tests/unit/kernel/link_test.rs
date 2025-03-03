@@ -29,7 +29,7 @@ mod link {
         init_once();
         init_each();
         log::debug!("");
-        let dbg = "fetch";
+        let dbg = "link";
         log::debug!("\n{}", dbg);
         let test_duration = TestDuration::new(dbg, Duration::from_secs(5));
         test_duration.run().unwrap();

@@ -27,7 +27,7 @@ mod rope_count {
         init_once();
         init_each();
         log::debug!("");
-        let dbg = "eval";
+        let dbg = "rope_count";
         log::debug!("\n{}", dbg);
         let test_duration = TestDuration::new(dbg, Duration::from_secs(1));
         test_duration.run().unwrap();

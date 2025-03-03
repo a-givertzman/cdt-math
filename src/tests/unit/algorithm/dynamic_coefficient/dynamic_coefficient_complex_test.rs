@@ -40,12 +40,10 @@ mod dynamic_coefficient {
         DebugSession::init(LogLevel::Info, Backtrace::Short);
         init_once();
         init_each();
-        let dbg = DbgId("eval".into());
+        let dbg = DbgId("dynamic_coefficient".into());
         log::debug!("\n{}", dbg);
         let test_duration = TestDuration::new(&dbg, Duration::from_secs(1));
         test_duration.run().unwrap();
-        let (send, recv) = mpsc::channel();
-        let mut switch = Switch::new(&dbg, send, recv);
         let test_data: [(i32, InitialCtx, CtxResult<f64, StrErr>); 3] = [
             (
                 1,
@@ -72,6 +70,8 @@ mod dynamic_coefficient {
                 CtxResult::Ok(1.252),
             ),
         ];
+        let (send, recv) = mpsc::channel();
+        let mut switch = Switch::new(&dbg, send, recv);
         for (step, initial, target) in test_data {
             let (switch_, result) = DynamicCoefficient::new(
                 SelectBettaPhi::new(
