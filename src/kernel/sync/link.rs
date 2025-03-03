@@ -20,7 +20,7 @@ pub struct Link {
 impl Link {
     ///
     /// Default timeout to await `recv`` operation, 300 ms
-    const DEFAULT_TIMEOUT: Duration = Duration::from_millis(900);
+    const DEFAULT_TIMEOUT: Duration = Duration::from_millis(100);
     ///
     /// Returns [Link] new instance
     /// - `send` - local side of channel.send
@@ -78,7 +78,7 @@ impl Link {
                     chrono::offset::Utc::now(),
                 ));
                 let timeout = self.timeout;
-                let timeout = Duration::from_secs(3);
+                let timeout = Duration::from_secs(500);
                 match self.send.send(query.clone()) {
                     Ok(_) => {
                         log::debug!("{}.req | Sent request: {:#?}", self.name, query);

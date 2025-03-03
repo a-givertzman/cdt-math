@@ -19,7 +19,7 @@ pub struct Switch {
 impl Switch {
     ///
     /// Default timeout to await `recv`` operation, 300 ms
-    const DEFAULT_TIMEOUT: Duration = Duration::from_millis(500);
+    const DEFAULT_TIMEOUT: Duration = Duration::from_millis(100);
     ///
     /// Returns [Switch] new instance
     /// - `send` - local side of channel.send
@@ -108,13 +108,14 @@ impl Switch {
         log::info!("{}.run | Starting Listen locals...", dbg);
         let send = self.send.clone();
         let receivers: IndexMapFxHasher<String, Receiver<Point>> = self.receivers.drain(0..).collect();
+        let timeout = self.timeout;
         let exit = self.exit.clone();
         join_set.spawn(async move {
             tokio::task::block_in_place(move|| {
                 log::debug!("{}.run | Start- Listen locals", dbg);
                 'main: loop {
                     for (_key, receiver) in receivers.iter() {
-                        match receiver.recv_timeout(Duration::from_millis(50)) {
+                        match receiver.recv_timeout(timeout) {
                             Ok(event) => {
                                 log::debug!("{}.run | Received from locals: {:?}", dbg, event);
                                 if let Err(err) = send.send(event) {
