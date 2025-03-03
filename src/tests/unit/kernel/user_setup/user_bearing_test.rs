@@ -54,7 +54,7 @@ mod user_bearing {
         let mut switch = Switch::new(dbg, send, recv);
         let switch_handle = switch.run().await.unwrap();
         let mut mok_user_reply = MokUserReply::new(dbg, switch.link());
-        let mok_user_reply_handle = mok_user_reply.run().await.unwrap();
+        mok_user_reply.run().await.unwrap();
         for (step, cache_path, target) in test_data {
             let (switch_, result) = UserBearing::new(
                 Request::new(async |variants: BearingFilterCtx, link: Link| {
@@ -106,7 +106,6 @@ mod user_bearing {
         switch.exit();
         mok_user_reply.exit();
         switch_handle.join_all().await;
-        mok_user_reply_handle.join_all().await;
         test_duration.exit();
     }
 }

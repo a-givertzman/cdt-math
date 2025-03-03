@@ -82,8 +82,8 @@ impl Link {
                 match self.send.send(query.clone()) {
                     Ok(_) => {
                         log::debug!("{}.req | Sent request: {:#?}", self.name, query);
-                        let h = tokio::task::block_in_place(move|| {
-                            let r = match &self.recv {
+                        tokio::task::block_in_place(move|| {
+                            match &self.recv {
                                 Some(recv) => match recv.recv_timeout(timeout) {
                                     Ok(reply) => {
                                         log::debug!("{}.req | Received reply: {:#?}", self.name, reply);
@@ -98,10 +98,8 @@ impl Link {
                                     _ => Err(StrErr(format!("{}.req | Request timeout ({:?})", self.name, timeout))),
                                 }
                                 None => todo!(),
-                            };
-                            r
-                        });
-                        h
+                            }
+                        })
                     },
                     Err(err) => Err(StrErr(format!("{}.req | Send request error: {:#?}", self.name, err))),
                 }
@@ -111,12 +109,11 @@ impl Link {
     }
     ///
     /// Listenning incomong events in the callback
-    /// - Callback returns Ok<T> if channel has event
-    /// - Callback returns None if channel is empty for now
-    /// - Callback returns Err if channel is closed
-    pub async fn listen<In: DeserializeOwned + Debug + 'static, Out: Serialize + Debug + 'static>(&mut self, op: Box<dyn Fn(In) -> Out + Send + Sync + 'static>) -> JoinHandle<()> {
+    /// - Callback receives `Point`
+    /// - Callback returns `Some<Point>` - to be sent
+    /// - Callback returns None - nothing to be sent
+    pub async fn listen(&mut self, op: impl Fn(Point) -> Option<Point> + Send + 'static) -> JoinHandle<()> {
         let dbg = self.name.join();
-        let txid = self.txid;
         let send = self.send.clone();
         let recv = self.recv.take().unwrap();
         let timeout = Duration::from_secs(1);   // self.timeout;
@@ -129,36 +126,12 @@ impl Link {
                     match recv.recv_timeout(timeout) {
                         Ok(query) => {
                             log::debug!("{}.listen | Received query: {:#?}", dbg, query);
-                            let name = query.name();
-                            let quyru = query.as_string().value;
-                            match serde_json::from_str::<In>(quyru.as_str()) {
-                                Ok(query) => {
-                                    let query: In = query;
-                                    let reply: Out = (op)(query);
-                                    match serde_json::to_string(&reply) {
-                                        Ok(reply) => {
-                                            let reply = Point::String(PointHlr::new(
-                                                txid, &name,
-                                                reply, Status::Ok, Cot::ReqCon,
-                                                chrono::offset::Utc::now(),
-                                            ));
-                                            match send.send(reply) {
-                                                Ok(_) => {}
-                                                Err(err) => {
-                                                    let err = StrErr(format!("{}.listen | Send request error: {:#?}", dbg, err));
-                                                    log::error!("{}", err);
-                                                }
-                                            }
-                                        }
-                                        Err(err) => {
-                                            let err = StrErr(format!("{}.listen | Serialize reply error: {:#?}, \n\tquery: {:#?}", dbg, err, reply));
-                                            log::debug!("{}", err);
-                                        }
-                                    }
+                            match (op)(query) {
+                                Some(reply) => if let Err(err) = send.send(reply) {
+                                    let err = StrErr(format!("{}.listen | Send request error: {:#?}", dbg, err));
+                                    log::error!("{}", err);
                                 }
-                                Err(err) => {
-                                    log::warn!("{}.listen | Deserialize error for {:?} in {}, \n\terror: {:#?}", dbg, std::any::type_name::<In>(), quyru, err);
-                                }
+                                None => {}
                             }
                         }
                         Err(err) => match err {
@@ -166,7 +139,6 @@ impl Link {
                             mpsc::RecvTimeoutError::Disconnected => panic!("{}.listen | Recv error: {:#?}", dbg, err),
                         }
                     }
-                    thread::sleep(Duration::from_secs(1));
                     if exit.load(Ordering::SeqCst) {
                         break 'main;
                     }

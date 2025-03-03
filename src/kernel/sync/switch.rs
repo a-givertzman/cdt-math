@@ -124,7 +124,7 @@ impl Switch {
                             Err(err) => match err {
                                 mpsc::RecvTimeoutError::Timeout => {
                                     log::warn!("{}.run | Listening Locals...", dbg);
-                                } //tokio::time::sleep(Duration::from_millis(1)).await,
+                                }
                                 mpsc::RecvTimeoutError::Disconnected => panic!("{}.run | Receive error, all senders has been closed", dbg),
                             }
                         }

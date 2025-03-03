@@ -50,7 +50,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         let mut switch = Switch::new(&dbg, send, recv);
         let switch_handle = switch.run().await.unwrap();
         let mut mok_user_reply = MokUserReply::new(&dbg, switch.link());
-        let mok_user_reply_handle = mok_user_reply.run().await.unwrap();
+        mok_user_reply.run().await.unwrap();
         let mut binding = RopeCount::new(
             RopeEffort::new(
                 LoadHandDeviceMass::new(
@@ -90,7 +90,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         mok_user_reply.exit();
         switch.exit();
         switch_handle.join_all().await;
-        mok_user_reply_handle.join_all().await;
+        // mok_user_reply_handle.join_all().await;
     })
     .await
     .unwrap();

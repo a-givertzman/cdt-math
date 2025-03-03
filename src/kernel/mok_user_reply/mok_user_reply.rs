@@ -1,9 +1,12 @@
-use std::{fmt::Debug, sync::{atomic::{AtomicBool, Ordering}, Arc}};
-use sal_sync::services::entity::{name::Name, object::Object, point::point_tx_id::PointTxId};
+use std::sync::atomic::Ordering;
+use sal_sync::services::entity::{cot::Cot, name::Name, object::Object, point::{point::Point, point_hlr::PointHlr, point_tx_id::PointTxId}, status::status::Status};
 use serde::Serialize;
-use tokio::task::JoinSet;
+use tokio::task::JoinHandle;
 use crate::{
-    algorithm::{context::ctx_result::CtxResult, entities::{bearing::Bearing, hoisting_rope::{hoisting_rope::HoistingRope, rope_durability_class::RopeDurabilityClass, rope_type::RopeType}, hook::Hook}}, 
+    algorithm::entities::{
+        bearing::Bearing, hoisting_rope::{hoisting_rope::HoistingRope, rope_durability_class::RopeDurabilityClass, rope_type::RopeType},
+        hook::Hook,
+    }, 
     infrostructure::client::{
         change_hoisting_tackle::{ChangeHoistingTackleQuery, ChangeHoistingTackleReply},
         choose_hoisting_rope::{ChooseHoistingRopeQuery, ChooseHoistingRopeReply},
@@ -17,11 +20,13 @@ use crate::{
 /// Struct to imitate user's answer's
 pub struct MokUserReply {
     dbg: String,
+    txid: usize,
     name: Name,
     /// recieve and sender channel's
     link: Option<Link>,
     /// value to stop thread that await request's
-    exit: Arc<AtomicBool>,
+    // exit: Arc<AtomicBool>,
+    handle: Option<JoinHandle<()>>,
 }
 //
 //
@@ -32,102 +37,112 @@ impl MokUserReply {
         let name = Name::new(parent, "MokUserReply");
         Self { 
             dbg: name.join(),
+            txid: PointTxId::from_str(&name.join()),
             name: name,
             link: Some(link),
-            exit: Arc::new(AtomicBool::new(false)),
+            // exit: Arc::new(AtomicBool::new(false)),
+            handle: None,
         }
     }
     ///
     /// Starts service's main loop in the individual task
-    pub async fn run(&mut self) -> Result<JoinSet<()>, String> {
+    pub async fn run(&mut self) -> Result<(), String> {
         let mut link = self.link.take().unwrap_or_else(|| panic!("{}.run | Link not found", self.name));
         let dbg = self.name.join().clone();
+        let txid = self.txid;
         log::info!("{}.run | Starting...", dbg);
         log::trace!("{}.run | Self tx_id: {}", dbg, PointTxId::from_str(self.id()));
-        let exit = self.exit.clone();
-        let mut join_set = JoinSet::new();
-        join_set
-            // .build_task()
-            // .name(format!("{} - main", dbg))
-            .spawn(async move {
-                log::info!("{}.run | Start", dbg);
-                async fn send_reply(dbg: &str, link: &mut Link, reply: impl Serialize + Debug) {
-                    if let Err(err) = link.send_reply(reply) {
-                        log::debug!("{}.run | Send reply error: {:?}", dbg, err);
-                    };
+        log::info!("{}.listen | Start", dbg);
+        fn build_reply(dbg: &str, txid: usize, name: &str, reply: impl Serialize + std::fmt::Debug) -> Option<Point> {
+            match serde_json::to_string(&reply) {
+                Ok(reply) => Some(Point::String(PointHlr::new(
+                    txid, name,
+                    reply, Status::Ok, Cot::ReqCon,
+                    chrono::offset::Utc::now(),
+                ))),
+                Err(err) => {
+                    log::warn!("{}.listen | Serialize reply error: {:#?}, \n\tquery: {:#?}", dbg, err, reply);
+                    None
                 }
-                'main: loop {
-                    match link.recv_query::<Query>().await {
-                        CtxResult::Ok(query) => match query {
-                            Query::ChooseUserHook(query) => {
-                                let query: ChooseUserHookQuery = query;
-                                let reply = match query.testing {
-                                    true => ChooseUserHookReply::new(Hook {
-                                        gost: "GOST 34567-85".to_string(),
-                                        r#type: "Forged".to_string(),
-                                        load_capacity_m13: 25.0,
-                                        load_capacity_m46: 23.0,
-                                        load_capacity_m78: 21.0,
-                                        shank_diameter: 85.0,
-                                        weight: 50.0,
-                                    }),
-                                    false => ChooseUserHookReply::new(Hook {
-                                        gost: "GOST 34567-85".to_string(),
-                                        r#type: "Forged".to_string(),
-                                        load_capacity_m13: 25.0,
-                                        load_capacity_m46: 23.0,
-                                        load_capacity_m78: 21.0,
-                                        shank_diameter: 85.0,
-                                        weight: 50.0,
-                                    }),
-                                };
-                                send_reply(&dbg, &mut link, reply).await;
-                            }
-                            Query::ChooseUserBearing(query) => {
-                                let _query: ChooseUserBearingQuery = query;
-                                send_reply(&dbg, &mut link, ChooseUserBearingReply::new(Bearing {
-                                    name: "8100H".to_owned(),
-                                    outer_diameter: 24.0,
-                                    inner_diameter: 10.0,
-                                    static_load_capacity: 11800.0,
-                                    height: 9.0,
-                                })).await
-                            }
-                            Query::ChooseHoistingRope(query) => {
-                                let _query: ChooseHoistingRopeQuery = query;
-                                send_reply(&dbg, &mut link, ChooseHoistingRopeReply::new(HoistingRope {
-                                    name: "STO 71915393-TU 051-2014 Octopus 826K".to_owned(),
-                                    rope_diameter: 12.0,
-                                    r#type: RopeType::Metal,
-                                    rope_durability: RopeDurabilityClass::C1770,
-                                    rope_force: 112.0,
-                                    s: 67.824,
-                                    m: 0.688,
-                                })).await
-                            }
-                            Query::ChangeHoistingTackle(query) => {
-                                let _query: ChangeHoistingTackleQuery = query;
-                                send_reply(&dbg, &mut link, ChangeHoistingTackleReply::new(1)).await
-                            }
-                        }
-                        CtxResult::Err(err) => {
-                            log::warn!("{}.run | Error: {:?}", dbg.clone(), err);
-                            break;
-                        }
-                        CtxResult::None => {},
+            }
+        }
+        let handle = link.listen(move |query: Point| {
+            log::debug!("{}.listen | Received query: {:#?}", dbg, query);
+            let name = query.name();
+            let query = query.as_string().value;
+            match serde_json::from_str::<Query>(query.as_str()) {
+                Ok(query) => match query {
+                    Query::ChooseUserHook(query) => {
+                        let query: ChooseUserHookQuery = query;
+                        let reply = match query.testing {
+                            true => ChooseUserHookReply::new(Hook {
+                                gost: "GOST 34567-85".to_string(),
+                                r#type: "Forged".to_string(),
+                                load_capacity_m13: 25.0,
+                                load_capacity_m46: 23.0,
+                                load_capacity_m78: 21.0,
+                                shank_diameter: 85.0,
+                                weight: 50.0,
+                            }),
+                            false => ChooseUserHookReply::new(Hook {
+                                gost: "GOST 34567-85".to_string(),
+                                r#type: "Forged".to_string(),
+                                load_capacity_m13: 25.0,
+                                load_capacity_m46: 23.0,
+                                load_capacity_m78: 21.0,
+                                shank_diameter: 85.0,
+                                weight: 50.0,
+                            }),
+                        };
+                        build_reply(&dbg, txid, &name, reply)
                     }
-                    if exit.load(Ordering::SeqCst) {
-                        break 'main;
+                    Query::ChooseUserBearing(query) => {
+                        let _query: ChooseUserBearingQuery = query;
+                        let reply = ChooseUserBearingReply::new(Bearing {
+                            name: "8100H".to_owned(),
+                            outer_diameter: 24.0,
+                            inner_diameter: 10.0,
+                            static_load_capacity: 11800.0,
+                            height: 9.0,
+                        });
+                        build_reply(&dbg, txid, &name, reply)
+                    }
+                    Query::ChooseHoistingRope(query) => {
+                        let _query: ChooseHoistingRopeQuery = query;
+                        let reply = ChooseHoistingRopeReply::new(HoistingRope {
+                            name: "STO 71915393-TU 051-2014 Octopus 826K".to_owned(),
+                            rope_diameter: 12.0,
+                            r#type: RopeType::Metal,
+                            rope_durability: RopeDurabilityClass::C1770,
+                            rope_force: 112.0,
+                            s: 67.824,
+                            m: 0.688,
+                        });
+                        build_reply(&dbg, txid, &name, reply)
+                    }
+                    Query::ChangeHoistingTackle(query) => {
+                        let _query: ChangeHoistingTackleQuery = query;
+                        let reply = ChangeHoistingTackleReply::new(1);
+                        build_reply(&dbg, txid, &name, reply)
                     }
                 }
-                log::debug!("{}.run | Exit", dbg);
-            });
-        Ok(join_set)
+                Err(err) => {
+                    log::warn!("{}.listen | Deserialize error {:?} in {:#?}", dbg, err, query);
+                    None
+                }
+            }
+        }).await;
+        self.handle.replace(handle);
+        // log::debug!("{}.run | Exit", dbg);
+        Ok(())
     }
     ///
     /// Sends "exit" signal to the service's thread
     pub fn exit(&self) {
-        self.exit.store(true, Ordering::SeqCst);
+        // self.exit.store(true, Ordering::SeqCst);
+        if let Some(h) = &self.handle {
+            h.abort()
+        };
     }
 }
 //

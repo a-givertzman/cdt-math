@@ -2,6 +2,7 @@
 
 mod link_listen {
     use std::{sync::Once, time::Duration};
+    use sal_sync::services::entity::point::point::Point;
     use serde::{Deserialize, Serialize};
     use testing::stuff::max_test_duration::TestDuration;
     use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
@@ -39,16 +40,18 @@ mod link_listen {
             (4, Message("Query-4".into()), Ok(Message("Reply-4".into()))),
         ];
         let (local, mut remote) = Link::split(dbg);
-        let remote_handle = remote.listen::<Message, Message>(Box::new(|event| {
-            log::debug!("Link.remote.listen | Event {:#?}", event);
-            match event.0.as_str() {
-                "Query-1" => Message("Reply-1".into()),
-                "Query-2" => Message("Reply-2".into()),
-                "Query-3" => Message("Reply-3".into()),
-                "Query-4" => Message("Reply-4".into()),
-                _ => panic!("Link.remote.listen | Unknown event {:#?}", event),
-            }
-        })).await;
+        let remote_handle = remote.listen(|query| {
+            log::debug!("Link.remote.listen | Query {:#?}", query);
+            let query = query.as_string().value;
+            let query: String = serde_json::from_str(&query).unwrap();
+            Some(match query.as_str() {
+                "Query-1" => Point::new(0, "name", serde_json::to_string(&Message("Reply-1".into())).unwrap()),
+                "Query-2" => Point::new(0, "name", serde_json::to_string(&Message("Reply-2".into())).unwrap()),
+                "Query-3" => Point::new(0, "name", serde_json::to_string(&Message("Reply-3".into())).unwrap()),
+                "Query-4" => Point::new(0, "name", serde_json::to_string(&Message("Reply-4".into())).unwrap()),
+                _ => panic!("Link.remote.listen | Unknown event {:#?}", query),
+            })
+        }).await;
         log::debug!("{} | Starting Listener - Ok", dbg);
         for (step, query, target) in test_data {
             let result: Result<Message, StrErr> = local.req(query).await;

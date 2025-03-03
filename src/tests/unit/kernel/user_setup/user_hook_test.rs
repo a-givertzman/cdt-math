@@ -60,7 +60,7 @@ mod user_hook {
         let mut switch = Switch::new(dbg, send, recv);
         let switch_handle = switch.run().await.unwrap();
         let mut mok_user_reply = MokUserReply::new(dbg, switch.link());
-        let mok_user_reply_handle = mok_user_reply.run().await.unwrap();
+        mok_user_reply.run().await.unwrap();
         for (step, cache_path, target) in test_data {
             let (switch_, result) = UserHook::new(
                 Request::new(async |variants: HookFilterCtx, link: Link| {
@@ -106,7 +106,6 @@ mod user_hook {
         switch.exit();
         mok_user_reply.exit();
         switch_handle.join_all().await;
-        mok_user_reply_handle.join_all().await;
         test_duration.exit();
     }
 }

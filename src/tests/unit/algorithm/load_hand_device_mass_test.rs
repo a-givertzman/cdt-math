@@ -66,7 +66,7 @@ mod user_bearing {
             let switch_handle = switch.run().await.unwrap();
             log::debug!("{} | Switch run - ok", dbg);
             log::debug!("{} | MokUserReply run...", dbg);
-            let mok_user_reply_handle = mok_user_reply.run().await.unwrap();
+            mok_user_reply.run().await.unwrap();
             log::debug!("{} | MokUserReply run - ok", dbg);
             log::debug!("{} | All executed", dbg);
             log::debug!("{} | Evals...", dbg);
@@ -122,7 +122,6 @@ mod user_bearing {
             switch.exit();
             mok_user_reply.exit();
             switch_handle.join_all().await;
-            mok_user_reply_handle.join_all().await;
             test_duration.exit();
         // }).await.unwrap();
     }
