@@ -116,7 +116,7 @@ impl Link {
         let dbg = self.name.join();
         let send = self.send.clone();
         let recv = self.recv.take().unwrap();
-        let timeout = Duration::from_secs(1);   // self.timeout;
+        let timeout = Duration::from_millis(100);   // self.timeout;
         let exit = self.exit.clone();
         log::debug!("{}.listen | Starting...", dbg);
         let handle = tokio::spawn(async move {
@@ -136,7 +136,10 @@ impl Link {
                         }
                         Err(err) => match err {
                             mpsc::RecvTimeoutError::Timeout => {}
-                            mpsc::RecvTimeoutError::Disconnected => panic!("{}.listen | Recv error: {:#?}", dbg, err),
+                            mpsc::RecvTimeoutError::Disconnected => {
+                                log::warn!("{}.listen | Recv error: {:#?}", dbg, err);
+                                thread::sleep(timeout);
+                            }
                         }
                     }
                     if exit.load(Ordering::SeqCst) {

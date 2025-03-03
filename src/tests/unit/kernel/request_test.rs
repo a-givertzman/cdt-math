@@ -22,12 +22,12 @@ mod request {
     ///
     /// Testing 'Request::fetch'
     #[tokio::test(flavor = "multi_thread")]
-    async fn execute() {
+    async fn basic() {
         DebugSession::init(LogLevel::Info, Backtrace::Short);
         init_once();
         init_each();
         log::debug!("");
-        let dbg = "fetch";
+        let dbg = "request_test";
         log::debug!("\n{}", dbg);
         let test_duration = TestDuration::new(dbg, Duration::from_secs(1));
         test_duration.run().unwrap();
