@@ -30,8 +30,8 @@ mod user_bearing {
     #[tokio::test(flavor = "multi_thread")]
     async fn eval() {
         DebugSession::init(LogLevel::Debug, Backtrace::Short);
-        let rt = tokio::runtime::Runtime::new().unwrap();
-        rt.spawn(async {
+        // let rt = tokio::runtime::Runtime::new().unwrap();
+        // rt.spawn(async {
             init_once();
             init_each();
             log::debug!("");
@@ -124,6 +124,6 @@ mod user_bearing {
             switch_handle.join_all().await;
             mok_user_reply_handle.join_all().await;
             test_duration.exit();
-        }).await.unwrap();
+        // }).await.unwrap();
     }
 }

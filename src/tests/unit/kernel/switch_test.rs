@@ -96,7 +96,7 @@ mod switch {
             let listener_handle = tokio::task::block_in_place( move|| {
                 tokio::runtime::Handle::current().spawn(async move {
                     log::info!("{}.run | Start", dbg);
-                    async fn send_reply(dbg: &str, link: &mut Link, reply: impl Serialize + Debug) {
+                    async fn send_reply(dbg: &str, link: &Link, reply: impl Serialize + Debug) {
                         if let Err(err) = link.send_reply(reply) {
                             log::debug!("{}.run | Send reply error: {:?}", dbg, err);
                         };

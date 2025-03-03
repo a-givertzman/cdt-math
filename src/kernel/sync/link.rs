@@ -1,6 +1,8 @@
-use std::{fmt::Debug, sync::mpsc::{self, Receiver, Sender}, time::Duration};
+use std::{fmt::Debug, sync::{atomic::{AtomicBool, Ordering}, mpsc::{self, Receiver, Sender}, Arc}, time::Duration};
+use futures::future::BoxFuture;
 use sal_sync::services::entity::{cot::Cot, name::Name, point::{point::Point, point_hlr::PointHlr, point_tx_id::PointTxId}, status::status::Status};
 use serde::{de::DeserializeOwned, Serialize};
+use tokio::task::JoinHandle;
 use crate::{algorithm::context::ctx_result::CtxResult, kernel::str_err::str_err::StrErr};
 ///
 /// Contains local side `send` & `recv` of `channel`
@@ -12,6 +14,7 @@ pub struct Link {
     send: Sender<Point>,
     recv: Receiver<Point>,
     timeout: Duration,
+    exit: Arc<AtomicBool>,
 }
 //
 //
@@ -32,6 +35,7 @@ impl Link {
             send, 
             recv,
             timeout: Self::DEFAULT_TIMEOUT,
+            exit: Arc::new(AtomicBool::new(false)),
         }
     }
     ///
@@ -51,12 +55,14 @@ impl Link {
                 name: name.clone(),
                 send: loc_send, recv: loc_recv,
                 timeout: Self::DEFAULT_TIMEOUT,
+                exit: Arc::new(AtomicBool::new(false)),
             },
             Self { 
                 txid: PointTxId::from_str(&name.join()),
                 name,
                 send: rem_send, recv: rem_recv,
                 timeout: Self::DEFAULT_TIMEOUT,
+                exit: Arc::new(AtomicBool::new(false)),
             },
         )
     }
@@ -68,11 +74,8 @@ impl Link {
         match serde_json::to_string(&query) {
             Ok(query) => {
                 let query = Point::String(PointHlr::new(
-                    self.txid,
-                    &self.name.join(),
-                    query,
-                    Status::Ok,
-                    Cot::Req,
+                    self.txid, &self.name.join(),
+                    query, Status::Ok, Cot::Req,
                     chrono::offset::Utc::now(),
                 ));
                 let timeout = self.timeout;
@@ -103,6 +106,78 @@ impl Link {
             }
             Err(err) => Err(StrErr(format!("{}.req | Serialize query error: {:#?}, \n\tquery: {:#?}", self.name, err, query))),
         }
+    }
+    ///
+    /// Listenning incomong events in the callback
+    /// - Callback returns Ok<T> if channel has event
+    /// - Callback returns None if channel is empty for now
+    /// - Callback returns Err if channel is closed
+    pub async fn listen<In: DeserializeOwned + Debug + 'static, Out: Serialize + Debug + 'static>(self, op: Box<dyn Fn(In) -> Out + Send + Sync + 'static>) -> JoinHandle<()> {
+        let dbg = self.name.join();
+        let txid = self.txid;
+        let send = self.send.clone();
+        let recv = self.recv;
+        let timeout = self.timeout;
+        let exit = self.exit.clone();
+        log::debug!("{}.listen | Starting...", dbg);
+        let handle = tokio::spawn(async move {
+            log::debug!("{}.listen | Start", dbg);
+            tokio::task::block_in_place(move|| {
+                'main: loop {
+                    match recv.recv_timeout(timeout) {
+                        Ok(query) => {
+                            log::debug!("{}.listen | Received query: {:#?}", dbg, query);
+                            let name = query.name();
+                            let quyru = query.as_string().value;
+                            match serde_json::from_str::<In>(quyru.as_str()) {
+                                Ok(query) => {
+                                    let query: In = query;
+                                    let reply: Out = (op)(query);
+                                    match serde_json::to_string(&reply) {
+                                        Ok(reply) => {
+                                            let reply = Point::String(PointHlr::new(
+                                                txid, &name,
+                                                reply, Status::Ok, Cot::ReqCon,
+                                                chrono::offset::Utc::now(),
+                                            ));
+                                            match &send.send(reply) {
+                                                Ok(_) => {}
+                                                Err(err) => {
+                                                    let err = StrErr(format!("{}.listen | Send request error: {:#?}", dbg, err));
+                                                    log::error!("{}", err);
+                                                }
+                                            }
+                                        }
+                                        Err(err) => {
+                                            let err = StrErr(format!("{}.listen | Serialize reply error: {:#?}, \n\tquery: {:#?}", dbg, err, reply));
+                                            log::debug!("{}", err);
+                                        }
+                                    }
+                                }
+                                Err(err) => {
+                                    log::warn!("{}.listen | Deserialize error for {:?} in {}, \n\terror: {:#?}", dbg, std::any::type_name::<In>(), quyru, err);
+                                }
+                            }
+                        }
+                        Err(err) => {
+                            match err {
+                                std::sync::mpsc::RecvTimeoutError::Timeout => {}
+                                std::sync::mpsc::RecvTimeoutError::Disconnected => {
+                                    log::error!("{}.listen | Recv error: {:#?}", dbg, err);
+                                }
+                            }
+                        }
+                    }
+                    if exit.load(Ordering::SeqCst) {
+                        break 'main;
+                    }
+                }
+                log::debug!("{}.listen | Exit", dbg);
+            });
+        });
+        let dbg = self.name.join();
+        log::debug!("{}.listen | Starting - Ok", dbg);
+        handle
     }
     ///
     /// Receiving incomong events
@@ -189,6 +264,11 @@ impl Link {
             Err(err) => Err(StrErr(format!("{}.reply | Serialize reply error: {:#?}, \n\tquery: {:#?}", self.name, err, reply))),
         }
     }
+    ///
+    /// Sends "exit" signal to the `listen` task
+    pub fn exit(&self) {
+        self.exit.store(true, Ordering::SeqCst);
+    }
 }
 //
 //
@@ -206,3 +286,19 @@ impl Debug for Link {
         .finish()
     }
 }
+// ///
+// /// Async callback closure
+// trait AsyncFn<In, Out> {
+//     fn eval(&self, ctx: In) -> BoxFuture<'_, Out>;
+// }
+// //
+// //
+// impl<T, F, In, Out> AsyncFn<In, Out> for T
+// where
+//     T: Fn(In) -> F,
+//     F: std::future::Future<Output = Out> + Send + 'static,
+// {
+//     fn eval(&self, val: In) -> BoxFuture<'_, Out> {
+//         Box::pin(self(val))
+//     }
+// }

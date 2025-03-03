@@ -16,6 +16,7 @@ use super::sync::link::Link;
 /// )
 /// ```
 pub struct Request<In, T> {
+    // link: Link,
     op: Box<dyn AsyncFn<In, T> + Send + Sync>,
 }
 //
@@ -24,9 +25,14 @@ impl<In, T> Request<In, T> {
     ///
     /// Returns [Request] new instance
     /// - `op` - the body of the request
-    pub fn new(op: impl AsyncFn<In, T> + Send + Sync + 'static) -> Self {
-        let request = Self { op: Box::new(op) };
-        request
+    pub fn new(
+        // link: Link,
+        op: impl AsyncFn<In, T> + Send + Sync + 'static,
+    ) -> Self {
+        Self {
+            // link,
+            op: Box::new(op)
+        }
     }
     ///
     /// Performs the request defined in the `op`
