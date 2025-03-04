@@ -1,7 +1,7 @@
-use std::{fmt::Debug, sync::{atomic::{AtomicBool, Ordering}, mpsc::{self, Receiver, Sender}, Arc}, thread, time::Duration};
+use std::{fmt::Debug, future::Future, sync::{atomic::{AtomicBool, Ordering}, mpsc::{self, Receiver, Sender}, Arc}, time::Duration};
 use sal_sync::services::entity::{cot::Cot, name::Name, point::{point::Point, point_hlr::PointHlr, point_tx_id::PointTxId}, status::status::Status};
 use serde::{de::DeserializeOwned, Serialize};
-use tokio::task::JoinHandle; 
+use tokio::task::JoinHandle;
 use crate::{algorithm::context::ctx_result::CtxResult, kernel::str_err::str_err::StrErr};
 ///
 /// Contains local side `send` & `recv` of `channel`
@@ -78,7 +78,7 @@ impl Link {
                     chrono::offset::Utc::now(),
                 ));
                 let timeout = self.timeout;
-                let timeout = Duration::from_secs(500);
+                let timeout = Duration::from_secs(1000);
                 match self.send.send(query.clone()) {
                     Ok(_) => {
                         log::debug!("{}.req | Sent request: {:#?}", self.name, query);
@@ -112,14 +112,14 @@ impl Link {
     /// - Callback receives `Point`
     /// - Callback returns `Some<Point>` - to be sent
     /// - Callback returns None - nothing to be sent
-    pub async fn listen(&mut self, op: impl Fn(Point) -> Option<Point> + Send + 'static) -> Result<JoinHandle<()>, StrErr> {
+    pub async fn listen(&mut self, op: impl Fn(Point) -> Option<Point> + Send + 'static) -> Result<(), StrErr> {
         let dbg = self.name.join();
         let send = self.send.clone();
         let recv = self.recv.take().unwrap();
-        let timeout = Duration::from_millis(100);   // self.timeout;
+        let timeout = self.timeout;
         let exit = self.exit.clone();
         log::debug!("{}.listen | Starting...", dbg);
-        let handle = tokio::task::spawn_blocking(move|| {
+        let handle = tokio::task::block_in_place(async move|| {
             'main: loop {
                 match recv.recv_timeout(timeout) {
                     Ok(query) => {
@@ -136,7 +136,8 @@ impl Link {
                         mpsc::RecvTimeoutError::Timeout => {}
                         mpsc::RecvTimeoutError::Disconnected => {
                             log::warn!("{}.listen | Recv error: {:#?}", dbg, err);
-                            thread::sleep(timeout);
+                            tokio::time::sleep(timeout).await;
+                            // thread::sleep(timeout);
                         }
                     }
                 }
@@ -145,7 +146,7 @@ impl Link {
                 }
             }
             log::debug!("{}.listen | Exit", dbg);
-        });
+        }).await;
         let dbg = self.name.join();
         log::debug!("{}.listen | Starting - Ok", dbg);
         Ok(handle)

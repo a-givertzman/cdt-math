@@ -41,7 +41,7 @@ mod switch {
         ];
         let (switch, remote) = Switch::split(dbg);
         let mut listener = Listener::new(dbg, remote);
-        let local = switch.link();
+        let local = switch.link().await;
         let switch_handler = switch.run().await.unwrap();
         let listener_handle = listener.run().await.unwrap();
         for (step, query, target) in test_data {

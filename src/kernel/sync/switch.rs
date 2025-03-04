@@ -78,17 +78,20 @@ impl Switch {
     }
     ///
     /// Returns connected `Link`
-    pub fn link(&self) -> Link {
+    pub async fn link(&self) -> Link {
         let (loc_send, rem_recv) = mpsc::channel();
         let (rem_send, loc_recv) = mpsc::channel();
         let remote = Link::new(&format!("{}:{}", self.name, self.subscribers.len()), rem_send, rem_recv);
         let key = remote.name().join();
         self.subscribers.insert(key.clone(), loc_send);
-        let len = self.receivers.load(Ordering::SeqCst) + 1;
+        let receivers = self.receivers.clone();
+        let len = receivers.load(Ordering::SeqCst);
         self.receivers_tx.send((key, loc_recv)).unwrap();
-        while len != self.receivers.load(Ordering::SeqCst) {
-            std::thread::sleep(Duration::from_millis(1));
-        }
+        let _ = tokio::task::spawn_blocking(async move || {
+            while len == receivers.load(Ordering::SeqCst) {
+                tokio::time::sleep(Duration::from_millis(3)).await;
+            }
+        }).await;
         remote
     }
     ///
@@ -138,7 +141,9 @@ impl Switch {
                             std::sync::mpsc::RecvTimeoutError::Timeout => {
                                 log::warn!("{}.run | Remote | Listening...", dbg);
                             },
-                            std::sync::mpsc::RecvTimeoutError::Disconnected => panic!("{}.run | Receive error, all receivers has been closed", dbg),
+                            std::sync::mpsc::RecvTimeoutError::Disconnected => {
+                                log::warn!("{}.run | Receive error, all receivers has been closed", dbg);
+                            }
                         },
                     }
                     if exit.load(Ordering::SeqCst) {
@@ -146,7 +151,7 @@ impl Switch {
                     }
                 }
                 log::info!("{}.run | Remote | Exit", dbg);
-            })
+            });
         });
         let dbg = self.name.join();
         log::info!("{}.run | Remote | Starting - Ok", dbg);
@@ -158,14 +163,14 @@ impl Switch {
         let receivers_rx = self.receivers_rx.pop().unwrap();
         let exit = self.exit.clone();
         join_set.spawn(async move {
-            tokio::task::spawn_blocking(move|| {
+            tokio::task::block_in_place(move|| {
                 log::debug!("{}.run | Locals | Start", dbg);
                 let mut receivers = FxIndexMap::default();
-                for (key, receiver) in receivers_rx.try_iter() {
-                    receivers.insert(key, receiver);
-                }
-                self_receivers.store(receivers.len(), Ordering::SeqCst);
                 'main: loop {
+                    for (key, receiver) in receivers_rx.try_iter() {
+                        receivers.insert(key, receiver);
+                        self_receivers.fetch_add(1, Ordering::SeqCst);
+                    }
                     log::debug!("{}.run | Locals | Receivers: {}", dbg, receivers.len());
                     let cycle = Instant::now();
                     for (_key, receiver) in &receivers {

@@ -1,7 +1,7 @@
 #[cfg(test)]
 
 mod user_hook {
-    use std::{sync::{mpsc, Once}, time::Duration};
+    use std::{sync::Once, time::Duration};
     use testing::stuff::max_test_duration::TestDuration;
     use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
     use crate::{
@@ -56,15 +56,14 @@ mod user_hook {
                 },
             )
         ];
-        let (send, recv) = mpsc::channel();
-        let mut switch = Switch::new(dbg, send, recv);
+        let (switch, remote) = Switch::split(dbg);
         let switch_handle = switch.run().await.unwrap();
-        let mut mok_user_reply = MokUserReply::new(dbg, switch.link());
+        let mut mok_user_reply = MokUserReply::new(dbg, remote);
         let mok_user_reply_handle = mok_user_reply.run().await.unwrap();
         for (step, cache_path, target) in test_data {
             let result = UserHook::new(
                 Request::new(
-                    switch.link(),
+                    switch.link().await,
                     async |variants: HookFilterCtx, link: Link| {
                         let query = Query::ChooseUserHook(ChooseUserHookQuery::test(variants.result.clone()));
                         (link.req(query).await.expect("{}.req | Error to send request"), link)
@@ -107,7 +106,7 @@ mod user_hook {
         }
         switch.exit();
         mok_user_reply.exit();
-        mok_user_reply_handle.await.unwrap();
+        // mok_user_reply_handle.await.unwrap().await;
         switch_handle.join_all().await;
         test_duration.exit();
     }

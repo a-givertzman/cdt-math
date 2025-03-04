@@ -1,7 +1,7 @@
 #[cfg(test)]
 
 mod load_hand_device_mass {
-    use std::{sync::{mpsc, Once}, time::Duration};
+    use std::{sync::Once, time::Duration};
     use testing::stuff::max_test_duration::TestDuration;
     use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
     use crate::{
@@ -57,25 +57,15 @@ mod load_hand_device_mass {
                     },
                 )
             ];
-            let (loc_send, rem_recv) = mpsc::channel();
-            let (rem_send, loc_recv) = mpsc::channel();
-            let rem_link = Link::new(dbg, rem_send, rem_recv);
-            let mut mok_user_reply = MokUserReply::new(dbg, rem_link);
-            let mok_user_reply_handle = mok_user_reply.run().await.unwrap();
-            let mut switch = Switch::new(dbg, loc_send, loc_recv);
-            log::debug!("{} | Switch run...", dbg);
+            let (switch, remote) = Switch::split(dbg);
             let switch_handle = switch.run().await.unwrap();
-            log::debug!("{} | Switch run - ok", dbg);
-            log::debug!("{} | MokUserReply run...", dbg);
-            mok_user_reply.run().await.unwrap();
-            log::debug!("{} | MokUserReply run - ok", dbg);
-            log::debug!("{} | All executed", dbg);
-            log::debug!("{} | Evals...", dbg);
+            let mut mok_user_reply = MokUserReply::new(dbg, remote);
+            let mok_user_reply_handle = mok_user_reply.run().await.unwrap();
             for (step, cache_path, target) in test_data {
                 let result = LoadHandDeviceMass::new(
                     UserBearing::new(
                         Request::new(
-                            switch.link(),
+                            switch.link().await,
                             async |variants: BearingFilterCtx, link: Link| {
                                 let query = Query::ChooseUserBearing(ChooseUserBearingQuery::new(variants.result.clone()));
                                 (link.req(query).await.expect("{}.req | Error to send request"), link)
@@ -83,7 +73,7 @@ mod load_hand_device_mass {
                         ),
                         UserHook::new(
                             Request::new(
-                                switch.link(),
+                                switch.link().await,
                                 async |variants: HookFilterCtx, link: Link| {
                                     let query = Query::ChooseUserHook(ChooseUserHookQuery::test(variants.result.clone()));
                                     (link.req(query).await.expect("{}.req | Error to send request"), link)
@@ -127,7 +117,7 @@ mod load_hand_device_mass {
             }
             switch.exit();
             mok_user_reply.exit();
-            mok_user_reply_handle.await.unwrap();
+            // mok_user_reply_handle.await.unwrap().await;
             switch_handle.join_all().await;
             test_duration.exit();
         // }).await.unwrap();

@@ -50,14 +50,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         let (send, recv) = mpsc::channel();
         let switch = Switch::new(&dbg, send, recv);
         let switch_handle = switch.run().await.unwrap();
-        let mut mok_user_reply = MokUserReply::new(&dbg, switch.link());
+        let mut mok_user_reply = MokUserReply::new(&dbg, switch.link().await);
         let mok_user_reply_handle = mok_user_reply.run().await.unwrap();
         let _result = RopeCount::new(
             RopeEffort::new(
                 LoadHandDeviceMass::new(
                     UserBearing::new(
                         Request::new(
-                            switch.link(),
+                            switch.link().await,
                             async |variants: BearingFilterCtx, link: Link| {
                                 let query = Query::ChooseUserBearing(ChooseUserBearingQuery::new(variants.result.clone()));
                                 (link.req(query).await.expect("{}.req | Error to send request"), link)
@@ -65,7 +65,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                         ),
                         UserHook::new(
                             Request::new(
-                                switch.link(),
+                                switch.link().await,
                                 async |variants: HookFilterCtx, link: Link| {
                                     let query = Query::ChooseUserHook(ChooseUserHookQuery::test(variants.result.clone()));
                                     (link.req(query).await.expect("{}.req | Error to send request"), link)
@@ -96,7 +96,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         mok_user_reply.exit();
         switch.exit();
         switch_handle.join_all().await;
-        mok_user_reply_handle.await.unwrap();
+        // mok_user_reply_handle.await.unwrap().await;
     // })
     // .await
     // .unwrap();

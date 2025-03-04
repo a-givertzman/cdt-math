@@ -1,4 +1,4 @@
-use std::sync::{atomic::{AtomicBool, Ordering}, Arc};
+use std::{future::Future, sync::{atomic::{AtomicBool, Ordering}, Arc}};
 
 use sal_sync::services::entity::{cot::Cot, name::Name, object::Object, point::{point::Point, point_hlr::PointHlr, point_tx_id::PointTxId}, status::status::Status};
 use serde::Serialize;
@@ -48,7 +48,7 @@ impl MokUserReply {
     }
     ///
     /// Starts service's main loop in the individual task
-    pub async fn run(&mut self) -> Result<JoinHandle<()>, StrErr> {
+    pub async fn run(&mut self) -> Result<(), StrErr> {
         let mut link = self.link.take().unwrap_or_else(|| panic!("{}.run | Link not found", self.name));
         let dbg = self.name.join().clone();
         let txid = self.txid;

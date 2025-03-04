@@ -88,7 +88,7 @@ mod bearing_filter {
             let result = BearingFilter::new(
                 UserHook::new(
                     Request::new(
-                        switch.link(),
+                        switch.link().await,
                         async |variants: HookFilterCtx, link: Link| {
                             let variants = variants.result.clone();
                             let query = Query::ChooseUserHook(ChooseUserHookQuery::test(variants));
@@ -129,7 +129,7 @@ mod bearing_filter {
         log::debug!("{} | Exiting...", dbg);
         switch.exit();
         mok_user_reply.exit();
-        mok_user_reply_handle.await.unwrap();
+        // mok_user_reply_handle.await.unwrap().await;
         switch_handle.join_all().await;
         test_duration.exit();
     }
