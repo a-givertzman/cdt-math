@@ -1,4 +1,4 @@
-use std::{fmt::Debug, future::Future, sync::{atomic::{AtomicBool, Ordering}, mpsc::{self, Receiver, Sender}, Arc}, time::Duration};
+use std::{fmt::Debug, sync::{atomic::{AtomicBool, Ordering}, mpsc::{self, Receiver, Sender}, Arc}, time::Duration};
 use sal_sync::services::entity::{cot::Cot, name::Name, point::{point::Point, point_hlr::PointHlr, point_tx_id::PointTxId}, status::status::Status};
 use serde::{de::DeserializeOwned, Serialize};
 use tokio::task::JoinHandle;
@@ -20,7 +20,7 @@ pub struct Link {
 impl Link {
     ///
     /// Default timeout to await `recv`` operation, 300 ms
-    const DEFAULT_TIMEOUT: Duration = Duration::from_millis(100);
+    const DEFAULT_TIMEOUT: Duration = Duration::from_millis(10);
     ///
     /// Returns [Link] new instance
     /// - `send` - local side of channel.send
@@ -81,12 +81,12 @@ impl Link {
                 let timeout = Duration::from_secs(1000);
                 match self.send.send(query.clone()) {
                     Ok(_) => {
-                        log::debug!("{}.req | Sent request: {:#?}", self.name, query);
+                        log::trace!("{}.req | Sent request: {:#?}", self.name, query);
                         tokio::task::block_in_place(move|| {
                             match &self.recv {
                                 Some(recv) => match recv.recv_timeout(timeout) {
                                     Ok(reply) => {
-                                        log::debug!("{}.req | Received reply: {:#?}", self.name, reply);
+                                        log::trace!("{}.req | Received reply: {:#?}", self.name, reply);
                                         let reply = reply.as_string().value;
                                         match serde_json::from_str::<T>(reply.as_str()) {
                                             Ok(reply) => {
@@ -112,18 +112,18 @@ impl Link {
     /// - Callback receives `Point`
     /// - Callback returns `Some<Point>` - to be sent
     /// - Callback returns None - nothing to be sent
-    pub async fn listen(&mut self, op: impl Fn(Point) -> Option<Point> + Send + 'static) -> Result<(), StrErr> {
+    pub async fn listen(&mut self, op: impl Fn(Point) -> Option<Point> + Send + 'static) -> Result<JoinHandle<()>, StrErr> {
         let dbg = self.name.join();
         let send = self.send.clone();
         let recv = self.recv.take().unwrap();
         let timeout = self.timeout;
         let exit = self.exit.clone();
         log::debug!("{}.listen | Starting...", dbg);
-        let handle = tokio::task::block_in_place(async move|| {
+        let handle = tokio::task::spawn_blocking(move|| {
             'main: loop {
                 match recv.recv_timeout(timeout) {
                     Ok(query) => {
-                        log::debug!("{}.listen | Received query: {:#?}", dbg, query);
+                        log::trace!("{}.listen | Received query: {:#?}", dbg, query);
                         match (op)(query) {
                             Some(reply) => if let Err(err) = send.send(reply) {
                                 let err = StrErr(format!("{}.listen | Send request error: {:#?}", dbg, err));
@@ -135,9 +135,10 @@ impl Link {
                     Err(err) => match err {
                         mpsc::RecvTimeoutError::Timeout => {}
                         mpsc::RecvTimeoutError::Disconnected => {
-                            log::warn!("{}.listen | Recv error: {:#?}", dbg, err);
-                            tokio::time::sleep(timeout).await;
-                            // thread::sleep(timeout);
+                            if log::max_level() >= log::LevelFilter::Trace {
+                                log::warn!("{}.listen | Recv error: {:#?}", dbg, err);
+                            }
+                            std::thread::sleep(timeout);
                         }
                     }
                 }
@@ -146,7 +147,7 @@ impl Link {
                 }
             }
             log::debug!("{}.listen | Exit", dbg);
-        }).await;
+        });
         let dbg = self.name.join();
         log::debug!("{}.listen | Starting - Ok", dbg);
         Ok(handle)
@@ -161,7 +162,7 @@ impl Link {
             match &self.recv {
                 Some(recv) => match recv.recv_timeout(self.timeout) {
                     Ok(query) => {
-                        log::debug!("{}.recv_query | Received query: {:#?}", self.name, query);
+                        log::trace!("{}.recv_query | Received query: {:#?}", self.name, query);
                         let quyru = query.as_string().value;
                         match serde_json::from_str::<T>(quyru.as_str()) {
                             Ok(query) => {
@@ -169,7 +170,7 @@ impl Link {
                             }
                             Err(err) => CtxResult::Err(
                                 StrErr(
-                                    format!("{}.req | Deserialize error for {:?} in {}, \n\terror: {:#?}",
+                                    format!("{}.recv_query | Deserialize error for {:?} in {}, \n\terror: {:#?}",
                                     self.name, std::any::type_name::<T>(), quyru, err),
                                 ),
                             ),
@@ -179,7 +180,7 @@ impl Link {
                         match err {
                             std::sync::mpsc::RecvTimeoutError::Timeout => CtxResult::None,
                             std::sync::mpsc::RecvTimeoutError::Disconnected => CtxResult::Err(
-                                StrErr(format!("{}.req | Recv error: {:#?}", self.name, err)),
+                                StrErr(format!("{}.recv_query | Recv error: {:#?}", self.name, err)),
                             ),
                         }
                     }
@@ -199,7 +200,7 @@ impl Link {
             match &self.recv {
                 Some(recv) => match recv.recv_timeout(self.timeout) {
                     Ok(query) => {
-                        log::debug!("{}.recv_query | Received query: {:#?}", self.name, query);
+                        log::debug!("{}.recv_query_from | Received query: {:#?}", self.name, query);
                         let name = query.name();
                         let quyru = query.as_string().value;
                         match serde_json::from_str::<T>(quyru.as_str()) {
@@ -208,7 +209,7 @@ impl Link {
                             }
                             Err(err) => CtxResult::Err(
                                 StrErr(
-                                    format!("{}.req | Deserialize error for {:?} in {}, \n\terror: {:#?}",
+                                    format!("{}.recv_query_from | Deserialize error for {:?} in {}, \n\terror: {:#?}",
                                     self.name, std::any::type_name::<T>(), quyru, err),
                                 ),
                             ),
@@ -218,7 +219,7 @@ impl Link {
                         match err {
                             std::sync::mpsc::RecvTimeoutError::Timeout => CtxResult::None,
                             std::sync::mpsc::RecvTimeoutError::Disconnected => CtxResult::Err(
-                                StrErr(format!("{}.req | Recv error: {:#?}", self.name, err)),
+                                StrErr(format!("{}.recv_query_from | Recv error: {:#?}", self.name, err)),
                             ),
                         }
                     }
@@ -269,19 +270,3 @@ impl Debug for Link {
         .finish()
     }
 }
-// ///
-// /// Async callback closure
-// trait AsyncFn<In, Out> {
-//     fn eval(&self, ctx: In) -> BoxFuture<'_, Out>;
-// }
-// //
-// //
-// impl<T, F, In, Out> AsyncFn<In, Out> for T
-// where
-//     T: Fn(In) -> F,
-//     F: std::future::Future<Output = Out> + Send + 'static,
-// {
-//     fn eval(&self, val: In) -> BoxFuture<'_, Out> {
-//         Box::pin(self(val))
-//     }
-// }

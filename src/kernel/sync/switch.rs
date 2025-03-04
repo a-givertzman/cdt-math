@@ -23,7 +23,7 @@ pub struct Switch {
 impl Switch {
     ///
     /// Default timeout to await `recv`` operation, 300 ms
-    const DEFAULT_TIMEOUT: Duration = Duration::from_millis(100);
+    const DEFAULT_TIMEOUT: Duration = Duration::from_millis(10);
     ///
     /// Returns [Switch] new instance
     /// - `send` - local side of channel.send
@@ -52,7 +52,7 @@ impl Switch {
     ///
     /// Returns Self and `remote: [Link]` new instances
     pub fn split(parent: impl Into<String>) -> (Self, Link) {
-        let name = Name::new(parent, "Link");
+        let name = Name::new(parent, "Switch");
         let (loc_send, rem_recv) = mpsc::channel();
         let (rem_send, loc_recv) = mpsc::channel();
         let remote = Link::new(name.join(), rem_send, rem_recv);
@@ -105,13 +105,13 @@ impl Switch {
         let timeout = self.timeout;
         let mut join_set = JoinSet::new();
         join_set.spawn(async move {
-            tokio::task::block_in_place(move|| {
+            tokio::task::spawn_blocking(move|| {
                 log::debug!("{}.run | Remote | Start", dbg);
                 'main: loop {
-                    log::debug!("{}.run | Locals | Subscriber: {}", dbg, subscribers.len());
+                    log::trace!("{}.run | Locals | Subscriber: {}", dbg, subscribers.len());
                     match recv.recv_timeout(timeout) {
                         Ok(event) => {
-                            log::debug!("{}.run | Request: {:?}", dbg, event);
+                            log::trace!("{}.run | Request: {:?}", dbg, event);
                             match event.cot() {
                                 Cot::Inf | Cot::Act | Cot::Req => {
                                     for item in subscribers.iter() {
@@ -139,10 +139,12 @@ impl Switch {
                         },
                         Err(err) => match err {
                             std::sync::mpsc::RecvTimeoutError::Timeout => {
-                                log::warn!("{}.run | Remote | Listening...", dbg);
+                                log::trace!("{}.run | Remote | Listening...", dbg);
                             },
                             std::sync::mpsc::RecvTimeoutError::Disconnected => {
-                                log::warn!("{}.run | Receive error, all receivers has been closed", dbg);
+                                if log::max_level() >= log::LevelFilter::Trace {
+                                    log::warn!("{}.run | Receive error, all receivers has been closed", dbg);
+                                }
                             }
                         },
                     }
@@ -163,7 +165,7 @@ impl Switch {
         let receivers_rx = self.receivers_rx.pop().unwrap();
         let exit = self.exit.clone();
         join_set.spawn(async move {
-            tokio::task::block_in_place(move|| {
+            tokio::task::spawn_blocking(move|| {
                 log::debug!("{}.run | Locals | Start", dbg);
                 let mut receivers = FxIndexMap::default();
                 'main: loop {
@@ -176,17 +178,19 @@ impl Switch {
                     for (_key, receiver) in &receivers {
                         match receiver.recv_timeout(timeout) {
                             Ok(event) => {
-                                log::debug!("{}.run | Received from locals: {:?}", dbg, event);
+                                log::trace!("{}.run | Received from locals: {:?}", dbg, event);
                                 if let Err(err) = send.send(event) {
                                     log::warn!("{}.run | Send error: {:?}", dbg, err);
                                 }
                             }
                             Err(err) => match err {
                                 mpsc::RecvTimeoutError::Timeout => {
-                                    log::warn!("{}.run | Locals | Listening...", dbg);
+                                    log::trace!("{}.run | Locals | Listening...", dbg);
                                 }
                                 mpsc::RecvTimeoutError::Disconnected => {
-                                    log::error!("{}.run | Receive error, all senders has been closed", dbg);
+                                    if log::max_level() >= log::LevelFilter::Trace {
+                                        log::warn!("{}.run | Receive error, all senders has been closed", dbg);
+                                    }
                                 }
                             }
                         }
