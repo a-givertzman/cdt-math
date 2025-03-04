@@ -1,34 +1,32 @@
 use futures::future::BoxFuture;
 use crate::{
-    algorithm::context::{context::Context, context_access::ContextWrite, ctx_result::CtxResult},
+    algorithm::{context::{context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult}, hook_filter::hook_filter_ctx::HookFilterCtx},
     infrostructure::client::choose_user_hook::ChooseUserHookReply,
-    kernel::{dbgid::dbgid::DbgId, eval::Eval, sync::link::Link, request::Request, str_err::str_err::StrErr},
+    kernel::{dbgid::dbgid::DbgId, eval::Eval, request::Request, str_err::str_err::StrErr, types::eval_result::EvalResult},
 };
 use super::user_hook_ctx::UserHookCtx;
 ///
 /// Represents user hook and make request to user for choosing one
-pub struct UserHook<'a> {
+pub struct UserHook {
     dbgid: DbgId,
     /// value of user hook
     value: Option<UserHookCtx>,
     /// Event interface
-    link: Link,
-    req: Request<'a, ChooseUserHookReply>,
+    req: Request<HookFilterCtx, ChooseUserHookReply>,
     /// [Context] instance, where store all info about initial data and each algorithm result's
-    ctx: Box<dyn Eval<'a, Context> + Send + 'a>,
+    ctx: Box<dyn Eval<(), EvalResult> + Send>,
 }
 //
 //
-impl<'a> UserHook<'a> {
+impl UserHook {
     ///
     /// New instance [UserHook]
     /// - `ctx` - [Context]
     /// - `req` - [Request] for user
-    pub fn new(link: Link, req: Request<'a, ChooseUserHookReply>, ctx: impl Eval<'a, Context> + Send + 'a) -> Self{
+    pub fn new(req: Request<HookFilterCtx, ChooseUserHookReply>, ctx: impl Eval<(), EvalResult> + Send + 'static) -> Self{
         Self { 
             dbgid: DbgId("UserHook".to_string()), 
             value: None,
-            link,
             req: req,
             ctx: Box::new(ctx),
         }
@@ -36,12 +34,14 @@ impl<'a> UserHook<'a> {
 }
 //
 //
-impl<'a> Eval<'a, Context> for UserHook<'a> {
-    fn eval(&'a mut self) -> BoxFuture<'a, CtxResult<Context, StrErr>> {
+impl Eval<(), EvalResult> for UserHook {
+    fn eval(&mut self, _: ()) -> BoxFuture<'_, EvalResult> {
         Box::pin(async {
-            match self.ctx.eval().await {
+            let result = self.ctx.eval(()).await;
+            match result {
                 CtxResult::Ok(ctx) => {
-                    let reply = self.req.fetch(ctx.clone(), &mut self.link).await;
+                    let variants: &HookFilterCtx = ctx.read();
+                    let reply = self.req.fetch(variants.to_owned()).await;
                     let result = UserHookCtx { result: reply.choosen };
                     self.value = Some(result.clone());
                     ctx.write(result)
@@ -57,7 +57,7 @@ impl<'a> Eval<'a, Context> for UserHook<'a> {
 }
 //
 //
-impl std::fmt::Debug for UserHook<'_> {
+impl std::fmt::Debug for UserHook {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("UserHook")
             .field("dbgid", &self.dbgid)

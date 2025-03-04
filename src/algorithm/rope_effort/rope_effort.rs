@@ -1,22 +1,22 @@
 use futures::future::BoxFuture;
-use crate::{algorithm::{context::{context::Context, context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult}, initial_ctx::initial_ctx::InitialCtx}, kernel::{dbgid::dbgid::DbgId, eval::Eval, str_err::str_err::StrErr}};
+use crate::{algorithm::{context::{context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult}, initial_ctx::initial_ctx::InitialCtx}, kernel::{dbgid::dbgid::DbgId, eval::Eval, str_err::str_err::StrErr, types::eval_result::EvalResult}};
 use super::rope_effort_ctx::RopeEffortCtx;
 ///
 /// Calculation step: [rope effort](design\docs\algorithm\part02\chapter_03_choose_hoisting_tackle.md)
-pub struct RopeEffort<'a> {
+pub struct RopeEffort {
     dbgid: DbgId,
     /// value of [rope effort](design\docs\algorithm\part02\chapter_03_choose_hoisting_tackle.md)
     value: Option<RopeEffortCtx>,
     /// [Context] instance, where store all info about initial data and each algorithm result's
-    ctx: Box<dyn Eval<'a, Context> + Send + 'a>,
+    ctx: Box<dyn Eval<(), EvalResult> + Send>,
 }
 //
 //
-impl<'a> RopeEffort<'a> {
+impl RopeEffort {
     ///
     /// New instance [RopeEffort]
     /// - 'ctx' - [Context] instance, where store all info about initial data and each algorithm result's
-    pub fn new(ctx: impl Eval<'a, Context> + Send + 'a) -> Self {
+    pub fn new(ctx: impl Eval<(), EvalResult> + Send + 'static) -> Self {
         Self {
             dbgid: DbgId("RopeEffort".to_string()),
             value: None,
@@ -26,12 +26,13 @@ impl<'a> RopeEffort<'a> {
 }
 //
 //
-impl<'a> Eval<'a, Context> for RopeEffort<'a> {
+impl Eval<(), EvalResult> for RopeEffort {
     ///
     /// Method of calculating [rope effort](design\docs\algorithm\part02\chapter_03_choose_hoisting_tackle.md), based on user loading capacity
-    fn eval(&'a mut self) -> BoxFuture<'a, CtxResult<Context, StrErr>> {
+    fn eval(&mut self, _: ()) -> BoxFuture<'_, EvalResult> {
         Box::pin(async {
-            match self.ctx.eval().await {
+            let result = self.ctx.eval(()).await;
+            let result = match result {
                 CtxResult::Ok(ctx) => {
                     let initial = ContextRead::<InitialCtx>::read(&ctx);
                     let result = match initial.load_capacity {
@@ -61,13 +62,14 @@ impl<'a> Eval<'a, Context> for RopeEffort<'a> {
                     self.dbgid, err
                 ))),
                 CtxResult::None => CtxResult::None,
-            }
+            };
+            result
         })
     }
 }
 //
 //
-impl std::fmt::Debug for RopeEffort<'_> {
+impl std::fmt::Debug for RopeEffort {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("RopeEffort")
             .field("dbgid", &self.dbgid)

@@ -1,6 +1,6 @@
 use futures::future::BoxFuture;
 use sal_sync::services::entity::dbg_id::DbgId;
-use crate::kernel::{eval::Eval, str_err::str_err::StrErr};
+use crate::kernel::{eval::Eval, types::eval_result::EvalResult};
 use super::context::{context::Context, ctx_result::CtxResult};
 ///
 /// Just pass context for now
@@ -25,13 +25,13 @@ impl Initial {
 }
 //
 //
-impl<'a> Eval<'a, Context> for Initial {
-    //
-    //
-    fn eval(&'a mut self) -> BoxFuture<'a, CtxResult<Context, StrErr>> {
+impl Eval<(), EvalResult> for Initial {
+    fn eval(&mut self, _: ()) -> BoxFuture<'_, EvalResult> {
         Box::pin(async {
             let ctx = self.ctx.take().unwrap();
-            log::debug!("{}.eval | Start with contect: {:#?}", self.dbg, ctx);
+            log::debug!("{}.eval | Start", self.dbg);
+            log::trace!("{}.eval | Start with contect: {:#?}", self.dbg, ctx);
+            log::debug!("{}.eval | Done", self.dbg);
             CtxResult::Ok(ctx)
         })
     }

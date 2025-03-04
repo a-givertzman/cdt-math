@@ -5,7 +5,7 @@ use crate::{algorithm::context::context::Context, kernel::sync::link::Link};
 /// Example:
 /// ```ignore
 /// let math = AlgoSecond::new(
-///     req: RequestSync<T>::new(op: |ctx: &Context, link: &mut Link| -> T {
+///     req: Request<T>::new(op: |ctx: &Context, link: &Link| -> T {
 ///         // Query: Some Struct comtains all neccessary info and implements `Serialize`
 ///         let query = QueryStruct::new();
 ///         // Reply: Returns `T`, implements `Deserialize`
@@ -14,21 +14,21 @@ use crate::{algorithm::context::context::Context, kernel::sync::link::Link};
 ///     eval: AlgFirst::new(initial),
 /// )
 /// ```
-pub struct RequestSync<T> {
-    op: Box<dyn Fn(&Context, &mut Link) -> T>,
+pub struct Request<T> {
+    op: Box<dyn Fn(&Context, Link) -> T + Send + Sync>,
 }
 //
 //
-impl<T> RequestSync<T> {
+impl<T> Request<T> {
     ///
-    /// Returns [RequestSync] new instance
+    /// Returns [Request] new instance
     /// - `op` - the body of the request
-    pub fn new(op: impl Fn(&Context, &mut Link) -> T + 'static) -> Self {
+    pub fn new(op: impl Fn(&Context, Link) -> T + Send + Sync + 'static) -> Self {
         Self { op: Box::new(op) }
     }
     ///
     /// Performs the request defined in the `op`
-    pub fn fetch(&self, ctx: &Context, link: &mut Link) -> T {
+    pub fn fetch(&self, ctx: &Context, link: Link) -> T {
         (self.op)(ctx, link)
     }
 }

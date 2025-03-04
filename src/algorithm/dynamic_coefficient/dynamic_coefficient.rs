@@ -1,25 +1,25 @@
 use futures::future::BoxFuture;
 use crate::{
-    algorithm::{context::{context::Context, context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult}, lifting_speed::lifting_speed_ctx::LiftingSpeedCtx, select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx},
-    kernel::{dbgid::dbgid::DbgId, eval::Eval, str_err::str_err::StrErr},
+    algorithm::{context::{context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult}, lifting_speed::lifting_speed_ctx::LiftingSpeedCtx, select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx},
+    kernel::{dbgid::dbgid::DbgId, eval::Eval, str_err::str_err::StrErr, types::eval_result::EvalResult},
 };
 use super::dynamic_coefficient_ctx::DynamicCoefficientCtx;
 ///
 /// Calculation step: [dynamic coefficient](design\docs\algorithm\part02\chapter_01_choose_hook.md)
-pub struct DynamicCoefficient<'a> {
+pub struct DynamicCoefficient {
     dbgid: DbgId,
     /// value of [dynamic coefficient](design\docs\algorithm\part02\chapter_01_choose_hook.md)
     value: Option<DynamicCoefficientCtx>,
     /// [Context] instance, where store all info about initial data and each algorithm result's
-    ctx: Box<dyn Eval<'a, Context> + Send + 'a>,
+    ctx: Box<dyn Eval<(), EvalResult> + Send>,
 }
 //
 //
-impl<'a> DynamicCoefficient<'a> {
+impl  DynamicCoefficient {
     ///
     /// New instance [DynamicCoefficient]
     /// - `ctx` - [Context]
-    pub fn new(ctx: impl Eval<'a, Context> + Send + 'a) -> Self {
+    pub fn new(ctx: impl Eval<(), EvalResult> + Send + 'static) -> Self {
         Self {
             dbgid: DbgId("DynamicCoefficient".to_string()),
             value: None,
@@ -29,13 +29,14 @@ impl<'a> DynamicCoefficient<'a> {
 }
 //
 //
-impl<'a> Eval<'a, Context> for DynamicCoefficient<'a> {
+impl  Eval<(), EvalResult> for DynamicCoefficient {
     ///
     /// Method of calculating the dynamic coefficient
     /// [reference to dynamic coefficient documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
-    fn eval(&'a mut self) -> BoxFuture<'a, CtxResult<Context, StrErr>> {
+    fn eval(&mut self, _: ()) -> BoxFuture<'_, EvalResult> {
         Box::pin(async {
-            match self.ctx.eval().await {
+            let result = self.ctx.eval(()).await;
+            match result {
                 CtxResult::Ok(ctx) => {
                     let result = match self.value.clone() {
                         Some(dynamic_coefficient) => dynamic_coefficient,
@@ -62,7 +63,7 @@ impl<'a> Eval<'a, Context> for DynamicCoefficient<'a> {
 }
 //
 //
-impl std::fmt::Debug for DynamicCoefficient<'_> {
+impl std::fmt::Debug for DynamicCoefficient {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("DynamicCoefficient")
             .field("dbgid", &self.dbgid)

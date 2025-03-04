@@ -1,28 +1,28 @@
 use futures::future::BoxFuture;
 use crate::{
     algorithm::{
-        context::{context::Context, context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult},
+        context::{context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult},
         entities::{bet_phi::BetPhi, lifting_class::LiftClass}, initial_ctx::initial_ctx::InitialCtx,
     },
-    kernel::{dbgid::dbgid::DbgId, eval::Eval, str_err::str_err::StrErr},
+    kernel::{dbgid::dbgid::DbgId, eval::Eval, str_err::str_err::StrErr, types::eval_result::EvalResult},
 };
 use super::select_betta_phi_ctx::SelectBetPhiCtx;
 ///
 /// Calculation step: [β2 and ϕ2 coefficients](design\docs\algorithm\part02\chapter_01_choose_hook.md)
-pub struct SelectBettaPhi<'a> {
+pub struct SelectBettaPhi {
     dbgid: DbgId,
     /// [BetPhi] instance, where store value of coefficients β2 and ϕ2
     value: Option<SelectBetPhiCtx>,
     /// [Context] instance, where store all info about initial data and each algorithm result's
-    ctx: Box<dyn Eval<'a, Context> + Send + 'a>,
+    ctx: Box<dyn Eval<(), EvalResult> + Send>,
 }
 //
 //
-impl<'a> SelectBettaPhi<'a> {
+impl SelectBettaPhi {
     ///
     /// New instance [SelectBettaPhi]
     /// - 'ctx' - [Context] instance, where store all info about initial data and each algorithm result's
-    pub fn new(ctx: impl Eval<'a, Context> + Send + 'a) -> Self {
+    pub fn new(ctx: impl Eval<(), EvalResult> + Send + 'static) -> Self {
         Self {
             dbgid: DbgId("SelectBetPhi".to_string()),
             value: None,
@@ -32,13 +32,14 @@ impl<'a> SelectBettaPhi<'a> {
 }
 //
 //
-impl<'a> Eval<'a, Context> for SelectBettaPhi<'a> {
+impl Eval<(), EvalResult> for SelectBettaPhi {
     ///
     /// Method make choice β2 and ϕ2 coefficients, based on user [lifting class](design\docs\algorithm\part01\initial_data.md)
     /// [reference to β2 and ϕ2 coefficients documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
-    fn eval(&'a mut self) -> BoxFuture<'a, CtxResult<Context, StrErr>> {
+    fn eval(&mut self, _: ()) -> BoxFuture<'_, EvalResult> {
         Box::pin(async {
-            match self.ctx.eval().await {
+            let result = self.ctx.eval(()).await;
+            match result {
                 CtxResult::Ok(ctx) => {
                     let initial = ContextRead::<InitialCtx>::read(&ctx);
                     let result = match initial.lift_class {
@@ -62,7 +63,7 @@ impl<'a> Eval<'a, Context> for SelectBettaPhi<'a> {
 }
 //
 //
-impl std::fmt::Debug for SelectBettaPhi<'_> {
+impl std::fmt::Debug for SelectBettaPhi {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("LiftingSpeed")
             .field("dbgid", &self.dbgid)

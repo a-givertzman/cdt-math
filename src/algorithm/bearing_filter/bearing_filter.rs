@@ -1,25 +1,25 @@
 use futures::future::BoxFuture;
-use crate::{algorithm::{context::{context::Context, context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult}, dynamic_coefficient::dynamic_coefficient_ctx::DynamicCoefficientCtx, entities::bearing::Bearing, initial_ctx::initial_ctx::InitialCtx}, kernel::{dbgid::dbgid::DbgId, eval::Eval, str_err::str_err::StrErr, user_setup::user_hook_ctx::UserHookCtx}};
+use crate::{algorithm::{context::{context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult}, dynamic_coefficient::dynamic_coefficient_ctx::DynamicCoefficientCtx, entities::bearing::Bearing, initial_ctx::initial_ctx::InitialCtx}, kernel::{dbgid::dbgid::DbgId, eval::Eval, str_err::str_err::StrErr, types::eval_result::EvalResult, user_setup::user_hook_ctx::UserHookCtx}};
 use super::bearing_filter_ctx::BearingFilterCtx;
 ///
 /// Calculation step: [filtering bearings](design\docs\algorithm\part02\chapter_01_choose_hook.md)
-pub struct BearingFilter<'a> {
+pub struct BearingFilter {
     dbgid: DbgId,
     /// vector of [filtered bearings](design\docs\algorithm\part02\chapter_01_choose_hook.md)
     value: Option<BearingFilterCtx>,
     /// [Context] instance, where store all info about initial data and each algorithm result's
-    ctx: Box<dyn Eval<'a, Context> + Send + 'a>,
+    ctx: Box<dyn Eval<(), EvalResult> + Send>,
 }
 //
 //
-impl<'a> BearingFilter<'a> {
+impl  BearingFilter {
     ///
     /// [Acceleration of gravity](design\docs\algorithm\part02\chapter_01_choose_hook.md)
     const G: f64 = 9.81;
     ///
     /// New instance [BearingFilter]
     /// - `ctx` - [Context]
-    pub fn new(ctx: impl Eval<'a, Context> + Send + 'a) -> Self {
+    pub fn new(ctx: impl Eval<(), EvalResult> + Send + 'static) -> Self {
         Self {
             dbgid: DbgId("HookFilter".to_string()),
             value: None,
@@ -29,10 +29,11 @@ impl<'a> BearingFilter<'a> {
 }
 //
 //
-impl<'a> Eval<'a, Context> for BearingFilter<'a> {
-    fn eval(&'a mut self) -> BoxFuture<'a, CtxResult<Context, StrErr>> {
+impl  Eval<(), EvalResult> for BearingFilter {
+    fn eval(&mut self, _: ()) -> BoxFuture<'_, EvalResult> {
         Box::pin(async move {
-            match self.ctx.eval().await {
+            let result = self.ctx.eval(()).await;
+            match result {
                 CtxResult::Ok(ctx) => {
                     let initial = ContextRead::<InitialCtx>::read(&ctx);
                     let user_loading_capacity = initial.load_capacity.clone(); 
@@ -69,7 +70,7 @@ impl<'a> Eval<'a, Context> for BearingFilter<'a> {
 }
 //
 //
-impl std::fmt::Debug for BearingFilter<'_> {
+impl std::fmt::Debug for BearingFilter {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("HookFilter")
             .field("dbgid", &self.dbgid)

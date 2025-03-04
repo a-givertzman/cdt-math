@@ -12,7 +12,7 @@ mod dynamic_coefficient {
         algorithm::{
             context::{context::Context, context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult}, dynamic_coefficient::{dynamic_coefficient::DynamicCoefficient, dynamic_coefficient_ctx::DynamicCoefficientCtx}, entities::bet_phi::BetPhi, hook_filter::hook_filter_ctx::HookFilterCtx, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed_ctx::LiftingSpeedCtx, select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx
         },
-        kernel::{dbgid::dbgid::DbgId, eval::Eval, storage::storage::Storage, str_err::str_err::StrErr},
+        kernel::{dbgid::dbgid::DbgId, eval::Eval, storage::storage::Storage, str_err::str_err::StrErr, types::eval_result::EvalResult},
     };
     ///
     ///
@@ -30,12 +30,12 @@ mod dynamic_coefficient {
     fn init_each() {}
     ///
     /// Testing to 'eval()' method
-    #[tokio::test]
+    #[tokio::test(flavor = "multi_thread")]
     async fn eval() {
         DebugSession::init(LogLevel::Info, Backtrace::Short);
         init_once();
         init_each();
-        let dbg = DbgId("eval".into());
+        let dbg = DbgId("dynamic_coefficient".into());
         log::debug!("\n{}", dbg);
         let test_duration = TestDuration::new(&dbg, Duration::from_secs(1));
         test_duration.run().unwrap();
@@ -108,12 +108,11 @@ mod dynamic_coefficient {
                 CtxResult::Ok(1775.0),
             ),
         ];
-        // for (step, ctx, target) in test_data {
-        let (step, ctx, target) = test_data.first().unwrap().to_owned();
+        for (step, ctx, target) in test_data {
             let ctx = MocEval { ctx };
-            let mut result = DynamicCoefficient::new(ctx);
-            let result = result.eval();
-            let result = result.await;
+            let result = DynamicCoefficient::new(ctx)
+                .eval(())
+                .await;
             match (&result, &target) {
                 (CtxResult::Ok(result), CtxResult::Ok(target)) => {
                     let result = ContextRead::<DynamicCoefficientCtx>::read(result)
@@ -130,7 +129,7 @@ mod dynamic_coefficient {
                 (CtxResult::None, CtxResult::None) => {},
                 _ => panic!("step {} \nresult: {:?}\ntarget: {:?}", step, result, target),
             }
-        // }
+        }
         test_duration.exit();
     }
     ///
@@ -141,8 +140,8 @@ mod dynamic_coefficient {
     }
     //
     //
-    impl<'a> Eval<'a, Context> for MocEval {
-        fn eval(&'a mut self) -> BoxFuture<'a, CtxResult<Context, StrErr>> {
+    impl Eval<(), EvalResult> for MocEval {
+        fn eval(&mut self, _: ()) -> BoxFuture<'_, EvalResult> {
             Box::pin(async {
                 CtxResult::Ok(self.ctx.clone())
             })

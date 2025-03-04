@@ -16,7 +16,7 @@ mod hook_filter {
             hook_filter::{hook_filter::HookFilter, hook_filter_ctx::HookFilterCtx},
             initial_ctx::initial_ctx::InitialCtx,
         },
-        kernel::{dbgid::dbgid::DbgId, eval::Eval, storage::storage::Storage, str_err::str_err::StrErr},
+        kernel::{dbgid::dbgid::DbgId, eval::Eval, storage::storage::Storage, str_err::str_err::StrErr, types::eval_result::EvalResult},
     };
 
     ///
@@ -35,12 +35,12 @@ mod hook_filter {
     fn init_each() {}
     ///
     /// Testing to 'eval()' method
-    #[tokio::test]
+    #[tokio::test(flavor = "multi_thread")]
     async fn eval() {
         DebugSession::init(LogLevel::Info, Backtrace::Short);
         init_once();
         init_each();
-        let dbg = DbgId("eval".into());
+        let dbg = DbgId("hook_filter".into());
         log::debug!("\n{}", dbg);
         let test_duration = TestDuration::new(&dbg, Duration::from_secs(1));
         test_duration.run().unwrap();
@@ -110,7 +110,7 @@ mod hook_filter {
             let ctx = MocEval {
                 ctx: Context::new(initial),
             };
-            let result = HookFilter::new(ctx).eval().await;
+            let result = HookFilter::new(ctx).eval(()).await;
             match (&result, &target) {
                 (CtxResult::Ok(result), CtxResult::Ok(target)) => {
                     let result = ContextRead::<HookFilterCtx>::read(result)
@@ -139,8 +139,8 @@ mod hook_filter {
     }
     //
     //
-    impl<'a> Eval<'a, Context> for MocEval {
-        fn eval(&'a mut self) -> BoxFuture<'a, CtxResult<Context, StrErr>> {
+    impl Eval<(), EvalResult> for MocEval {
+        fn eval(&mut self, _: ()) -> BoxFuture<'_, EvalResult> {
             Box::pin(async {
                 CtxResult::Ok(self.ctx.clone())
             })

@@ -16,7 +16,7 @@ mod dynamic_coefficient {
             lifting_speed::lifting_speed::LiftingSpeed,
             select_betta_phi::select_betta_phi::SelectBettaPhi,
         },
-        kernel::{dbgid::dbgid::DbgId, eval::Eval, storage::storage::Storage, str_err::str_err::StrErr},
+        kernel::{dbgid::dbgid::DbgId, eval::Eval, storage::storage::Storage, str_err::str_err::StrErr, types::eval_result::EvalResult},
     };
 
     ///
@@ -35,12 +35,12 @@ mod dynamic_coefficient {
     fn init_each() {}
     ///
     /// Testing to 'eval()' method
-    #[tokio::test]
+    #[tokio::test(flavor = "multi_thread")]
     async fn eval() {
         DebugSession::init(LogLevel::Info, Backtrace::Short);
         init_once();
         init_each();
-        let dbg = DbgId("eval".into());
+        let dbg = DbgId("dynamic_coefficient".into());
         log::debug!("\n{}", dbg);
         let test_duration = TestDuration::new(&dbg, Duration::from_secs(1));
         test_duration.run().unwrap();
@@ -71,19 +71,15 @@ mod dynamic_coefficient {
             ),
         ];
         for (step, initial, target) in test_data {
-            let mut result = DynamicCoefficient::new(
+            let result = DynamicCoefficient::new(
                 SelectBettaPhi::new(
                     LiftingSpeed::new(
                         MocEval {
-                            ctx: Some(Context::new(initial)),
+                            ctx: Context::new(initial),
                         },
                     ),
                 ),
-            );
-            let result = result
-            .eval()
-            .await;
-            // let result= result.await;
+            ).eval(()).await;
             match (&result, &target) {
                 (CtxResult::Ok(result), CtxResult::Ok(target)) => {
                     let result = ContextRead::<DynamicCoefficientCtx>::read(result)
@@ -107,14 +103,14 @@ mod dynamic_coefficient {
     ///
     #[derive(Debug)]
     struct MocEval {
-        pub ctx: Option<Context>,
+        pub ctx: Context,
     }
     //
     //
-    impl<'a> Eval<'a, Context> for MocEval {
-        fn eval(&'a mut self) -> BoxFuture<'a, CtxResult<Context, StrErr>> {
+    impl Eval<(), EvalResult> for MocEval {
+        fn eval(&mut self, _: ()) -> BoxFuture<'_, EvalResult> {
             Box::pin(async {
-                CtxResult::Ok(self.ctx.take().unwrap())
+                CtxResult::Ok(self.ctx.clone())
             })
         }
     }

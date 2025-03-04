@@ -4,7 +4,7 @@ mod rope_effort {
     use futures::future::BoxFuture;
     use testing::stuff::max_test_duration::TestDuration;
     use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
-    use crate::{algorithm::{context::{context::Context, context_access::ContextRead, ctx_result::CtxResult}, initial_ctx::initial_ctx::InitialCtx, rope_effort::{rope_effort::RopeEffort, rope_effort_ctx::RopeEffortCtx}}, kernel::{eval::Eval, storage::storage::Storage, str_err::str_err::StrErr}};
+    use crate::{algorithm::{context::{context::Context, context_access::ContextRead, ctx_result::CtxResult}, initial_ctx::initial_ctx::InitialCtx, rope_effort::{rope_effort::RopeEffort, rope_effort_ctx::RopeEffortCtx}}, kernel::{eval::Eval, storage::storage::Storage, types::eval_result::EvalResult}};
     ///
     ///
     static INIT: Once = Once::new();
@@ -21,13 +21,13 @@ mod rope_effort {
     fn init_each() -> () {}
     ///
     /// Testing 'eval'
-    #[tokio::test]
+    #[tokio::test(flavor = "multi_thread")]
     async fn eval() {
         DebugSession::init(LogLevel::Info, Backtrace::Short);
         init_once();
         init_each();
         log::debug!("");
-        let dbg = "eval";
+        let dbg = "rope_effort";
         log::debug!("\n{}", dbg);
         let test_duration = TestDuration::new(dbg, Duration::from_secs(1));
         test_duration.run().unwrap();
@@ -61,7 +61,7 @@ mod rope_effort {
             let ctx = MocEval {
                 ctx: Context::new(initial),
             };
-            let result = RopeEffort::new(ctx).eval().await;
+            let result = RopeEffort::new(ctx).eval(()).await;
             match &result {
                 CtxResult::Ok(result) => {
                     let result = ContextRead::<RopeEffortCtx>::read(result)
@@ -88,8 +88,8 @@ mod rope_effort {
     }
     //
     //
-    impl<'a> Eval<'a, Context> for MocEval {
-        fn eval(&'a mut self) -> BoxFuture<'a, CtxResult<Context, StrErr>> {
+    impl Eval<(), EvalResult> for MocEval {
+        fn eval(&mut self, _: ()) -> BoxFuture<'_, EvalResult> {
             Box::pin(async {
                 CtxResult::Ok(self.ctx.clone())
             })

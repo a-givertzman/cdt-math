@@ -23,14 +23,14 @@ mod storage {
     fn init_each() {}
     ///
     /// Testing load() method on simple types
-    #[test]
-    fn load() {
+    #[tokio::test(flavor = "multi_thread")]
+    async fn load() {
         DebugSession::init(LogLevel::Info, Backtrace::Short);
         init_once();
         init_each();
         let dbgid = DbgId("load".into());
         log::debug!("\n{}", dbgid);
-        let test_duration = TestDuration::new(&dbgid, Duration::from_secs(1));
+        let test_duration = TestDuration::new(&dbgid, Duration::from_secs(2));
         test_duration.run().unwrap();
         let path = "./src/tests/unit/kernel/storage/cache/test_1";
         let mut hooks_storage = Storage::new(path);
@@ -119,8 +119,8 @@ mod storage {
     }
     ///
     /// Testing load() method on Map<String, f64>
-    #[test]
-    fn load_map_str_f64() {
+    #[tokio::test(flavor = "multi_thread")]
+    async fn load_map_str_f64() {
         DebugSession::init(LogLevel::Info, Backtrace::Short);
         init_once();
         init_each();
@@ -151,8 +151,8 @@ mod storage {
     }
     ///
     /// Testing load() on Map<String, String>
-    #[test]
-    fn load_map_str_str() {
+    #[tokio::test(flavor = "multi_thread")]
+    async fn load_map_str_str() {
         DebugSession::init(LogLevel::Info, Backtrace::Short);
         init_once();
         init_each();
@@ -183,8 +183,8 @@ mod storage {
     }
     ///
     /// Testing load() on Vec<String>
-    #[test]
-    fn load_vec_str() {
+    #[tokio::test(flavor = "multi_thread")]
+    async fn load_vec_str() {
         DebugSession::init(LogLevel::Info, Backtrace::Short);
         init_once();
         init_each();
@@ -211,8 +211,8 @@ mod storage {
     }
     ///
     /// Testing load() on Vec<f64>
-    #[test]
-    fn load_vec_f64() {
+    #[tokio::test(flavor = "multi_thread")]
+    async fn load_vec_f64() {
         DebugSession::init(LogLevel::Info, Backtrace::Short);
         init_once();
         init_each();

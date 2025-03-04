@@ -1,30 +1,30 @@
 use futures::future::BoxFuture;
 use crate::{
     algorithm::{
-        context::{context::Context, context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult},
+        context::{context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult},
         entities::{driver_type::DriverType, loading_combination::LoadingCombination}, initial_ctx::initial_ctx::InitialCtx,
     },
-    kernel::{dbgid::dbgid::DbgId, eval::Eval, str_err::str_err::StrErr},
+    kernel::{dbgid::dbgid::DbgId, eval::Eval, str_err::str_err::StrErr, types::eval_result::EvalResult},
 };
 use super::lifting_speed_ctx::LiftingSpeedCtx;
 ///
 /// Calculation step: [steady-state lifting speed of the load](design\docs\algorithm\part02\chapter_01_choose_hook.md)
-pub struct LiftingSpeed<'a> {
-    dbgid: DbgId,
+pub struct LiftingSpeed {
+    dbg: DbgId,
     /// value of [steady-state lifting speed](design\docs\algorithm\part02\chapter_01_choose_hook.md)
     value: Option<LiftingSpeedCtx>,
     /// [Context] instance, where store all info about initial data and each algorithm result's
-    ctx: Box<dyn Eval<'a, Context> + Send + 'a>,
+    ctx: Box<dyn Eval<(), EvalResult> + Send>,
 }
 //
 //
-impl<'a> LiftingSpeed<'a> {
+impl LiftingSpeed {
     ///
     /// New instance [LiftingSpeed]
     /// - 'ctx' - [Context] instance, where store all info about initial data and each algorithm result's
-    pub fn new(ctx: impl Eval<'a, Context> + Send + 'a) -> Self {
+    pub fn new(ctx: impl Eval<(), EvalResult> + Send + 'static) -> Self {
         Self {
-            dbgid: DbgId("LiftingSpeed".to_string()),
+            dbg: DbgId("LiftingSpeed".to_string()),
             value: None,
             ctx: Box::new(ctx),
         }
@@ -39,13 +39,14 @@ impl<'a> LiftingSpeed<'a> {
 }
 //
 //
-impl<'a> Eval<'a, Context> for LiftingSpeed<'a> {
+impl Eval<(), EvalResult> for LiftingSpeed {
     ///
     /// Method of calculating the steady-state lifting speed of the load
     /// [reference to steady-state lifting speed choice documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
-    fn eval(&'a mut self) -> BoxFuture<'a, CtxResult<Context, StrErr>> {
-        Box::pin(async {
-            match self.ctx.eval().await {
+    fn eval(&mut self, _: ()) -> BoxFuture<'_, EvalResult> {
+        let result = Box::pin(async {
+            let result = self.ctx.eval(()).await;
+            match result {
                 CtxResult::Ok(ctx) => {
                     let initial = ContextRead::<InitialCtx>::read(&ctx);
                     let result = match initial.load_comb {
@@ -68,19 +69,21 @@ impl<'a> Eval<'a, Context> for LiftingSpeed<'a> {
                 }
                 CtxResult::Err(err) => CtxResult::Err(StrErr(format!(
                     "{}.eval | Read context error: {:?}",
-                    self.dbgid, err
+                    self.dbg, err
                 ))),
                 CtxResult::None => CtxResult::None,
             }
-        })
+        });
+        log::debug!("{}.eval | Done", self.dbg);
+        result
     }
 }
 //
 //
-impl std::fmt::Debug for LiftingSpeed<'_> {
+impl std::fmt::Debug for LiftingSpeed {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("LiftingSpeed")
-            .field("dbgid", &self.dbgid)
+            .field("dbgid", &self.dbg)
             .field("value", &self.value)
             // .field("ctx", &self.ctx)
             .finish()

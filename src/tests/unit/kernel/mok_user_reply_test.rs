@@ -21,13 +21,13 @@ mod mok_user_reply {
     fn init_each() -> () {}
     ///
     /// Testing 'run' method
-    #[tokio::test]
+    #[tokio::test(flavor = "multi_thread")]
     async fn run() {
-        DebugSession::init(LogLevel::Info, Backtrace::Short);
+        DebugSession::init(LogLevel::Debug, Backtrace::Short);
         init_once();
         init_each();
         log::debug!("");
-        let dbg = "test";
+        let dbg = "mok_user_reply";
         log::debug!("\n{}", dbg);
         let test_duration = TestDuration::new(dbg, Duration::from_secs(1));
         test_duration.run().unwrap();
@@ -56,17 +56,18 @@ mod mok_user_reply {
                 }
             )
         ];
-        let (mut local, remote) = Link::split(dbg);
-        let mut user = MokUserReply::new(dbg, remote);
-        let handle = user.run().await.unwrap();
+        let (local, remote) = Link::split(dbg);
+        let mut user_reply = MokUserReply::new(dbg, remote);
+        let user_reply_handle = user_reply.run().await.unwrap();
         for (step, query, target) in test_data {
             let query = Query::ChooseUserHook(query);
             let result: ChooseUserHookReply = local.req(query).await.unwrap();
-            assert!(result.choosen == target, "step {} \nresult: {:?}\ntarget: {:?}", step, result, target);
+            let result = result.choosen;
+            log::debug!("step {} \nresult: {:?}\ntarget: {:?}", step, result, target);
+            assert!(result == target, "step {} \nresult: {:?}\ntarget: {:?}", step, result, target);
         }
-        user.exit();
-        handle.join_all().await;
+        user_reply.exit();
+        let _ = user_reply_handle.await.unwrap();
         test_duration.exit();
     }
-    
 }
