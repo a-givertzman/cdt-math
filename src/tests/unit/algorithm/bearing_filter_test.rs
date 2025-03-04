@@ -80,7 +80,7 @@ mod bearing_filter {
                 ],
             )
         ];
-        let (mut switch, remote) = Switch::split(dbg);
+        let (switch, remote) = Switch::split(dbg);
         let switch_handle = switch.run().await.unwrap();
         let mut mok_user_reply = MokUserReply::new(dbg, remote);
         let mok_user_reply_handle = mok_user_reply.run().await.unwrap();

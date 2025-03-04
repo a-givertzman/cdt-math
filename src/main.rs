@@ -34,11 +34,12 @@ use kernel::{
 ///
 /// Application entry point
 // #[tokio::main(flavor = "multi_thread", worker_threads = 10)]
-#[tokio::main]
+// #[tokio::main]
+#[tokio::main(flavor = "multi_thread")]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     DebugSession::init(LogLevel::Debug, Backtrace::Short);
-    let rt = tokio::runtime::Runtime::new()?;
-    rt.spawn(async {
+    // let rt = tokio::runtime::Runtime::new()?;
+    // rt.spawn(async {
         let dbg = DbgId("main".into());
         let path = "config.yaml";
         let mut app = App::new(path);
@@ -47,7 +48,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
         let cache_path = "./src/tests/unit/kernel/storage/cache/test_2";
         let (send, recv) = mpsc::channel();
-        let mut switch = Switch::new(&dbg, send, recv);
+        let switch = Switch::new(&dbg, send, recv);
         let switch_handle = switch.run().await.unwrap();
         let mut mok_user_reply = MokUserReply::new(&dbg, switch.link());
         let mok_user_reply_handle = mok_user_reply.run().await.unwrap();
@@ -96,8 +97,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         switch.exit();
         switch_handle.join_all().await;
         mok_user_reply_handle.await.unwrap();
-    })
-    .await
-    .unwrap();
+    // })
+    // .await
+    // .unwrap();
     Ok(())
 }

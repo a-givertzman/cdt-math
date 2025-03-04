@@ -39,11 +39,11 @@ mod switch {
             (3, Message("Query-3".into()), Ok(Message("Reply-3".into()))),
             (4, Message("Query-4".into()), Ok(Message("Reply-4".into()))),
         ];
-        let (mut switch, remote) = Switch::split(dbg);
+        let (switch, remote) = Switch::split(dbg);
         let mut listener = Listener::new(dbg, remote);
+        let local = switch.link();
         let switch_handler = switch.run().await.unwrap();
         let listener_handle = listener.run().await.unwrap();
-        let local = switch.link();
         for (step, query, target) in test_data {
             let result = local.req(query).await;
             log::debug!("step {} \nresult: {:?}\ntarget: {:?}", step, result, target);

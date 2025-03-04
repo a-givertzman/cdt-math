@@ -30,8 +30,9 @@ regex = "^1.10"
 #
 # Collections
 indexmap = "^2.7"
-coco = "^0.3"
 rustc-hash = "^2.1"
+coco = "^0.3"
+dashmap = "^6.1"
 #
 # Async runtime engin
 tokio = { version = "1", features = ["full"] }
