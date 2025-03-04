@@ -1,10 +1,10 @@
 #[cfg(test)]
 mod rope_count {
-    use std::{sync::{mpsc, Once}, time::Duration};
+    use std::{sync::Once, time::Duration};
     use futures::future::BoxFuture;
     use testing::stuff::max_test_duration::TestDuration;
     use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
-    use crate::{algorithm::{context::{context::Context, context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult}, initial_ctx::initial_ctx::InitialCtx, load_hand_device_mass::load_hand_device_mass_ctx::LoadHandDeviceMassCtx, rope_count::{rope_count::RopeCount, rope_count_ctx::RopeCountCtx}, rope_effort::rope_effort_ctx::RopeEffortCtx}, kernel::{eval::Eval, storage::storage::Storage, sync::switch::Switch, types::eval_result::EvalResult}};
+    use crate::{algorithm::{context::{context::Context, context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult}, initial_ctx::initial_ctx::InitialCtx, load_hand_device_mass::load_hand_device_mass_ctx::LoadHandDeviceMassCtx, rope_count::{rope_count::RopeCount, rope_count_ctx::RopeCountCtx}, rope_effort::rope_effort_ctx::RopeEffortCtx}, kernel::{eval::Eval, storage::storage::Storage, types::eval_result::EvalResult}};
     ///
     ///
     static INIT: Once = Once::new();
@@ -78,27 +78,13 @@ mod rope_count {
                 4.0
             )
         ];
-        let (send, recv) = mpsc::channel();
-        let mut switch = Switch::new(dbg, send, recv);
         for (step,initial,mass,effort,target) in test_data {
             let mut ctx = MocEval {
                 ctx: Context::new(initial),
             };
-            ctx.ctx = ctx.ctx.clone().write(
-                mass
-            ).unwrap();
-            ctx.ctx = ctx.ctx.clone().write(
-                effort
-            ).unwrap();
-            let mut bind = RopeCount::new(ctx);
-            let (switch_, result) = {
-                let f = bind
-                .eval(switch);
-                let (switch_, result) = f
-                .await;
-                (switch_, result) 
-            };
-            switch = switch_;
+            ctx.ctx = ctx.ctx.clone().write(mass).unwrap();
+            ctx.ctx = ctx.ctx.clone().write(effort).unwrap();
+            let result = RopeCount::new(ctx).eval(()).await;
             match &result {
                 CtxResult::Ok(result) => {
                     let result = ContextRead::<RopeCountCtx>::read(result)
@@ -125,10 +111,10 @@ mod rope_count {
     }
     //
     //
-    impl Eval<Switch, EvalResult> for MocEval {
-        fn eval(&mut self, switch: Switch) -> BoxFuture<'_, EvalResult> {
+    impl Eval<(), EvalResult> for MocEval {
+        fn eval(&mut self, _: ()) -> BoxFuture<'_, EvalResult> {
             Box::pin(async {
-                (switch, CtxResult::Ok(self.ctx.clone()))
+                CtxResult::Ok(self.ctx.clone())
             })
         }
     }

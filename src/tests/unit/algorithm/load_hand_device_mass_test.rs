@@ -72,17 +72,23 @@ mod load_hand_device_mass {
             log::debug!("{} | All executed", dbg);
             log::debug!("{} | Evals...", dbg);
             for (step, cache_path, target) in test_data {
-                let (switch_, result) = LoadHandDeviceMass::new(
+                let result = LoadHandDeviceMass::new(
                     UserBearing::new(
-                        Request::new(async |variants: BearingFilterCtx, link: Link| {
-                            let query = Query::ChooseUserBearing(ChooseUserBearingQuery::new(variants.result.clone()));
-                            link.req(query).await.expect("{}.req | Error to send request")
-                        }),
+                        Request::new(
+                            switch.link(),
+                            async |variants: BearingFilterCtx, link: Link| {
+                                let query = Query::ChooseUserBearing(ChooseUserBearingQuery::new(variants.result.clone()));
+                                (link.req(query).await.expect("{}.req | Error to send request"), link)
+                            }
+                        ),
                         UserHook::new(
-                            Request::new(async |variants: HookFilterCtx, link: Link| {
-                                let query = Query::ChooseUserHook(ChooseUserHookQuery::test(variants.result.clone()));
-                                link.req(query).await.expect("{}.req | Error to send request")
-                            }),
+                            Request::new(
+                                switch.link(),
+                                async |variants: HookFilterCtx, link: Link| {
+                                    let query = Query::ChooseUserHook(ChooseUserHookQuery::test(variants.result.clone()));
+                                    (link.req(query).await.expect("{}.req | Error to send request"), link)
+                                }
+                            ),
                             HookFilter::new(
                                 DynamicCoefficient::new(
                                     SelectBettaPhi::new(
@@ -101,9 +107,8 @@ mod load_hand_device_mass {
                         ),
                     ),
                 )
-                .eval(switch)
+                .eval(())
                 .await;
-                switch = switch_;
                 match result {
                     CtxResult::Ok(result) => {
                         let result = ContextRead::<LoadHandDeviceMassCtx>::read(&result)

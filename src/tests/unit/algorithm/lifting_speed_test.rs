@@ -3,7 +3,7 @@ mod lifting_speed {
     use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
     use futures::future::BoxFuture;
     use std::{
-        sync::{mpsc, Once},
+        sync::Once,
         time::Duration,
     };
     use testing::stuff::max_test_duration::TestDuration;
@@ -13,7 +13,7 @@ mod lifting_speed {
             initial_ctx::initial_ctx::InitialCtx,
             lifting_speed::{lifting_speed::LiftingSpeed, lifting_speed_ctx::LiftingSpeedCtx},
         },
-        kernel::{dbgid::dbgid::DbgId, eval::Eval, storage::storage::Storage, str_err::str_err::StrErr, sync::switch::Switch, types::eval_result::EvalResult},
+        kernel::{dbgid::dbgid::DbgId, eval::Eval, storage::storage::Storage, str_err::str_err::StrErr, types::eval_result::EvalResult},
     };
 
     ///
@@ -107,14 +107,11 @@ mod lifting_speed {
                 CtxResult::Ok(0.315),
             ),
         ];
-        let (send, recv) = mpsc::channel();
-        let mut switch = Switch::new(&dbg, send, recv);
         for (step, initial, target) in test_data {
             let ctx = MocEval {
                 ctx: Context::new(initial),
             };
-            let (switch_, result) = LiftingSpeed::new(ctx).eval(switch).await;
-            switch = switch_;
+            let result = LiftingSpeed::new(ctx).eval(()).await;
             match (&result, &target) {
                 (CtxResult::Ok(result), CtxResult::Ok(target)) => {
                     let result = ContextRead::<LiftingSpeedCtx>::read(result)
@@ -142,10 +139,10 @@ mod lifting_speed {
     }
     //
     //
-    impl Eval<Switch, EvalResult> for MocEval {
-        fn eval(&mut self, switch: Switch) -> BoxFuture<'_, EvalResult> {
+    impl Eval<(), EvalResult> for MocEval {
+        fn eval(&mut self, _: ()) -> BoxFuture<'_, EvalResult> {
             Box::pin(async {
-                (switch, CtxResult::Ok(self.ctx.clone()))
+                CtxResult::Ok(self.ctx.clone())
             })
         }
     }

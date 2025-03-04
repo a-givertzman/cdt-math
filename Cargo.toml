@@ -28,11 +28,10 @@ serde_json = "^1.0"
 # Regex
 regex = "^1.10"
 #
-# Hash
-rustc-hash = "^2.1"
-#
 # Collections
 indexmap = "^2.7"
+coco = "^0.3"
+rustc-hash = "^2.1"
 #
 # Async runtime engin
 tokio = { version = "1", features = ["full"] }

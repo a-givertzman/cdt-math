@@ -1,7 +1,7 @@
 #[cfg(test)]
 
 mod bearing_filter {
-    use std::{sync::{mpsc, Once}, time::Duration};
+    use std::{sync::Once, time::Duration};
     use testing::stuff::max_test_duration::TestDuration;
     use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
     use crate::{
@@ -30,7 +30,7 @@ mod bearing_filter {
     // #[tokio::test(flavor = "multi_thread")]
     #[tokio::test(flavor = "multi_thread")]
     async fn eval() {
-        DebugSession::init(LogLevel::Info, Backtrace::Short);
+        DebugSession::init(LogLevel::Debug, Backtrace::Short);
         init_once();
         init_each();
         log::debug!("");
@@ -80,19 +80,21 @@ mod bearing_filter {
                 ],
             )
         ];
-        let (send, recv) = mpsc::channel();
-        let mut switch = Switch::new(dbg, send, recv);
+        let (mut switch, remote) = Switch::split(dbg);
         let switch_handle = switch.run().await.unwrap();
-        let mut mok_user_reply = MokUserReply::new(dbg, switch.link());
+        let mut mok_user_reply = MokUserReply::new(dbg, remote);
         let mok_user_reply_handle = mok_user_reply.run().await.unwrap();
         for (step, cache_path, target) in test_data {
-            let (switch_, result) = BearingFilter::new(
+            let result = BearingFilter::new(
                 UserHook::new(
-                    Request::new(async |variants: HookFilterCtx, link: Link| {
-                        let variants = variants.result.clone();
-                        let query = Query::ChooseUserHook(ChooseUserHookQuery::test(variants));
-                        link.req::<ChooseUserHookReply>(query).await.expect("{}.req | Error to send request")
-                    }),
+                    Request::new(
+                        switch.link(),
+                        async |variants: HookFilterCtx, link: Link| {
+                            let variants = variants.result.clone();
+                            let query = Query::ChooseUserHook(ChooseUserHookQuery::test(variants));
+                            (link.req::<ChooseUserHookReply>(query).await.expect("{}.req | Error to send request"), link)
+                        },
+                    ),
                     HookFilter::new(
                         DynamicCoefficient::new(
                             SelectBettaPhi::new(
@@ -110,27 +112,21 @@ mod bearing_filter {
                     ),
                 ),
             )
-            .eval(switch)
+            .eval(())
             .await;
-            switch = switch_;
             match result {
                 CtxResult::Ok(result) => {
                     let result = ContextRead::<BearingFilterCtx>::read(&result)
                         .result
                         .clone();
-                    println!("{:?}",result);
-                    assert!(
-                        result == target,
-                        "step {} \nresult: {:?}\ntarget: {:?}",
-                        step,
-                        result,
-                        target
-                    );
+                    log::debug!("step {} \nresult: {:?}\ntarget: {:?}", step, result, target);
+                    assert!(result == target, "step {} \nresult: {:?}\ntarget: {:?}", step, result, target);
                 }
                 CtxResult::Err(err) => panic!("step {} \nerror: {:#?}", step, err),
                 CtxResult::None => panic!("step {} \nerror: `UserHook` returns None", step),
             }
         }
+        log::debug!("{} | Exiting...", dbg);
         switch.exit();
         mok_user_reply.exit();
         mok_user_reply_handle.await.unwrap();

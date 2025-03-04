@@ -1,4 +1,4 @@
-use std::{fmt::Debug, hash::BuildHasherDefault, sync::{atomic::{AtomicBool, Ordering}, mpsc::{self, Receiver, Sender}, Arc}, time::Duration};
+use std::{fmt::Debug, hash::BuildHasherDefault, sync::{atomic::{AtomicBool, Ordering}, mpsc::{self, Receiver, Sender}, Arc}, time::{Duration, Instant}};
 use sal_sync::{collections::map::IndexMapFxHasher, services::entity::{cot::Cot, error::str_err::StrErr, name::Name, point::{point::Point, point_tx_id::PointTxId}}};
 use tokio::task::JoinSet;
 use super::link::Link;
@@ -9,8 +9,11 @@ pub struct Switch {
     name: Name,
     send: Sender<Point>,
     recv: Option<Receiver<Point>>,
-    subscribers: IndexMapFxHasher<String, Sender<Point>>,
-    receivers: IndexMapFxHasher<String, Receiver<Point>>,
+    subscribers: usize,
+    subscribers_tx: Sender<(String, Sender<Point>)>,
+    subscribers_rx: Option<Receiver<(String, Sender<Point>)>>,
+    receivers_tx: Sender<(String, Receiver<Point>)>,
+    receivers_rx: Option<Receiver<(String, Receiver<Point>)>>,
     timeout: Duration,
     exit: Arc<AtomicBool>,
 }
@@ -27,42 +30,77 @@ impl Switch {
     /// - `exit` - exit signal for `recv_query` method
     pub fn new(parent: impl Into<String>, send: Sender<Point>, recv: Receiver<Point>) -> Self {
         let name = Name::new(parent, "Switch");
+        let (receivers_tx, receivers_rx) = mpsc::channel();
+        let (subscribers_tx, subscribers_rx) = mpsc::channel();
         Self {
             txid: PointTxId::from_str(&name.join()),
             name,
             send, 
             recv: Some(recv),
-            subscribers: IndexMapFxHasher::with_hasher(BuildHasherDefault::default()),
-            receivers: IndexMapFxHasher::with_hasher(BuildHasherDefault::default()),
+            subscribers: 0,
+            subscribers_tx,
+            subscribers_rx: Some(subscribers_rx),
+            receivers_tx,
+            receivers_rx: Some(receivers_rx),
             timeout: Self::DEFAULT_TIMEOUT,
             exit: Arc::new(AtomicBool::new(false)),
         }
+    }
+    ///
+    /// Returns Self and `remote: [Link]` new instances
+    pub fn split(parent: impl Into<String>) -> (Self, Link) {
+        let name = Name::new(parent, "Link");
+        let (loc_send, rem_recv) = mpsc::channel();
+        let (rem_send, loc_recv) = mpsc::channel();
+        let remote = Link::new(name.join(), rem_send, rem_recv);
+        let (receivers_tx, receivers_rx) = mpsc::channel();
+        let (subscribers_tx, subscribers_rx) = mpsc::channel();
+        (
+            Self { 
+                txid: PointTxId::from_str(&name.join()),
+                name: name.clone(),
+                send: loc_send, recv: Some(loc_recv),
+                subscribers: 0,
+                subscribers_tx,
+                subscribers_rx: Some(subscribers_rx),
+                receivers_tx,
+                receivers_rx: Some(receivers_rx),
+                timeout: Self::DEFAULT_TIMEOUT,
+                exit: Arc::new(AtomicBool::new(false)),
+            },
+            remote,
+        )
     }
     ///
     /// Returns connected `Link`
     pub fn link(&mut self) -> Link {
         let (loc_send, rem_recv) = mpsc::channel();
         let (rem_send, loc_recv) = mpsc::channel();
-        let remote = Link::new(&format!("{}:{}", self.name, self.subscribers.len()), rem_send, rem_recv);
+        let remote = Link::new(&format!("{}:{}", self.name, self.subscribers), rem_send, rem_recv);
         let key = remote.name().join();
-        self.subscribers.insert(key.clone(), loc_send);
-        self.receivers.insert(key, loc_recv);
+        self.subscribers_tx.send((key.clone(), loc_send)).unwrap();
+        self.receivers_tx.send((key, loc_recv)).unwrap();
         remote
     }
     ///
     /// Entry point
     pub async fn run(&mut self) -> Result<JoinSet<()>, StrErr> {
         let dbg = self.name.join();
-        log::info!("{}.run | Starting Listen remote...", dbg);
-        let subscribers: IndexMapFxHasher<String, Sender<Point>> = self.subscribers.drain(0..).collect();
+        log::info!("{}.run | Remote | Starting...", dbg);
+        let mut subscribers = IndexMapFxHasher::<String, Sender<Point>>::with_hasher(BuildHasherDefault::default());
+        let subscribers_rx = self.subscribers_rx.take().unwrap();
         let exit = self.exit.clone();
         let recv = self.recv.take().unwrap();
-        let timeout = self.timeout.clone();
+        let timeout = self.timeout;
         let mut join_set = JoinSet::new();
         join_set.spawn(async move {
             tokio::task::block_in_place(move|| {
-                log::debug!("{}.run | Start - Listen remote", dbg);
+                log::debug!("{}.run | Remote | Start", dbg);
                 'main: loop {
+                    for (key, subscriber) in subscribers_rx.try_iter() {
+                        subscribers.insert(key, subscriber);
+                    };
+                    log::debug!("{}.run | Locals | Subscriber: {}", dbg, subscribers.len());
                     match recv.recv_timeout(timeout) {
                         Ok(event) => {
                             log::debug!("{}.run | Request: {:?}", dbg, event);
@@ -92,7 +130,7 @@ impl Switch {
                         },
                         Err(err) => match err {
                             std::sync::mpsc::RecvTimeoutError::Timeout => {
-                                log::warn!("{}.run | Listening Remote...", dbg);
+                                log::warn!("{}.run | Remote | Listening...", dbg);
                             },
                             std::sync::mpsc::RecvTimeoutError::Disconnected => panic!("{}.run | Receive error, all receivers has been closed", dbg),
                         },
@@ -101,19 +139,27 @@ impl Switch {
                         break 'main;
                     }
                 }
-                log::info!("{}.run | Exit - Listen remote", dbg);
+                log::info!("{}.run | Remote | Exit", dbg);
             })
         });
         let dbg = self.name.join();
-        log::info!("{}.run | Starting Listen locals...", dbg);
+        log::info!("{}.run | Remote | Starting - Ok", dbg);
+        log::info!("{}.run | Locals | Starting...", dbg);
         let send = self.send.clone();
-        let receivers: IndexMapFxHasher<String, Receiver<Point>> = self.receivers.drain(0..).collect();
+        let mut receivers = IndexMapFxHasher::<String, Receiver<Point>>::with_hasher(BuildHasherDefault::default());
+        let receivers_rx = self.receivers_rx.take().unwrap();
         let timeout = self.timeout;
+        let interval = self.timeout;    //Duration::from_millis(1000);
         let exit = self.exit.clone();
         join_set.spawn(async move {
-            tokio::task::block_in_place(move|| {
-                log::debug!("{}.run | Start- Listen locals", dbg);
+            tokio::task::spawn_blocking(move|| {
+                log::debug!("{}.run | Locals | Start", dbg);
                 'main: loop {
+                    let cycle = Instant::now();
+                    for (key, receiver) in receivers_rx.try_iter() {
+                        receivers.insert(key, receiver);
+                    };
+                    log::debug!("{}.run | Locals | Receivers: {}", dbg, receivers.len());
                     for (_key, receiver) in receivers.iter() {
                         match receiver.recv_timeout(timeout) {
                             Ok(event) => {
@@ -124,21 +170,32 @@ impl Switch {
                             }
                             Err(err) => match err {
                                 mpsc::RecvTimeoutError::Timeout => {
-                                    log::warn!("{}.run | Listening Locals...", dbg);
+                                    log::warn!("{}.run | Locals | Listening...", dbg);
                                 }
-                                mpsc::RecvTimeoutError::Disconnected => panic!("{}.run | Receive error, all senders has been closed", dbg),
+                                mpsc::RecvTimeoutError::Disconnected => {
+                                    log::error!("{}.run | Receive error, all senders has been closed", dbg);
+                                }
                             }
                         }
                         if exit.load(Ordering::SeqCst) {
                             break 'main;
                         }
                     }
+                    if exit.load(Ordering::SeqCst) {
+                        break 'main;
+                    }
+                    if receivers.len() == 0 {
+                        let elapsed = cycle.elapsed();
+                        if elapsed < interval {
+                            std::thread::sleep(interval - elapsed);
+                        }
+                    }
                 }
-                log::info!("{}.run | Exit - Listen locals", dbg);
-            })
+                log::info!("{}.run | Locals | Exit", dbg);
+            });
         });
         let dbg = self.name.join();
-        log::info!("{}.run | All started", dbg);
+        log::info!("{}.run | Locals | Starting - Ok", dbg);
         Ok(join_set)
     }
     ///

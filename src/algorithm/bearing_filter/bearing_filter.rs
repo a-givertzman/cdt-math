@@ -1,5 +1,5 @@
 use futures::future::BoxFuture;
-use crate::{algorithm::{context::{context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult}, dynamic_coefficient::dynamic_coefficient_ctx::DynamicCoefficientCtx, entities::bearing::Bearing, initial_ctx::initial_ctx::InitialCtx}, kernel::{dbgid::dbgid::DbgId, eval::Eval, str_err::str_err::StrErr, sync::switch::Switch, types::eval_result::EvalResult, user_setup::user_hook_ctx::UserHookCtx}};
+use crate::{algorithm::{context::{context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult}, dynamic_coefficient::dynamic_coefficient_ctx::DynamicCoefficientCtx, entities::bearing::Bearing, initial_ctx::initial_ctx::InitialCtx}, kernel::{dbgid::dbgid::DbgId, eval::Eval, str_err::str_err::StrErr, types::eval_result::EvalResult, user_setup::user_hook_ctx::UserHookCtx}};
 use super::bearing_filter_ctx::BearingFilterCtx;
 ///
 /// Calculation step: [filtering bearings](design\docs\algorithm\part02\chapter_01_choose_hook.md)
@@ -8,7 +8,7 @@ pub struct BearingFilter {
     /// vector of [filtered bearings](design\docs\algorithm\part02\chapter_01_choose_hook.md)
     value: Option<BearingFilterCtx>,
     /// [Context] instance, where store all info about initial data and each algorithm result's
-    ctx: Box<dyn Eval<Switch, EvalResult> + Send>,
+    ctx: Box<dyn Eval<(), EvalResult> + Send>,
 }
 //
 //
@@ -19,7 +19,7 @@ impl  BearingFilter {
     ///
     /// New instance [BearingFilter]
     /// - `ctx` - [Context]
-    pub fn new(ctx: impl Eval<Switch, EvalResult> + Send + 'static) -> Self {
+    pub fn new(ctx: impl Eval<(), EvalResult> + Send + 'static) -> Self {
         Self {
             dbgid: DbgId("HookFilter".to_string()),
             value: None,
@@ -29,11 +29,11 @@ impl  BearingFilter {
 }
 //
 //
-impl  Eval<Switch, EvalResult> for BearingFilter {
-    fn eval(&mut self, switch: Switch) -> BoxFuture<'_, EvalResult> {
+impl  Eval<(), EvalResult> for BearingFilter {
+    fn eval(&mut self, _: ()) -> BoxFuture<'_, EvalResult> {
         Box::pin(async move {
-            let (switch, result) = self.ctx.eval(switch).await;
-            (switch, match result {
+            let result = self.ctx.eval(()).await;
+            match result {
                 CtxResult::Ok(ctx) => {
                     let initial = ContextRead::<InitialCtx>::read(&ctx);
                     let user_loading_capacity = initial.load_capacity.clone(); 
@@ -64,7 +64,7 @@ impl  Eval<Switch, EvalResult> for BearingFilter {
                     self.dbgid, err
                 ))),
                 CtxResult::None => CtxResult::None,
-            })
+            }
         })
     }
 }

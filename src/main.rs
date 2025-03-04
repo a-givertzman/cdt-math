@@ -50,20 +50,26 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         let mut switch = Switch::new(&dbg, send, recv);
         let switch_handle = switch.run().await.unwrap();
         let mut mok_user_reply = MokUserReply::new(&dbg, switch.link());
-        mok_user_reply.run().await.unwrap();
-        let mut binding = RopeCount::new(
+        let mok_user_reply_handle = mok_user_reply.run().await.unwrap();
+        let _result = RopeCount::new(
             RopeEffort::new(
                 LoadHandDeviceMass::new(
                     UserBearing::new(
-                        Request::new(async |variants: BearingFilterCtx, link: Link| {
-                            let query = Query::ChooseUserBearing(ChooseUserBearingQuery::new(variants.result.clone()));
-                            link.req(query).await.expect("{}.req | Error to send request")
-                        }),
+                        Request::new(
+                            switch.link(),
+                            async |variants: BearingFilterCtx, link: Link| {
+                                let query = Query::ChooseUserBearing(ChooseUserBearingQuery::new(variants.result.clone()));
+                                (link.req(query).await.expect("{}.req | Error to send request"), link)
+                            },
+                        ),
                         UserHook::new(
-                            Request::new(async |variants: HookFilterCtx, link: Link| {
-                                let query = Query::ChooseUserHook(ChooseUserHookQuery::test(variants.result.clone()));
-                                link.req(query).await.expect("{}.req | Error to send request")
-                            }),
+                            Request::new(
+                                switch.link(),
+                                async |variants: HookFilterCtx, link: Link| {
+                                    let query = Query::ChooseUserHook(ChooseUserHookQuery::test(variants.result.clone()));
+                                    (link.req(query).await.expect("{}.req | Error to send request"), link)
+                                },
+                            ),
                             HookFilter::new(
                                 DynamicCoefficient::new(
                                     SelectBettaPhi::new(
@@ -83,14 +89,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     ),
                 ),
             ),
-        );
-        let (switch, _test) = binding
-        .eval(switch)
+        )
+        .eval(())
         .await;
         mok_user_reply.exit();
         switch.exit();
         switch_handle.join_all().await;
-        // mok_user_reply_handle.join_all().await;
+        mok_user_reply_handle.await.unwrap();
     })
     .await
     .unwrap();

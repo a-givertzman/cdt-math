@@ -4,7 +4,7 @@ mod dynamic_coefficient {
     use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
     use futures::future::BoxFuture;
     use std::{
-        sync::{mpsc, Once},
+        sync::Once,
         time::Duration,
     };
     use testing::stuff::max_test_duration::TestDuration;
@@ -16,7 +16,7 @@ mod dynamic_coefficient {
             lifting_speed::lifting_speed::LiftingSpeed,
             select_betta_phi::select_betta_phi::SelectBettaPhi,
         },
-        kernel::{dbgid::dbgid::DbgId, eval::Eval, storage::storage::Storage, str_err::str_err::StrErr, sync::switch::Switch, types::eval_result::EvalResult},
+        kernel::{dbgid::dbgid::DbgId, eval::Eval, storage::storage::Storage, str_err::str_err::StrErr, types::eval_result::EvalResult},
     };
 
     ///
@@ -70,10 +70,8 @@ mod dynamic_coefficient {
                 CtxResult::Ok(1.252),
             ),
         ];
-        let (send, recv) = mpsc::channel();
-        let mut switch = Switch::new(&dbg, send, recv);
         for (step, initial, target) in test_data {
-            let (switch_, result) = DynamicCoefficient::new(
+            let result = DynamicCoefficient::new(
                 SelectBettaPhi::new(
                     LiftingSpeed::new(
                         MocEval {
@@ -81,8 +79,7 @@ mod dynamic_coefficient {
                         },
                     ),
                 ),
-            ).eval(switch).await;
-            switch = switch_;
+            ).eval(()).await;
             match (&result, &target) {
                 (CtxResult::Ok(result), CtxResult::Ok(target)) => {
                     let result = ContextRead::<DynamicCoefficientCtx>::read(result)
@@ -110,10 +107,10 @@ mod dynamic_coefficient {
     }
     //
     //
-    impl Eval<Switch, EvalResult> for MocEval {
-        fn eval(&mut self, switch: Switch) -> BoxFuture<'_, EvalResult> {
+    impl Eval<(), EvalResult> for MocEval {
+        fn eval(&mut self, _: ()) -> BoxFuture<'_, EvalResult> {
             Box::pin(async {
-                (switch, CtxResult::Ok(self.ctx.clone()))
+                CtxResult::Ok(self.ctx.clone())
             })
         }
     }

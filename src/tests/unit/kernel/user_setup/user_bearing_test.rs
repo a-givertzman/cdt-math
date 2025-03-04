@@ -56,16 +56,22 @@ mod user_bearing {
         let mut mok_user_reply = MokUserReply::new(dbg, switch.link());
         let mok_user_reply_handle = mok_user_reply.run().await.unwrap();
         for (step, cache_path, target) in test_data {
-            let (switch_, result) = UserBearing::new(
-                Request::new(async |variants: BearingFilterCtx, link: Link| {
-                    let query = Query::ChooseUserBearing(ChooseUserBearingQuery::new(variants.result.clone()));
-                    link.req(query).await.expect("{}.req | Error to send request")
-                }),
+            let result = UserBearing::new(
+                Request::new(
+                        switch.link(),
+                        async |variants: BearingFilterCtx, link: Link| {
+                        let query = Query::ChooseUserBearing(ChooseUserBearingQuery::new(variants.result.clone()));
+                        (link.req(query).await.expect("{}.req | Error to send request"), link)
+                    },
+                ),
                 UserHook::new(
-                    Request::new(async |variants: HookFilterCtx, link: Link| {
-                        let query = Query::ChooseUserHook(ChooseUserHookQuery::test(variants.result.clone()));
-                        link.req(query).await.expect("{}.req | Error to send request")
-                    }),
+                    Request::new(
+                        switch.link(),
+                        async |variants: HookFilterCtx, link: Link| {
+                            let query = Query::ChooseUserHook(ChooseUserHookQuery::test(variants.result.clone()));
+                            (link.req(query).await.expect("{}.req | Error to send request"), link)
+                        },
+                    ),
                     HookFilter::new(
                         DynamicCoefficient::new(
                             SelectBettaPhi::new(
@@ -83,9 +89,8 @@ mod user_bearing {
                     ),
                 ),
             )
-            .eval(switch)
+            .eval(())
             .await;
-            switch = switch_;
             match result {
                 CtxResult::Ok(result) => {
                     let result = ContextRead::<UserBearingCtx>::read(&result)

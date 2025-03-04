@@ -41,9 +41,7 @@ mod link {
         ];
         let (local, remote) = Link::split(dbg);
         let mut listener = Listener::new(dbg, remote);
-        log::debug!("{} | Starting Listener", dbg);
         let listener_handle = listener.run().await.unwrap();
-        log::debug!("{} | Starting Listener - Ok", dbg);
         for (step, query, target) in test_data {
             let result = local.req(query).await;
             log::debug!("step {} \nresult: {:?}\ntarget: {:?}", step, result, target);
@@ -51,7 +49,6 @@ mod link {
         }
         listener.exit();
         listener_handle.await.unwrap();
-        log::debug!("{} | Starting Listener - Done", dbg);
         test_duration.exit();
     }
     ///

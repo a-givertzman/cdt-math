@@ -1,7 +1,7 @@
 use futures::future::BoxFuture;
 use crate::{
     algorithm::{context::{context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult}, lifting_speed::lifting_speed_ctx::LiftingSpeedCtx, select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx},
-    kernel::{dbgid::dbgid::DbgId, eval::Eval, str_err::str_err::StrErr, sync::switch::Switch, types::eval_result::EvalResult},
+    kernel::{dbgid::dbgid::DbgId, eval::Eval, str_err::str_err::StrErr, types::eval_result::EvalResult},
 };
 use super::dynamic_coefficient_ctx::DynamicCoefficientCtx;
 ///
@@ -11,7 +11,7 @@ pub struct DynamicCoefficient {
     /// value of [dynamic coefficient](design\docs\algorithm\part02\chapter_01_choose_hook.md)
     value: Option<DynamicCoefficientCtx>,
     /// [Context] instance, where store all info about initial data and each algorithm result's
-    ctx: Box<dyn Eval<Switch, EvalResult> + Send>,
+    ctx: Box<dyn Eval<(), EvalResult> + Send>,
 }
 //
 //
@@ -19,7 +19,7 @@ impl  DynamicCoefficient {
     ///
     /// New instance [DynamicCoefficient]
     /// - `ctx` - [Context]
-    pub fn new(ctx: impl Eval<Switch, EvalResult> + Send + 'static) -> Self {
+    pub fn new(ctx: impl Eval<(), EvalResult> + Send + 'static) -> Self {
         Self {
             dbgid: DbgId("DynamicCoefficient".to_string()),
             value: None,
@@ -29,14 +29,14 @@ impl  DynamicCoefficient {
 }
 //
 //
-impl  Eval<Switch, EvalResult> for DynamicCoefficient {
+impl  Eval<(), EvalResult> for DynamicCoefficient {
     ///
     /// Method of calculating the dynamic coefficient
     /// [reference to dynamic coefficient documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
-    fn eval(&mut self, switch: Switch) -> BoxFuture<'_, EvalResult> {
+    fn eval(&mut self, _: ()) -> BoxFuture<'_, EvalResult> {
         Box::pin(async {
-            let (switch, result) = self.ctx.eval(switch).await;
-            (switch, match result {
+            let result = self.ctx.eval(()).await;
+            match result {
                 CtxResult::Ok(ctx) => {
                     let result = match self.value.clone() {
                         Some(dynamic_coefficient) => dynamic_coefficient,
@@ -57,7 +57,7 @@ impl  Eval<Switch, EvalResult> for DynamicCoefficient {
                     self.dbgid, err
                 ))),
                 CtxResult::None => CtxResult::None,
-            })
+            }
         })
     }
 }

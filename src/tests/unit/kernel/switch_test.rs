@@ -1,7 +1,7 @@
 #[cfg(test)]
 
 mod switch {
-    use std::{fmt::Debug, sync::{atomic::{AtomicBool, Ordering}, mpsc, Arc, Once}, time::Duration};
+    use std::{fmt::Debug, sync::{atomic::{AtomicBool, Ordering}, Arc, Once}, time::Duration};
     use sal_sync::services::entity::name::Name;
     use serde::{Deserialize, Serialize};
     use testing::stuff::max_test_duration::TestDuration;
@@ -39,25 +39,22 @@ mod switch {
             (3, Message("Query-3".into()), Ok(Message("Reply-3".into()))),
             (4, Message("Query-4".into()), Ok(Message("Reply-4".into()))),
         ];
-        let (loc_send, rem_recv) = mpsc::channel();
-        let (rem_send, loc_recv) = mpsc::channel();
-        let mut switch = Switch::new(dbg, loc_send, loc_recv);
-        let mut listener = Listener::new(dbg, Link::new(dbg, rem_send, rem_recv));
+        let (mut switch, remote) = Switch::split(dbg);
+        let mut listener = Listener::new(dbg, remote);
         let switch_handler = switch.run().await.unwrap();
-        log::debug!("{} | Starting Listener", dbg);
         let listener_handle = listener.run().await.unwrap();
-        log::debug!("{} | Starting Listener - Ok", dbg);
         let local = switch.link();
         for (step, query, target) in test_data {
             let result = local.req(query).await;
             log::debug!("step {} \nresult: {:?}\ntarget: {:?}", step, result, target);
             assert!(result == target, "step {} \nresult: {:?}\ntarget: {:?}", step, result, target);
         }
+        log::debug!("{} | Exiting...", dbg);
         switch.exit();
         switch_handler.join_all().await;
         listener.exit();
         listener_handle.await.unwrap();
-        log::debug!("{} | Starting Listener - Done", dbg);
+        log::debug!("{} | Exiting - Ok", dbg);
         test_duration.exit();
     }
     ///

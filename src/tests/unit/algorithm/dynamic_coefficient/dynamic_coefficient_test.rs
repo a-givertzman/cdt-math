@@ -4,7 +4,7 @@ mod dynamic_coefficient {
     use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
     use futures::future::BoxFuture;
     use std::{
-        sync::{mpsc, Once},
+        sync::Once,
         time::Duration,
     };
     use testing::stuff::max_test_duration::TestDuration;
@@ -12,7 +12,7 @@ mod dynamic_coefficient {
         algorithm::{
             context::{context::Context, context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult}, dynamic_coefficient::{dynamic_coefficient::DynamicCoefficient, dynamic_coefficient_ctx::DynamicCoefficientCtx}, entities::bet_phi::BetPhi, hook_filter::hook_filter_ctx::HookFilterCtx, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed_ctx::LiftingSpeedCtx, select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx
         },
-        kernel::{dbgid::dbgid::DbgId, eval::Eval, storage::storage::Storage, str_err::str_err::StrErr, sync::switch::Switch, types::eval_result::EvalResult},
+        kernel::{dbgid::dbgid::DbgId, eval::Eval, storage::storage::Storage, str_err::str_err::StrErr, types::eval_result::EvalResult},
     };
     ///
     ///
@@ -108,14 +108,11 @@ mod dynamic_coefficient {
                 CtxResult::Ok(1775.0),
             ),
         ];
-        let (send, recv) = mpsc::channel();
-        let mut switch = Switch::new(&dbg, send, recv);
         for (step, ctx, target) in test_data {
             let ctx = MocEval { ctx };
-            let (switch_, result) = DynamicCoefficient::new(ctx)
-                .eval(switch)
+            let result = DynamicCoefficient::new(ctx)
+                .eval(())
                 .await;
-            switch = switch_;
             match (&result, &target) {
                 (CtxResult::Ok(result), CtxResult::Ok(target)) => {
                     let result = ContextRead::<DynamicCoefficientCtx>::read(result)
@@ -143,10 +140,10 @@ mod dynamic_coefficient {
     }
     //
     //
-    impl Eval<Switch, EvalResult> for MocEval {
-        fn eval(&mut self, switch: Switch) -> BoxFuture<'_, EvalResult> {
+    impl Eval<(), EvalResult> for MocEval {
+        fn eval(&mut self, _: ()) -> BoxFuture<'_, EvalResult> {
             Box::pin(async {
-                (switch, CtxResult::Ok(self.ctx.clone()))
+                CtxResult::Ok(self.ctx.clone())
             })
         }
     }

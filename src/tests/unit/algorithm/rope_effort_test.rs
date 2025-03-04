@@ -1,10 +1,10 @@
 #[cfg(test)]
 mod rope_effort {
-    use std::{sync::{mpsc, Once}, time::Duration};
+    use std::{sync::Once, time::Duration};
     use futures::future::BoxFuture;
     use testing::stuff::max_test_duration::TestDuration;
     use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
-    use crate::{algorithm::{context::{context::Context, context_access::ContextRead, ctx_result::CtxResult}, initial_ctx::initial_ctx::InitialCtx, rope_effort::{rope_effort::RopeEffort, rope_effort_ctx::RopeEffortCtx}}, kernel::{eval::Eval, storage::storage::Storage, sync::switch::Switch, types::eval_result::EvalResult}};
+    use crate::{algorithm::{context::{context::Context, context_access::ContextRead, ctx_result::CtxResult}, initial_ctx::initial_ctx::InitialCtx, rope_effort::{rope_effort::RopeEffort, rope_effort_ctx::RopeEffortCtx}}, kernel::{eval::Eval, storage::storage::Storage, types::eval_result::EvalResult}};
     ///
     ///
     static INIT: Once = Once::new();
@@ -57,14 +57,11 @@ mod rope_effort {
                 50.0
             )
         ];
-        let (send, recv) = mpsc::channel();
-        let mut switch = Switch::new(dbg, send, recv);
         for (step,initial,target) in test_data {
             let ctx = MocEval {
                 ctx: Context::new(initial),
             };
-            let (switch_, result) = RopeEffort::new(ctx).eval(switch).await;
-            switch = switch_;
+            let result = RopeEffort::new(ctx).eval(()).await;
             match &result {
                 CtxResult::Ok(result) => {
                     let result = ContextRead::<RopeEffortCtx>::read(result)
@@ -91,10 +88,10 @@ mod rope_effort {
     }
     //
     //
-    impl Eval<Switch, EvalResult> for MocEval {
-        fn eval(&mut self, switch: Switch) -> BoxFuture<'_, EvalResult> {
+    impl Eval<(), EvalResult> for MocEval {
+        fn eval(&mut self, _: ()) -> BoxFuture<'_, EvalResult> {
             Box::pin(async {
-                (switch, CtxResult::Ok(self.ctx.clone()))
+                CtxResult::Ok(self.ctx.clone())
             })
         }
     }

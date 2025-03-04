@@ -52,7 +52,6 @@ mod link_listen {
                 _ => panic!("Link.remote.listen | Unknown event {:#?}", query),
             })
         }).await.unwrap();
-        log::debug!("{} | Starting Listener - Ok", dbg);
         for (step, query, target) in test_data {
             let result: Result<Message, StrErr> = local.req(query).await;
             log::debug!("step {} \nresult: {:?}\ntarget: {:?}", step, result, target);
