@@ -1,33 +1,31 @@
 use futures::future::BoxFuture;
-
-use crate::{algorithm::context::{context::Context, context_access::ContextWrite, ctx_result::CtxResult}, infrostructure::client::change_hoisting_tackle::ChangeHoistingTackleReply, kernel::{dbgid::dbgid::DbgId, eval::Eval, request::Request, str_err::str_err::StrErr, sync::link::Link}};
-
+use crate::{
+    algorithm::context::{context_access::ContextWrite, ctx_result::CtxResult},
+    infrostructure::client::change_hoisting_tackle::ChangeHoistingTackleReply,
+    kernel::{dbgid::dbgid::DbgId, eval::Eval, request::Request, str_err::str_err::StrErr, types::eval_result::EvalResult},
+};
 use super::hoisting_tackle_ctx::HoistingTackleCtx;
-
 ///
 /// Represents hoisting tackle and make request to user for changing one
-pub struct HoistingTackle<'a> {
+pub struct HoistingTackle {
     dbgid: DbgId,
     /// value of hoisting tackle
     value: Option<HoistingTackleCtx>,
-    /// Event interface
-    link: Link,
-    req: Request<'a, ChangeHoistingTackleReply>,
+    req: Request<(), ChangeHoistingTackleReply>,
     /// [Context] instance, where store all info about initial data and each algorithm result's
-    ctx: Box<dyn Eval<'a, Context> + Send + 'a>,
+    ctx: Box<dyn Eval<(), EvalResult> + Send>,
 }
 //
 //
-impl<'a> HoistingTackle<'a> {
+impl HoistingTackle {
     ///
     /// New instance [HoistingTackle]
     /// - `ctx` - [Context]
     /// - `req` - [Request] for user
-    pub fn new(link: Link, req: Request<'a, ChangeHoistingTackleReply>, ctx: impl Eval<'a, Context> + Send + 'a) -> Self {
+    pub fn new(req: Request<(), ChangeHoistingTackleReply>, ctx: impl Eval<(), EvalResult> + Send + 'static) -> Self {
         Self { 
             dbgid: DbgId("HoistingTackle".to_string()), 
             value: None,
-            link,
             req,
             ctx: Box::new(ctx),
         }
@@ -35,12 +33,12 @@ impl<'a> HoistingTackle<'a> {
 }
 //
 //
-impl<'a> Eval<'a, Context> for HoistingTackle<'a> {
-    fn eval(&'a mut self) -> BoxFuture<'a, CtxResult<Context, StrErr>> {
+impl Eval<(), EvalResult> for HoistingTackle {
+    fn eval(&mut self, _: ()) -> BoxFuture<'_, EvalResult> {
         Box::pin(async {
-            match self.ctx.eval().await {
+            match self.ctx.eval(()).await {
                 CtxResult::Ok(ctx) => {
-                    let reply = self.req.fetch(ctx.clone(), &mut self.link).await;
+                    let reply = self.req.fetch(()).await;
                     let result = HoistingTackleCtx { result: reply.answer };
                     self.value = Some(result.clone());
                     ctx.write(result)
@@ -57,7 +55,7 @@ impl<'a> Eval<'a, Context> for HoistingTackle<'a> {
 }
 //
 //
-impl std::fmt::Debug for HoistingTackle<'_> {
+impl std::fmt::Debug for HoistingTackle {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.debug_struct("HoistingTackle")
             .field("dbgid", &self.dbgid)
