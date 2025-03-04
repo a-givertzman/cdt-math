@@ -1,21 +1,19 @@
 #[cfg(test)]
-
 mod lifting_speed {
-    use api_tools::error::str_err::StrErr;
     use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
+    use futures::future::BoxFuture;
     use std::{
-        sync::{Arc, Once},
+        sync::Once,
         time::Duration,
     };
     use testing::stuff::max_test_duration::TestDuration;
-
     use crate::{
         algorithm::{
             context::{context::Context, context_access::ContextRead, ctx_result::CtxResult},
             initial_ctx::initial_ctx::InitialCtx,
             lifting_speed::{lifting_speed::LiftingSpeed, lifting_speed_ctx::LiftingSpeedCtx},
         },
-        kernel::{dbgid::dbgid::DbgId, eval::Eval, link::Link, storage::storage::Storage},
+        kernel::{dbgid::dbgid::DbgId, eval::Eval, storage::storage::Storage, str_err::str_err::StrErr, types::eval_result::EvalResult},
     };
 
     ///
@@ -34,12 +32,12 @@ mod lifting_speed {
     fn init_each() {}
     ///
     /// Testing to 'eval()' method
-    #[test]
-    fn eval() {
+    #[tokio::test(flavor = "multi_thread")]
+    async fn eval() {
         DebugSession::init(LogLevel::Info, Backtrace::Short);
         init_once();
         init_each();
-        let dbg = DbgId("eval".into());
+        let dbg = DbgId("lifting_speed".into());
         log::debug!("\n{}", dbg);
         let test_duration = TestDuration::new(&dbg, Duration::from_secs(1));
         test_duration.run().unwrap();
@@ -109,16 +107,11 @@ mod lifting_speed {
                 CtxResult::Ok(0.315),
             ),
         ];
-        let (local, _) = Link::split(&dbg);
-        let local = Arc::new(local);
         for (step, initial, target) in test_data {
             let ctx = MocEval {
-                ctx: Context::new(
-                    initial,
-                    local.clone(),
-                ),
+                ctx: Context::new(initial),
             };
-            let result = LiftingSpeed::new(ctx).eval();
+            let result = LiftingSpeed::new(ctx).eval(()).await;
             match (&result, &target) {
                 (CtxResult::Ok(result), CtxResult::Ok(target)) => {
                     let result = ContextRead::<LiftingSpeedCtx>::read(result)
@@ -146,11 +139,11 @@ mod lifting_speed {
     }
     //
     //
-    impl Eval for MocEval {
-        fn eval(
-            &mut self,
-        ) -> CtxResult<Context, crate::kernel::str_err::str_err::StrErr> {
-            CtxResult::Ok(self.ctx.clone())
+    impl Eval<(), EvalResult> for MocEval {
+        fn eval(&mut self, _: ()) -> BoxFuture<'_, EvalResult> {
+            Box::pin(async {
+                CtxResult::Ok(self.ctx.clone())
+            })
         }
     }
 }

@@ -1,10 +1,10 @@
 #[cfg(test)]
-mod rope_effort {
+mod rope_count {
     use std::{sync::Once, time::Duration};
     use futures::future::BoxFuture;
     use testing::stuff::max_test_duration::TestDuration;
     use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
-    use crate::{algorithm::{context::{context::Context, context_access::ContextRead, ctx_result::CtxResult}, initial_ctx::initial_ctx::InitialCtx, rope_effort::{rope_effort::RopeEffort, rope_effort_ctx::RopeEffortCtx}}, kernel::{eval::Eval, storage::storage::Storage, types::eval_result::EvalResult}};
+    use crate::{algorithm::{context::{context::Context, context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult}, initial_ctx::initial_ctx::InitialCtx, load_hand_device_mass::load_hand_device_mass_ctx::LoadHandDeviceMassCtx, rope_count::{rope_count::RopeCount, rope_count_ctx::RopeCountCtx}, rope_effort::rope_effort_ctx::RopeEffortCtx}, kernel::{eval::Eval, storage::storage::Storage, types::eval_result::EvalResult}};
     ///
     ///
     static INIT: Once = Once::new();
@@ -27,7 +27,7 @@ mod rope_effort {
         init_once();
         init_each();
         log::debug!("");
-        let dbg = "rope_effort";
+        let dbg = "rope_count";
         log::debug!("\n{}", dbg);
         let test_duration = TestDuration::new(dbg, Duration::from_secs(1));
         test_duration.run().unwrap();
@@ -38,7 +38,14 @@ mod rope_effort {
                     "./src/tests/unit/kernel/storage/cache/test_1",
                 ))
                 .unwrap(),
-                90.0
+                LoadHandDeviceMassCtx {
+                    total_mass: 50.0,
+                    net_weight: 50.0,
+                },
+                RopeEffortCtx {
+                    result: 50.0,
+                },
+                2.0
             ),
             (
                 2,
@@ -46,7 +53,14 @@ mod rope_effort {
                     "./src/tests/unit/kernel/storage/cache/test_2",
                 ))
                 .unwrap(),
-                30.0
+                LoadHandDeviceMassCtx {
+                    total_mass: 60.0,
+                    net_weight: 50.0,
+                },
+                RopeEffortCtx {
+                    result: 66.0,
+                },
+                2.0
             ),
             (
                 3,
@@ -54,17 +68,26 @@ mod rope_effort {
                     "./src/tests/unit/kernel/storage/cache/test_3",
                 ))
                 .unwrap(),
-                50.0
+                LoadHandDeviceMassCtx {
+                    total_mass: 100.0,
+                    net_weight: 50.0,
+                },
+                RopeEffortCtx {
+                    result: 30.0,
+                },
+                4.0
             )
         ];
-        for (step,initial,target) in test_data {
-            let ctx = MocEval {
+        for (step,initial,mass,effort,target) in test_data {
+            let mut ctx = MocEval {
                 ctx: Context::new(initial),
             };
-            let result = RopeEffort::new(ctx).eval(()).await;
+            ctx.ctx = ctx.ctx.clone().write(mass).unwrap();
+            ctx.ctx = ctx.ctx.clone().write(effort).unwrap();
+            let result = RopeCount::new(ctx).eval(()).await;
             match &result {
                 CtxResult::Ok(result) => {
-                    let result = ContextRead::<RopeEffortCtx>::read(result)
+                    let result = ContextRead::<RopeCountCtx>::read(result)
                         .result;
                     assert!(
                         result == target,

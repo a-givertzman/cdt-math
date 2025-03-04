@@ -2,10 +2,9 @@
 
 mod mok_user_reply {
     use std::{sync::Once, time::Duration};
-    use sal_sync::services::service::service::Service;
     use testing::stuff::max_test_duration::TestDuration;
     use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
-    use crate::{algorithm::entities::hook::Hook, infrostructure::client::{choose_user_hook::{ChooseUserHookQuery, ChooseUserHookReply}, query::Query}, kernel::{link::Link, mok_user_reply::mok_user_reply::MokUserReply}};
+    use crate::{algorithm::entities::hook::Hook, infrostructure::client::{choose_user_hook::{ChooseUserHookQuery, ChooseUserHookReply}, query::Query}, kernel::{sync::link::Link, mok_user_reply::mok_user_reply::MokUserReply}};
     ///
     ///
     static INIT: Once = Once::new();
@@ -22,13 +21,13 @@ mod mok_user_reply {
     fn init_each() -> () {}
     ///
     /// Testing 'run' method
-    #[test]
-    fn run() {
-        DebugSession::init(LogLevel::Info, Backtrace::Short);
+    #[tokio::test(flavor = "multi_thread")]
+    async fn run() {
+        DebugSession::init(LogLevel::Debug, Backtrace::Short);
         init_once();
         init_each();
         log::debug!("");
-        let dbg = "test";
+        let dbg = "mok_user_reply";
         log::debug!("\n{}", dbg);
         let test_duration = TestDuration::new(dbg, Duration::from_secs(1));
         test_duration.run().unwrap();
@@ -58,18 +57,17 @@ mod mok_user_reply {
             )
         ];
         let (local, remote) = Link::split(dbg);
-        let mut user = MokUserReply::new(dbg, remote);
-        let _handle = user.run().unwrap();
+        let mut user_reply = MokUserReply::new(dbg, remote);
+        let user_reply_handle = user_reply.run().await.unwrap();
         for (step, query, target) in test_data {
             let query = Query::ChooseUserHook(query);
-            let result: ChooseUserHookReply = local.req(query).unwrap();
-            assert!(result.choosen == target, "step {} \nresult: {:?}\ntarget: {:?}", step, result, target);
+            let result: ChooseUserHookReply = local.req(query).await.unwrap();
+            let result = result.choosen;
+            log::debug!("step {} \nresult: {:?}\ntarget: {:?}", step, result, target);
+            assert!(result == target, "step {} \nresult: {:?}\ntarget: {:?}", step, result, target);
         }
-        user.exit();
-        for (_, h) in _handle {
-            h.join().unwrap()
-        }
+        user_reply.exit();
+        let _ = user_reply_handle.await.unwrap();
         test_duration.exit();
     }
-    
 }
