@@ -106,8 +106,8 @@ mod user_hook {
         }
         switch.exit();
         mok_user_reply.exit();
-        // mok_user_reply_handle.await.unwrap().await;
         switch_handle.join_all().await;
+        mok_user_reply_handle.await.unwrap();
         test_duration.exit();
     }
 }
