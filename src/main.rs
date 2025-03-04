@@ -4,7 +4,6 @@ mod infrostructure;
 mod kernel;
 #[cfg(test)]
 mod tests;
-use std::sync::mpsc;
 use algorithm::{
     initial::Initial, initial_ctx::initial_ctx::InitialCtx,
     bearing_filter::bearing_filter_ctx::BearingFilterCtx, context::context::Context,
@@ -39,10 +38,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         log::error!("main | Error: {:#?}", err);
     }
     let cache_path = "./src/tests/unit/kernel/storage/cache/test_2";
-    let (send, recv) = mpsc::channel();
-    let switch = Switch::new(&dbg, send, recv);
+    let (switch, remote) = Switch::split(&dbg);
     let switch_handle = switch.run().await.unwrap();
-    let mut mok_user_reply = MokUserReply::new(&dbg, switch.link().await);
+    let mut mok_user_reply = MokUserReply::new(&dbg, remote);
     let mok_user_reply_handle = mok_user_reply.run().await.unwrap();
     let _result = HoistingTackle::new(
         Request::new(
@@ -94,8 +92,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     )
     .eval(())
     .await;
-    mok_user_reply.exit();
     switch.exit();
+    mok_user_reply.exit();
     switch_handle.join_all().await;
     mok_user_reply_handle.await.unwrap();
     Ok(())
