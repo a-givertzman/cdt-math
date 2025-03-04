@@ -129,7 +129,7 @@ mod bearing_filter {
         log::debug!("{} | Exiting...", dbg);
         switch.exit();
         mok_user_reply.exit();
-        // mok_user_reply_handle.await.unwrap().await;
+        mok_user_reply_handle.await.unwrap();
         switch_handle.join_all().await;
         test_duration.exit();
     }
