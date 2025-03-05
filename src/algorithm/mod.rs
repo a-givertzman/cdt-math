@@ -3,6 +3,7 @@ pub mod context;
 pub mod dynamic_coefficient;
 pub mod entities;
 pub mod hoisting_tackle;
+pub mod hoisting_tackle_multiplicity;
 pub mod hook_filter;
 pub mod initial;
 pub mod initial_ctx;

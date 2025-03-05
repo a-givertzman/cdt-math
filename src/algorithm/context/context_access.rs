@@ -1,7 +1,7 @@
 use super::{context::Context, ctx_result::CtxResult};
 use crate::{
     algorithm::{
-        bearing_filter::bearing_filter_ctx::BearingFilterCtx, dynamic_coefficient::dynamic_coefficient_ctx::DynamicCoefficientCtx, hoisting_tackle::hoisting_tackle_ctx::HoistingTackleCtx, hook_filter::hook_filter_ctx::HookFilterCtx, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed_ctx::LiftingSpeedCtx, load_hand_device_mass::load_hand_device_mass_ctx::LoadHandDeviceMassCtx, rope_count::rope_count_ctx::RopeCountCtx, rope_effort::rope_effort_ctx::RopeEffortCtx, select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx
+        bearing_filter::bearing_filter_ctx::BearingFilterCtx, dynamic_coefficient::dynamic_coefficient_ctx::DynamicCoefficientCtx, hoisting_tackle::hoisting_tackle_ctx::HoistingTackleCtx, hoisting_tackle_multiplicity::hoist_tackle_multi_ctx::HoistTackleMultiCtx, hook_filter::hook_filter_ctx::HookFilterCtx, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed_ctx::LiftingSpeedCtx, load_hand_device_mass::load_hand_device_mass_ctx::LoadHandDeviceMassCtx, rope_count::rope_count_ctx::RopeCountCtx, rope_effort::rope_effort_ctx::RopeEffortCtx, select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx
     },
     kernel::{str_err::str_err::StrErr, user_setup::{user_bearing_ctx::UserBearingCtx, user_hook_ctx::UserHookCtx}},
 };
@@ -169,5 +169,18 @@ impl ContextWrite<HoistingTackleCtx> for Context {
 impl ContextRead<HoistingTackleCtx> for Context {
     fn read(&self) -> &HoistingTackleCtx {
         &self.hoisting_tackle
+    }
+}
+//
+//
+impl ContextWrite<HoistTackleMultiCtx> for Context {
+    fn write(mut self, value: HoistTackleMultiCtx) -> CtxResult<Self, StrErr> {
+        self.hoist_tackle_multi = value;
+        CtxResult::Ok(self)
+    }
+}
+impl ContextRead<HoistTackleMultiCtx> for Context {
+    fn read(&self) -> &HoistTackleMultiCtx {
+        &self.hoist_tackle_multi
     }
 }
