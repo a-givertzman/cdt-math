@@ -29,6 +29,8 @@ pub struct InitialCtx {
     pub bearings: Vec<Bearing>,
     /// user [alternative lifting device](design\docs\algorithm\part02\chapter_02_choose_another_load_handing_device.md)
     pub user_alt_lift_device: Option<AltLiftDevice>,
+    /// value [deflection blocks count](design\docs\algorithm\part02\chapter_02_choose_another_load_handing_device.md)
+    pub deflect_blocks_count: f64,
 }
 //
 //
@@ -79,6 +81,10 @@ impl InitialCtx {
                 .load("test.user_characteristics.alternavite_lifting_device")
                 .ok()
                 .and_then(|data| serde_json::from_value::<AltLiftDevice>(data).ok()),
+            deflect_blocks_count: serde_json::from_value::<f64>(
+                storage_initial_data.load("test.user_characteristics.deflection_blocks_count")?,
+            )
+            .map_err(|err| StrErr(format!("{}.new | Error {:?}", dbg, err)))?,
             // dbgid: dbg,
         })
     }
