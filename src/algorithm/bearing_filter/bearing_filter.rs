@@ -1,5 +1,5 @@
 use futures::future::BoxFuture;
-use crate::{algorithm::{context::{context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult}, dynamic_coefficient::dynamic_coefficient_ctx::DynamicCoefficientCtx, entities::bearing::Bearing, initial_ctx::initial_ctx::InitialCtx}, kernel::{dbgid::dbgid::DbgId, eval::Eval, str_err::str_err::StrErr, types::eval_result::EvalResult, user_setup::user_hook_ctx::UserHookCtx}};
+use crate::{algorithm::{constants::common, context::{context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult}, dynamic_coefficient::dynamic_coefficient_ctx::DynamicCoefficientCtx, entities::bearing::Bearing, initial_ctx::initial_ctx::InitialCtx}, kernel::{dbgid::dbgid::DbgId, eval::Eval, str_err::str_err::StrErr, types::eval_result::EvalResult, user_setup::user_hook_ctx::UserHookCtx}};
 use super::bearing_filter_ctx::BearingFilterCtx;
 ///
 /// Calculation step: [filtering bearings](design\docs\algorithm\part02\chapter_01_choose_hook.md)
@@ -13,9 +13,6 @@ pub struct BearingFilter {
 //
 //
 impl  BearingFilter {
-    ///
-    /// [Acceleration of gravity](design\docs\algorithm\part02\chapter_01_choose_hook.md)
-    const G: f64 = 9.81;
     ///
     /// New instance [BearingFilter]
     /// - `ctx` - [Context]
@@ -44,7 +41,7 @@ impl  Eval<(), EvalResult> for BearingFilter {
                     .iter()
                     .cloned()
                     .filter(|bearing| {
-                        (bearing.static_load_capacity >= dynamic_coefficient * user_loading_capacity * Self::G) &&
+                        (bearing.static_load_capacity >= dynamic_coefficient * user_loading_capacity * common::G) &&
                         (bearing.outer_diameter >= user_hook.shank_diameter)
                     })
                     .collect();
