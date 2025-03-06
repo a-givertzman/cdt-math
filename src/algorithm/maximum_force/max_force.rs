@@ -1,5 +1,5 @@
 use futures::future::BoxFuture;
-use crate::{algorithm::{context::{context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult}, hoisting_tackle_effiency_coefficient::hoist_tackle_eff_coeff_ctx::HoistTackleEffCoeffCtx, initial_ctx::initial_ctx::InitialCtx, load_hand_device_mass::load_hand_device_mass_ctx::LoadHandDeviceMassCtx, rope_count::rope_count_ctx::RopeCountCtx}, kernel::{dbgid::dbgid::DbgId, eval::Eval, str_err::str_err::StrErr, types::eval_result::EvalResult}};
+use crate::{algorithm::{constants::common, context::{context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult}, hoisting_tackle_effiency_coefficient::hoist_tackle_eff_coeff_ctx::HoistTackleEffCoeffCtx, initial_ctx::initial_ctx::InitialCtx, load_hand_device_mass::load_hand_device_mass_ctx::LoadHandDeviceMassCtx, rope_count::rope_count_ctx::RopeCountCtx}, kernel::{dbgid::dbgid::DbgId, eval::Eval, str_err::str_err::StrErr, types::eval_result::EvalResult}};
 use super::max_force_ctx::MaxForceCtx;
 ///
 /// Calculation step: [maximum force in hoisting rope](design\docs\algorithm\part02\chapter_04_choose_hoist_rope.md)
@@ -13,9 +13,6 @@ pub struct MaxForce {
 //
 //
 impl MaxForce {
-    ///
-    /// [Acceleration of gravity](design\docs\algorithm\part02\chapter_01_choose_hook.md)
-    const G: f64 = 9.81;
     ///
     /// New instance [MaxForce]
     /// - `ctx` - [Context]
@@ -41,7 +38,7 @@ impl Eval<(), EvalResult> for MaxForce {
                     let rope_count = ContextRead::<RopeCountCtx>::read(&ctx).result.clone();
                     let total_mass = ContextRead::<LoadHandDeviceMassCtx>::read(&ctx).total_mass.clone();
                     let result = MaxForceCtx {
-                        result: ((loading_capacity + total_mass) * Self::G) /
+                        result: ((loading_capacity + total_mass) * common::G) /
                                 (rope_count * hoist_tackle_eff_coeff),
                     };
                     self.value = Some(result.clone());
