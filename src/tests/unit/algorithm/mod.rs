@@ -1,5 +1,6 @@
 mod dynamic_coefficient;
 mod bearing_filter_test;
+pub mod hoist_tackle_multi_test;
 mod hook_filter_test;
 mod lifting_speed_test;
 mod load_hand_device_mass_test;

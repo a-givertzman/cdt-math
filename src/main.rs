@@ -5,12 +5,7 @@ mod kernel;
 #[cfg(test)]
 mod tests;
 use algorithm::{
-    initial::Initial, initial_ctx::initial_ctx::InitialCtx,
-    bearing_filter::bearing_filter_ctx::BearingFilterCtx, context::context::Context,
-    dynamic_coefficient::dynamic_coefficient::DynamicCoefficient, hoisting_tackle::hoisting_tackle::HoistingTackle,
-    hook_filter::{hook_filter::HookFilter,hook_filter_ctx::HookFilterCtx},
-    lifting_speed::lifting_speed::LiftingSpeed, load_hand_device_mass::load_hand_device_mass::LoadHandDeviceMass,
-    rope_count::rope_count::RopeCount, rope_effort::rope_effort::RopeEffort, select_betta_phi::select_betta_phi::SelectBettaPhi,
+    bearing_filter::bearing_filter_ctx::BearingFilterCtx, context::context::Context, dynamic_coefficient::dynamic_coefficient::DynamicCoefficient, hoisting_tackle::hoisting_tackle::HoistingTackle, hoisting_tackle_multiplicity::hoist_tackle_multi::HoistTackleMulti, hook_filter::{hook_filter::HookFilter,hook_filter_ctx::HookFilterCtx}, initial::Initial, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed::LiftingSpeed, load_hand_device_mass::load_hand_device_mass::LoadHandDeviceMass, rope_count::rope_count::RopeCount, rope_effort::rope_effort::RopeEffort, select_betta_phi::select_betta_phi::SelectBettaPhi
 };
 //
 use api_tools::debug::dbg_id::DbgId;
@@ -42,42 +37,44 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let switch_handle = switch.run().await.unwrap();
     let mut mok_user_reply = MokUserReply::new(&dbg, remote);
     let mok_user_reply_handle = mok_user_reply.run().await.unwrap();
-    let _result = HoistingTackle::new(
-        Request::new(
-            switch.link().await,
-            async |_: (), link: Link| {
-                let query = Query::ChangeHoistingTackle(ChangeHoistingTackleQuery::new());
-                (link.req(query).await.expect("{}.req | Error to send request"), link)
-            }
-        ),
-        RopeCount::new(
-            RopeEffort::new(
-                LoadHandDeviceMass::new(
-                    UserBearing::new(
-                        Request::new(
-                            switch.link().await,
-                            async |variants: BearingFilterCtx, link: Link| {
-                                let query = Query::ChooseUserBearing(ChooseUserBearingQuery::new(variants.result.clone()));
-                                (link.req(query).await.expect("{}.req | Error to send request"), link)
-                            },
-                        ),
-                        UserHook::new(
+    let _result = HoistTackleMulti::new(
+        HoistingTackle::new(
+            Request::new(
+                switch.link().await,
+                async |_: (), link: Link| {
+                    let query = Query::ChangeHoistingTackle(ChangeHoistingTackleQuery::new());
+                    (link.req(query).await.expect("{}.req | Error to send request"), link)
+                }
+            ),
+            RopeCount::new(
+                RopeEffort::new(
+                    LoadHandDeviceMass::new(
+                        UserBearing::new(
                             Request::new(
                                 switch.link().await,
-                                async |variants: HookFilterCtx, link: Link| {
-                                    let query = Query::ChooseUserHook(ChooseUserHookQuery::test(variants.result.clone()));
+                                async |variants: BearingFilterCtx, link: Link| {
+                                    let query = Query::ChooseUserBearing(ChooseUserBearingQuery::new(variants.result.clone()));
                                     (link.req(query).await.expect("{}.req | Error to send request"), link)
                                 },
                             ),
-                            HookFilter::new(
-                                DynamicCoefficient::new(
-                                    SelectBettaPhi::new(
-                                        LiftingSpeed::new(
-                                            Initial::new(
-                                                Context::new(
-                                                    InitialCtx::new(
-                                                        &mut Storage::new(cache_path)
-                                                    ).unwrap(),
+                            UserHook::new(
+                                Request::new(
+                                    switch.link().await,
+                                    async |variants: HookFilterCtx, link: Link| {
+                                        let query = Query::ChooseUserHook(ChooseUserHookQuery::test(variants.result.clone()));
+                                        (link.req(query).await.expect("{}.req | Error to send request"), link)
+                                    },
+                                ),
+                                HookFilter::new(
+                                    DynamicCoefficient::new(
+                                        SelectBettaPhi::new(
+                                            LiftingSpeed::new(
+                                                Initial::new(
+                                                    Context::new(
+                                                        InitialCtx::new(
+                                                            &mut Storage::new(cache_path)
+                                                        ).unwrap(),
+                                                    ),
                                                 ),
                                             ),
                                         ),
@@ -88,7 +85,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     ),
                 ),
             ),
-        ),
+        )
     )
     .eval(())
     .await;

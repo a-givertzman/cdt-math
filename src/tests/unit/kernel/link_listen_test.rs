@@ -40,7 +40,7 @@ mod link_listen {
             (4, Message("Query-4".into()), Ok(Message("Reply-4".into()))),
         ];
         let (local, mut remote) = Link::split(dbg);
-        let remote_handle = remote.listen(|query| {
+        let _remote_handle = remote.listen(|query| {
             log::debug!("Link.remote.listen | Query {:#?}", query);
             let query = query.as_string().value;
             let query: String = serde_json::from_str(&query).unwrap();
