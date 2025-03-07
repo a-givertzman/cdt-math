@@ -1,6 +1,6 @@
 use crate::{
     algorithm::{
-        bearing_filter::bearing_filter_ctx::BearingFilterCtx, dynamic_coefficient::dynamic_coefficient_ctx::DynamicCoefficientCtx, hoisting_tackle::hoisting_tackle_ctx::HoistingTackleCtx, hoisting_tackle_effiency_coefficient::hoist_tackle_eff_coeff_ctx::HoistTackleEffCoeffCtx, hoisting_tackle_multiplicity::hoist_tackle_multi_ctx::HoistTackleMultiCtx, hook_filter::hook_filter_ctx::HookFilterCtx, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed_ctx::LiftingSpeedCtx, load_hand_device_mass::load_hand_device_mass_ctx::LoadHandDeviceMassCtx, maximum_force::max_force_ctx::MaxForceCtx, rope_count::rope_count_ctx::RopeCountCtx, rope_effort::rope_effort_ctx::RopeEffortCtx, select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx
+        bearing_filter::bearing_filter_ctx::BearingFilterCtx, dynamic_coefficient::dynamic_coefficient_ctx::DynamicCoefficientCtx, hoisting_tackle::hoisting_tackle_ctx::HoistingTackleCtx, hoisting_tackle_effiency_coefficient::hoist_tackle_eff_coeff_ctx::HoistTackleEffCoeffCtx, hoisting_tackle_multiplicity::hoist_tackle_multi_ctx::HoistTackleMultiCtx, hook_filter::hook_filter_ctx::HookFilterCtx, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed_ctx::LiftingSpeedCtx, load_hand_device_mass::load_hand_device_mass_ctx::LoadHandDeviceMassCtx, maximum_force::max_force_ctx::MaxForceCtx, minimum_breaking_force::min_break_force_ctx::MinBreakForceCtx, rope_count::rope_count_ctx::RopeCountCtx, rope_effort::rope_effort_ctx::RopeEffortCtx, select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx
     },
     kernel::user_setup::{user_bearing_ctx::UserBearingCtx, user_hook_ctx::UserHookCtx},
 };
@@ -41,6 +41,8 @@ pub struct Context {
     pub(super) hoist_tackle_eff_coeff: HoistTackleEffCoeffCtx,
     /// result of calculation [maximum force in hoisting rope](design\docs\algorithm\part02\chapter_04_choose_hoist_rope.md)
     pub(super) max_force: MaxForceCtx,
+    /// result of calculation [minimum breaking force](design\docs\algorithm\part02\chapter_04_choose_hoist_rope.md)
+    pub(super) min_break_force: MinBreakForceCtx,
     ///
     /// Uset for testing only
     #[allow(dead_code)]
@@ -69,6 +71,7 @@ impl Context {
             hoist_tackle_multi: HoistTackleMultiCtx::default(),
             hoist_tackle_eff_coeff: HoistTackleEffCoeffCtx::default(),
             max_force: MaxForceCtx::default(),
+            min_break_force: MinBreakForceCtx::default(),
             testing: None,
         }
     }
