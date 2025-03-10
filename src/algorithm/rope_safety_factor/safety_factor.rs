@@ -1,7 +1,7 @@
 use futures::future::BoxFuture;
 use sal_sync::services::entity::error::str_err::StrErr;
 use crate::{algorithm::{context::{context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult}, initial_ctx::initial_ctx::InitialCtx}, kernel::{dbgid::dbgid::DbgId, eval::Eval, types::eval_result::EvalResult}};
-use super::{safety_factor_ctx::SafetyFactorCtx, select_coeff::SelectSafetyCoeff};
+use super::{safety_factor_ctx::SafetyFactorCtx, select_safety_coeff::SelectSafetyCoeff};
 ///
 /// Calculation step: [rope safety factor](design\docs\algorithm\part02\chapter_04_choose_hoist_rope.md)
 pub struct SafetyFactor {

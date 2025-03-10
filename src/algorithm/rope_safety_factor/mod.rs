@@ -43,4 +43,4 @@
 //! This module is a part of the crane design algorithm.
 pub mod safety_factor_ctx;
 pub mod safety_factor;
-pub mod select_coeff;
+pub mod select_safety_coeff;
