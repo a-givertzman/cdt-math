@@ -5,14 +5,14 @@
 //!
 //! It consists of two main components:
 //!
-//! - `safety_factor_ctx`: Stores the calculated rope safety factor value.
-//! - `safety_factor`: Implements the calculation logic.
+//! - [`safety_factor_ctx`]: Stores the calculated rope safety factor value.
+//! - [`safety_factor`]: Implements the calculation logic.
 //!
 //! ## Usage
 //!
 //! The calculation process determines the necessary rope safety factor based
 //! on user's mechanism work type, type of rope and type of winding. The results are stored
-//! in `SafetyFactorCtx` and can be accessed within the algorithm's execution context.
+//! in [`SafetyFactorCtx`] and can be accessed within the algorithm's execution context.
 //!
 //! For more details, refer to the design document:
 //! [Rope Safety Factor Calculation](design/docs/algorithm/part02/chapter_03_choose_hoisting_tackle.md)
@@ -23,7 +23,7 @@
 //! ```rust
 //! use crate::algorithm::context::ctx_result::CtxResult;
 //! use crate::kernel::eval::Eval;
-//! use crate::algorithm::safety_factor::SafetyFactor;
+//! use crate::algorithm::rope_safety_factor::safety_factor::SafetyFactor;
 //!
 //! let mut safety_factor = SafetyFactor::new(previous_step);
 //! let result = safety_factor.eval();
@@ -37,8 +37,8 @@
 //!
 //! ## Components
 //!
-//! - `SafetyFactorCtx`: Stores the calculated rope safety factor value.
-//! - `SafetyFactor`: Implements the evaluation logic for determining rope safety factor.
+//! - [SafetyFactorCtx]: Stores the calculated rope safety factor value.
+//! - [SafetyFactor]: Implements the evaluation logic for determining rope safety factor.
 //!
 //! This module is a part of the crane design algorithm.
 pub mod safety_factor_ctx;

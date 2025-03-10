@@ -8,11 +8,17 @@ pub struct SafetyFactor {
     /// value of [rope safety factor](design\docs\algorithm\part02\chapter_04_choose_hoist_rope.md)
     value: Option<SafetyFactorCtx>,
     /// [Context] instance, where store all info about initial data and each algorithm result's
-    ctx: Box<dyn Eval<(), EvalResult> + Send>,
+    ctx: Box<dyn Eval<(), EvalResult> + Send>
 }
 //
 //
 impl SafetyFactor {
+    ///
+    /// Value of safety factor for M1-M8 type of [MechanismWorkType] and single [WindingType].
+    const SINGLE_COEFF: [f64; 8] = [3.15, 3.35, 3.55, 4.0, 4.5, 5.6, 7.1, 9.0];
+    ///
+    /// Value of safety factor for M1-M8 type of [MechanismWorkType] and multi [WindingType].
+    const MULTI_COEFF: [f64; 8] = [3.55, 3.55, 3.55, 4.0, 4.5, 5.6, 0.0, 0.0]; // M7 and M8 are invalid
     ///
     /// New instance [SafetyFactor]
     /// - 'ctx' - [Context] instance, where store all info about initial data and each algorithm result's
@@ -22,6 +28,70 @@ impl SafetyFactor {
             value: None,
             ctx: Box::new(ctx),
         }
+    }
+    ///
+    /// Method to select [SafetyFactor] coefficient from [table choice](references\GOST_33710-2015.pdf)
+    pub fn select_coeff(
+        &mut self,
+        winding_type: WindingType,
+        mark_fire_exp_env: bool,
+        crane_work_area: CraneWorkArea,
+        mechanism_work_type: MechanismWorkType,
+    ) -> Result<SafetyFactorCtx, StrErr> {
+        let result = if mark_fire_exp_env {
+            match winding_type {
+                WindingType::SingleLayer => Self::SINGLE_COEFF[4],
+                WindingType::MultiLayer => Self::SINGLE_COEFF[4],
+            }
+        } else {
+            match crane_work_area {
+                CraneWorkArea::Default => {
+                    match winding_type {
+                        WindingType::SingleLayer => {
+                            match mechanism_work_type {
+                                MechanismWorkType::M1 => Self::SINGLE_COEFF[0],
+                                MechanismWorkType::M2 => Self::SINGLE_COEFF[1],
+                                MechanismWorkType::M3 => Self::SINGLE_COEFF[2],
+                                MechanismWorkType::M4 => Self::SINGLE_COEFF[3],
+                                MechanismWorkType::M5 => Self::SINGLE_COEFF[4],
+                                MechanismWorkType::M6 => Self::SINGLE_COEFF[5],
+                                MechanismWorkType::M7 => Self::SINGLE_COEFF[6],
+                                MechanismWorkType::M8 => Self::SINGLE_COEFF[7],
+                            }
+                        }
+                        WindingType::MultiLayer => {
+                            match mechanism_work_type {
+                                MechanismWorkType::M1 => Self::MULTI_COEFF[0],
+                                MechanismWorkType::M2 => Self::MULTI_COEFF[1],
+                                MechanismWorkType::M3 => Self::MULTI_COEFF[2],
+                                MechanismWorkType::M4 => Self::MULTI_COEFF[3],
+                                MechanismWorkType::M5 => Self::MULTI_COEFF[4],
+                                MechanismWorkType::M6 => Self::MULTI_COEFF[5],
+                                MechanismWorkType::M7 => {
+                                    return Err(StrErr(format!(
+                                        "{}.eval | For multilayer winding for mode `M7` the rope safety factor is unknown",
+                                        self.dbgid
+                                    )))
+                                }
+                                MechanismWorkType::M8 => {
+                                    return Err(StrErr(format!(
+                                        "{}.eval | For multilayer winding for mode `M8` the rope safety factor is unknown",
+                                        self.dbgid
+                                    )))
+                                }
+                            }
+                        }
+                    }
+                }
+                _ => {
+                    match winding_type {
+                        WindingType::SingleLayer => Self::SINGLE_COEFF[4],
+                        WindingType::MultiLayer => Self::MULTI_COEFF[4],
+                    }
+                }
+            }
+        };
+        Ok(SafetyFactorCtx { result })
     }
 }
 //
@@ -39,56 +109,12 @@ impl Eval<(), EvalResult> for SafetyFactor {
                     let winding_type = initial.winding_type.clone();
                     let mark_fire_exp_env = initial.mark_fire_exp_env;
                     let crane_work_area = initial.crane_work_area.clone();
-                    let result = SafetyFactorCtx {
-                        result: if mark_fire_exp_env {
-                            match winding_type {
-                                WindingType::SingleLayer => 4.5,
-                                WindingType::MultiLayer => 4.5,
-                            }
-                        } else {
-                            match crane_work_area {
-                                CraneWorkArea::Default => {
-                                    match winding_type {
-                                        WindingType::SingleLayer => {
-                                            match mechanism_work_type {
-                                                MechanismWorkType::M1 => 3.15,
-                                                MechanismWorkType::M2 => 3.35,
-                                                MechanismWorkType::M3 => 3.55,
-                                                MechanismWorkType::M4 => 4.0,
-                                                MechanismWorkType::M5 => 4.5,
-                                                MechanismWorkType::M6 => 5.6,
-                                                MechanismWorkType::M7 => 7.1,
-                                                MechanismWorkType::M8 => 9.0,
-                                            }
-                                        },
-                                        WindingType::MultiLayer => {
-                                            match mechanism_work_type {
-                                                MechanismWorkType::M1 => 3.55,
-                                                MechanismWorkType::M2 => 3.55,
-                                                MechanismWorkType::M3 => 3.55,
-                                                MechanismWorkType::M4 => 4.0,
-                                                MechanismWorkType::M5 => 4.5,
-                                                MechanismWorkType::M6 => 5.6,
-                                                MechanismWorkType::M7 => return CtxResult::Err(StrErr(format!(
-                                                    "{}.eval | For multilayer winding for mode `M7` the rope safety factor is unknown",
-                                                    self.dbgid
-                                                ))),
-                                                MechanismWorkType::M8 => return CtxResult::Err(StrErr(format!(
-                                                    "{}.eval | For multilayer winding for mode `M8` the rope safety factor is unknown",
-                                                    self.dbgid
-                                                ))),
-                                            }
-                                        },
-                                    }
-                                },
-                                _ => {
-                                    match winding_type {
-                                        WindingType::SingleLayer => 4.5,
-                                        WindingType::MultiLayer => 4.5,
-                                    } 
-                                }
-                            }
-                        }
+                    let result = match self.select_coeff(winding_type, mark_fire_exp_env, crane_work_area, mechanism_work_type) {
+                        Ok(coeff) => coeff,
+                        Err(err) => return CtxResult::Err(StrErr(format!(
+                            "{}.eval | Select safety factor coefficient error: {:?}",
+                            self.dbgid, err
+                        ))),
                     };
                     ctx.write(result)
                 }

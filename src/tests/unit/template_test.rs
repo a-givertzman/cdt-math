@@ -30,6 +30,7 @@ mod tests {
         log::debug!("\n{}", self_id);
         let test_duration = TestDuration::new(self_id, Duration::from_secs(1));
         test_duration.run().unwrap();
+        assert!(result == target, "step {} \nresult: {:?}\ntarget: {:?}", step, result, target);
         test_duration.exit();
     }
 }

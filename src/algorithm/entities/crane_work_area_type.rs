@@ -14,7 +14,7 @@ pub enum CraneWorkArea {
 impl FromStr for CraneWorkArea {
     type Err = StrErr;
     ///
-    /// Method translates from string into enuming structure CraneWorkArea
+    /// Method translates from string into enuming structure [CraneWorkArea]
     /// - 's' - value to translate
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.to_lowercase().as_str() {
