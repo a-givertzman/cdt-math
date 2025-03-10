@@ -8,4 +8,5 @@ mod load_hand_device_mass_test;
 mod max_force_test;
 mod rope_count_test;
 mod rope_effort_test;
+mod safety_factor_test;
 mod select_betta_phi_test;

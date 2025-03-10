@@ -1,6 +1,6 @@
 use crate::{
     algorithm::entities::{
-        alt_lift_device::AltLiftDevice, bearing::Bearing, driver_type::DriverType, hook::Hook, lifting_class::LiftClass, loading_combination::LoadingCombination, mechanism_work_type::MechanismWorkType
+        alt_lift_device::AltLiftDevice, bearing::Bearing, crane_work_area_type::CraneWorkArea, driver_type::DriverType, hook::Hook, lifting_class::LiftClass, loading_combination::LoadingCombination, mechanism_work_type::MechanismWorkType, winding_type::WindingType
     },
     kernel::{dbgid::dbgid::DbgId, storage::storage::Storage, str_err::str_err::StrErr},
 };
@@ -31,6 +31,12 @@ pub struct InitialCtx {
     pub user_alt_lift_device: Option<AltLiftDevice>,
     /// value [deflection blocks count](design\docs\algorithm\part02\chapter_02_choose_another_load_handing_device.md)
     pub deflect_blocks_count: f64,
+    /// value [winding type](design\docs\algorithm\part01\initial_data.md)
+    pub winding_type: WindingType,
+    /// value [marking of fire/explosion hazardous environment](design\docs\algorithm\part01\initial_data.md)
+    pub mark_fire_exp_env: bool,
+    /// value [crane work area type](design\docs\algorithm\part01\initial_data.md)
+    pub crane_work_area: CraneWorkArea,
 }
 //
 //
@@ -83,6 +89,18 @@ impl InitialCtx {
                 .and_then(|data| serde_json::from_value::<AltLiftDevice>(data).ok()),
             deflect_blocks_count: serde_json::from_value::<f64>(
                 storage_initial_data.load("test.user_characteristics.deflection_blocks_count")?,
+            )
+            .map_err(|err| StrErr(format!("{}.new | Error {:?}", dbg, err)))?,
+            winding_type: serde_json::from_value::<WindingType>(
+                storage_initial_data.load("test.user_characteristics.winding_type")?,
+            )
+            .map_err(|err| StrErr(format!("{}.new | Error {:?}", dbg, err)))?,
+            mark_fire_exp_env: serde_json::from_value::<bool>(
+                storage_initial_data.load("test.user_characteristics.mark_fire_exp_env")?,
+            )
+            .map_err(|err| StrErr(format!("{}.new | Error {:?}", dbg, err)))?,
+            crane_work_area: serde_json::from_value::<CraneWorkArea>(
+                storage_initial_data.load("test.user_characteristics.crane_work_area_type")?,
             )
             .map_err(|err| StrErr(format!("{}.new | Error {:?}", dbg, err)))?,
             // dbgid: dbg,
