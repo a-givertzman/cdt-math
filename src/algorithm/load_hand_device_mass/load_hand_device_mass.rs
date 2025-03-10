@@ -1,9 +1,10 @@
 use futures::future::BoxFuture;
+use sal_sync::services::entity::error::str_err::StrErr;
 use crate::{
     algorithm::{context::{context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult}, 
     initial_ctx::initial_ctx::InitialCtx}, 
     kernel::{
-        dbgid::dbgid::DbgId, eval::Eval, str_err::str_err::StrErr,
+        dbgid::dbgid::DbgId, eval::Eval,
         types::eval_result::EvalResult,
         user_setup::user_hook_ctx::UserHookCtx,
     },

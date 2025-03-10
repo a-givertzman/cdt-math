@@ -1,9 +1,9 @@
-use crate::kernel::str_err::str_err::StrErr;
+use sal_sync::services::entity::error::str_err::StrErr;
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 ///
 /// Represents [crane work area types](design\docs\algorithm\part01\initial_data.md)
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub enum CraneWorkArea {
     Default,
     Aggressive,

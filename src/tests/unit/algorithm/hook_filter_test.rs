@@ -3,6 +3,7 @@
 mod hook_filter {
     use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
     use futures::future::BoxFuture;
+    use sal_sync::services::entity::error::str_err::StrErr;
     use std::{
         sync::Once,
         time::Duration,
@@ -16,7 +17,7 @@ mod hook_filter {
             hook_filter::{hook_filter::HookFilter, hook_filter_ctx::HookFilterCtx},
             initial_ctx::initial_ctx::InitialCtx,
         },
-        kernel::{dbgid::dbgid::DbgId, eval::Eval, storage::storage::Storage, str_err::str_err::StrErr, types::eval_result::EvalResult},
+        kernel::{dbgid::dbgid::DbgId, eval::Eval, storage::storage::Storage, types::eval_result::EvalResult},
     };
 
     ///

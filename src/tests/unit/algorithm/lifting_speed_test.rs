@@ -2,6 +2,7 @@
 mod lifting_speed {
     use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
     use futures::future::BoxFuture;
+    use sal_sync::services::entity::error::str_err::StrErr;
     use std::{
         sync::Once,
         time::Duration,
@@ -13,7 +14,7 @@ mod lifting_speed {
             initial_ctx::initial_ctx::InitialCtx,
             lifting_speed::{lifting_speed::LiftingSpeed, lifting_speed_ctx::LiftingSpeedCtx},
         },
-        kernel::{dbgid::dbgid::DbgId, eval::Eval, storage::storage::Storage, str_err::str_err::StrErr, types::eval_result::EvalResult},
+        kernel::{dbgid::dbgid::DbgId, eval::Eval, storage::storage::Storage, types::eval_result::EvalResult},
     };
 
     ///

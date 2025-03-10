@@ -1,11 +1,12 @@
 use futures::future::BoxFuture;
+use sal_sync::services::entity::error::str_err::StrErr;
 use super::hook_filter_ctx::HookFilterCtx;
 use crate::{
     algorithm::{
         context::{context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult},
         entities::{hook::Hook, mechanism_work_type::MechanismWorkType}, initial_ctx::initial_ctx::InitialCtx,
     },
-    kernel::{dbgid::dbgid::DbgId, eval::Eval, str_err::str_err::StrErr, types::eval_result::EvalResult},
+    kernel::{dbgid::dbgid::DbgId, eval::Eval, types::eval_result::EvalResult},
 };
 ///
 /// Calculation step: [filtering hooks](design\docs\algorithm\part02\chapter_01_choose_hook.md)

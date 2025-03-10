@@ -1,4 +1,4 @@
-use crate::kernel::str_err::str_err::StrErr;
+use sal_sync::services::entity::error::str_err::StrErr;
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 ///

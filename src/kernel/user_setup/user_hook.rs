@@ -1,8 +1,9 @@
 use futures::future::BoxFuture;
+use sal_sync::services::entity::error::str_err::StrErr;
 use crate::{
     algorithm::{context::{context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult}, hook_filter::hook_filter_ctx::HookFilterCtx},
     infrostructure::client::choose_user_hook::ChooseUserHookReply,
-    kernel::{dbgid::dbgid::DbgId, eval::Eval, request::Request, str_err::str_err::StrErr, types::eval_result::EvalResult},
+    kernel::{dbgid::dbgid::DbgId, eval::Eval, request::Request, types::eval_result::EvalResult},
 };
 use super::user_hook_ctx::UserHookCtx;
 ///

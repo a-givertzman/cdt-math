@@ -1,8 +1,10 @@
+use sal_sync::services::entity::error::str_err::StrErr;
+
 use crate::{
     algorithm::entities::{
         alt_lift_device::AltLiftDevice, bearing::Bearing, crane_work_area_type::CraneWorkArea, driver_type::DriverType, hook::Hook, lifting_class::LiftClass, loading_combination::LoadingCombination, mechanism_work_type::MechanismWorkType, winding_type::WindingType
     },
-    kernel::{dbgid::dbgid::DbgId, storage::storage::Storage, str_err::str_err::StrErr},
+    kernel::{dbgid::dbgid::DbgId, storage::storage::Storage, },
 };
 ///
 /// Storage of [initial data](design\docs\algorithm\part01\initial_data.md)

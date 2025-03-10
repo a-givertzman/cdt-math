@@ -1,5 +1,6 @@
 use futures::future::BoxFuture;
-use crate::{algorithm::{context::{context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult}, hoisting_tackle::hoisting_tackle_ctx::HoistingTackleCtx, rope_count::rope_count_ctx::RopeCountCtx}, kernel::{dbgid::dbgid::DbgId, eval::Eval, str_err::str_err::StrErr, types::eval_result::EvalResult}};
+use sal_sync::services::entity::error::str_err::StrErr;
+use crate::{algorithm::{context::{context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult}, hoisting_tackle::hoisting_tackle_ctx::HoistingTackleCtx, rope_count::rope_count_ctx::RopeCountCtx}, kernel::{dbgid::dbgid::DbgId, eval::Eval, types::eval_result::EvalResult}};
 use super::hoist_tackle_multi_ctx::HoistTackleMultiCtx;
 ///
 /// Calculation step: [hoisting tackle multiplicity](design\docs\algorithm\part02\chapter_03_choose_hoisting_tackle.md)
