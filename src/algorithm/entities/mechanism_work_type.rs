@@ -1,9 +1,9 @@
-use crate::kernel::str_err::str_err::StrErr;
+use sal_sync::services::entity::error::str_err::StrErr;
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 ///
-/// Represents [loading combination types](design\docs\algorithm\part02\initial_data.md)
-#[derive(Debug, Clone, Serialize, Deserialize)]
+/// Represents [mechanism work types](design\docs\algorithm\part02\initial_data.md)
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub enum MechanismWorkType {
     M1,
     M2,

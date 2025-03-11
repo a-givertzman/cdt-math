@@ -1,7 +1,8 @@
 use futures::future::BoxFuture;
+use sal_sync::services::entity::error::str_err::StrErr;
 use crate::{
     algorithm::{context::{context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult}, lifting_speed::lifting_speed_ctx::LiftingSpeedCtx, select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx},
-    kernel::{dbgid::dbgid::DbgId, eval::Eval, str_err::str_err::StrErr, types::eval_result::EvalResult},
+    kernel::{dbgid::dbgid::DbgId, eval::Eval, types::eval_result::EvalResult},
 };
 use super::dynamic_coefficient_ctx::DynamicCoefficientCtx;
 ///

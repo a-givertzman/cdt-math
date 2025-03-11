@@ -1,10 +1,11 @@
 use futures::future::BoxFuture;
+use sal_sync::services::entity::error::str_err::StrErr;
 use crate::{
     algorithm::{
         context::{context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult},
         entities::{bet_phi::BetPhi, lifting_class::LiftClass}, initial_ctx::initial_ctx::InitialCtx,
     },
-    kernel::{dbgid::dbgid::DbgId, eval::Eval, str_err::str_err::StrErr, types::eval_result::EvalResult},
+    kernel::{dbgid::dbgid::DbgId, eval::Eval, types::eval_result::EvalResult},
 };
 use super::select_betta_phi_ctx::SelectBetPhiCtx;
 ///

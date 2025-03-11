@@ -1,6 +1,7 @@
 #[cfg(test)]
 mod storage {
     use api_tools::debug::dbg_id::DbgId;
+    use sal_sync::services::entity::error::str_err::StrErr;
     use core::f64;
     use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
     use serde::Serialize;
@@ -11,7 +12,7 @@ mod storage {
     };
     use testing::{entities::test_value::Value, stuff::max_test_duration::TestDuration};
 
-    use crate::kernel::{storage::storage::Storage, str_err::str_err::StrErr};
+    use crate::kernel::storage::storage::Storage;
     ///
     ///
     static INIT: Once = Once::new();

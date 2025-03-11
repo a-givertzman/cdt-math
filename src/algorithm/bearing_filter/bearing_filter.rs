@@ -1,5 +1,6 @@
 use futures::future::BoxFuture;
-use crate::{algorithm::{constants::common, context::{context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult}, dynamic_coefficient::dynamic_coefficient_ctx::DynamicCoefficientCtx, entities::bearing::Bearing, initial_ctx::initial_ctx::InitialCtx}, kernel::{dbgid::dbgid::DbgId, eval::Eval, str_err::str_err::StrErr, types::eval_result::EvalResult, user_setup::user_hook_ctx::UserHookCtx}};
+use sal_sync::services::entity::error::str_err::StrErr;
+use crate::{algorithm::{constants::common, context::{context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult}, dynamic_coefficient::dynamic_coefficient_ctx::DynamicCoefficientCtx, entities::bearing::Bearing, initial_ctx::initial_ctx::InitialCtx}, kernel::{dbgid::dbgid::DbgId, eval::Eval, types::eval_result::EvalResult, user_setup::user_hook_ctx::UserHookCtx}};
 use super::bearing_filter_ctx::BearingFilterCtx;
 ///
 /// Calculation step: [filtering bearings](design\docs\algorithm\part02\chapter_01_choose_hook.md)

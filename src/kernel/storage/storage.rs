@@ -1,6 +1,6 @@
 use crate::kernel::dbgid::dbgid::DbgId;
-use crate::kernel::str_err::str_err::StrErr;
 use rustc_hash::FxHashMap;
+use sal_sync::services::entity::error::str_err::StrErr;
 use serde::Serialize;
 use serde_json::Value;
 use std::fs::OpenOptions;

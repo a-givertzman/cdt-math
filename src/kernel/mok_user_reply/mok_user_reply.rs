@@ -1,5 +1,5 @@
 use std::sync::{atomic::{AtomicBool, Ordering}, Arc};
-use sal_sync::services::entity::{cot::Cot, name::Name, object::Object, point::{point::Point, point_hlr::PointHlr, point_tx_id::PointTxId}, status::status::Status};
+use sal_sync::services::entity::{cot::Cot, error::str_err::StrErr, name::Name, object::Object, point::{point::Point, point_hlr::PointHlr, point_tx_id::PointTxId}, status::status::Status};
 use serde::Serialize;
 use tokio::task::JoinHandle;
 use crate::{
@@ -14,7 +14,7 @@ use crate::{
         choose_user_hook::{ChooseUserHookQuery, ChooseUserHookReply},
         query::Query
     },
-    kernel::{str_err::str_err::StrErr, sync::link::Link},
+    kernel::sync::link::Link,
 };
 ///
 /// Struct to imitate user's answer's

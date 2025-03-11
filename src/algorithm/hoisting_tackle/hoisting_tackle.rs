@@ -1,8 +1,9 @@
 use futures::future::BoxFuture;
+use sal_sync::services::entity::error::str_err::StrErr;
 use crate::{
     algorithm::context::{context_access::ContextWrite, ctx_result::CtxResult},
     infrostructure::client::change_hoisting_tackle::ChangeHoistingTackleReply,
-    kernel::{dbgid::dbgid::DbgId, eval::Eval, request::Request, str_err::str_err::StrErr, types::eval_result::EvalResult},
+    kernel::{dbgid::dbgid::DbgId, eval::Eval, request::Request, types::eval_result::EvalResult},
 };
 use super::hoisting_tackle_ctx::HoistingTackleCtx;
 ///

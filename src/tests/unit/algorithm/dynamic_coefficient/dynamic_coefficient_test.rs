@@ -3,6 +3,7 @@
 mod dynamic_coefficient {
     use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
     use futures::future::BoxFuture;
+    use sal_sync::services::entity::error::str_err::StrErr;
     use std::{
         sync::Once,
         time::Duration,
@@ -12,7 +13,7 @@ mod dynamic_coefficient {
         algorithm::{
             context::{context::Context, context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult}, dynamic_coefficient::{dynamic_coefficient::DynamicCoefficient, dynamic_coefficient_ctx::DynamicCoefficientCtx}, entities::bet_phi::BetPhi, hook_filter::hook_filter_ctx::HookFilterCtx, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed_ctx::LiftingSpeedCtx, select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx
         },
-        kernel::{dbgid::dbgid::DbgId, eval::Eval, storage::storage::Storage, str_err::str_err::StrErr, types::eval_result::EvalResult},
+        kernel::{dbgid::dbgid::DbgId, eval::Eval, storage::storage::Storage, types::eval_result::EvalResult},
     };
     ///
     ///

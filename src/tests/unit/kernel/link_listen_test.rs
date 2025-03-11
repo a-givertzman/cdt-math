@@ -2,11 +2,11 @@
 
 mod link_listen {
     use std::{sync::Once, time::Duration};
-    use sal_sync::services::entity::point::point::Point;
+    use sal_sync::services::entity::{error::str_err::StrErr, point::point::Point};
     use serde::{Deserialize, Serialize};
     use testing::stuff::max_test_duration::TestDuration;
     use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
-    use crate::kernel::{str_err::str_err::StrErr, sync::link::Link};
+    use crate::kernel::sync::link::Link;
     ///
     ///
     static INIT: Once = Once::new();
@@ -40,7 +40,7 @@ mod link_listen {
             (4, Message("Query-4".into()), Ok(Message("Reply-4".into()))),
         ];
         let (local, mut remote) = Link::split(dbg);
-        let _remote_handle = remote.listen(|query| {
+        let remote_handle = remote.listen(|query| {
             log::debug!("Link.remote.listen | Query {:#?}", query);
             let query = query.as_string().value;
             let query: String = serde_json::from_str(&query).unwrap();
@@ -55,10 +55,14 @@ mod link_listen {
         for (step, query, target) in test_data {
             let result: Result<Message, StrErr> = local.req(query).await;
             log::debug!("step {} \nresult: {:?}\ntarget: {:?}", step, result, target);
-            assert!(result == target, "step {} \nresult: {:?}\ntarget: {:?}", step, result, target);
+            match (&result, &target) {
+                (Ok(result), Ok(target)) => assert!(result == target, "step {} \nresult: {:?}\ntarget: {:?}", step, result, target),
+                (Err(_), Err(_)) => {}
+                _ => panic!("step {} \nresult: {:?}\ntarget: {:?}", step, result, target),
+            }
         }
         remote.exit();
-        // remote_handle.await.unwrap().await;
+        remote_handle.await.unwrap();
         log::debug!("{} | All - Done", dbg);
         test_duration.exit();
     }

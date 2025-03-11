@@ -1,8 +1,9 @@
 use futures::future::BoxFuture;
+use sal_sync::services::entity::error::str_err::StrErr;
 use crate::{
     algorithm::{bearing_filter::bearing_filter_ctx::BearingFilterCtx, context::{context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult}},
     infrostructure::client::choose_user_bearing::ChooseUserBearingReply,
-    kernel::{dbgid::dbgid::DbgId, eval::Eval, request::Request, str_err::str_err::StrErr, types::eval_result::EvalResult},
+    kernel::{dbgid::dbgid::DbgId, eval::Eval, request::Request, types::eval_result::EvalResult},
 };
 use super::user_bearing_ctx::UserBearingCtx;
 ///

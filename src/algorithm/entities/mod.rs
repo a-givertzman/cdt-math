@@ -1,9 +1,11 @@
 pub mod alt_lift_device;
 pub mod bearing;
 pub mod bet_phi;
+pub mod crane_work_area_type;
 pub mod driver_type;
 pub mod hoisting_rope;
 pub mod hook;
 pub mod lifting_class;
 pub mod loading_combination;
 pub mod mechanism_work_type;
+pub mod winding_type;
