@@ -3,8 +3,8 @@ use crate::algorithm::entities::{crane_work_area_type::CraneWorkArea, mechanism_
 
 use super::safety_factor_ctx::SafetyFactorCtx;
 ///
-/// TODO: To be documented...
-pub(super) struct SelectSafetyCoeff {
+/// Selection step: [safety factor coefficient](design\docs\algorithm\part02\chapter_04_choose_hoist_rope.md) from [table](references\GOST_33710-2015.pdf)
+pub struct SelectSafetyCoeff {
     dbg: Name,
     winding_type: WindingType,
     mark_fire_exp_env: bool,
@@ -16,10 +16,10 @@ pub(super) struct SelectSafetyCoeff {
 impl SelectSafetyCoeff {
     ///
     /// New instance [SelectSafetyCoeff]
-    /// - 'winding_type' - TODO: ...
-    /// - `mark_fire_exp_env` - TODO: ...
-    /// - `crane_work_area` - TODO: ...
-    /// - `mechanism_work_type` - TODO: ...
+    /// - 'winding_type' - parsing parameter [WindingType]
+    /// - `mark_fire_exp_env` - parsing parameter, which marks [fire/explosive environment](design\docs\algorithm\part01\initial_data.md)
+    /// - `crane_work_area` - parsing parameter [CraneWorkArea]
+    /// - `mechanism_work_type` - parsing parameter [MechanismWorkType]
     pub fn new(
         parent: impl Into<String>, 
         winding_type: WindingType,
