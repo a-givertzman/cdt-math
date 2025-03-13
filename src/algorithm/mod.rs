@@ -12,6 +12,7 @@ pub mod initial_ctx;
 pub mod lifting_speed;
 pub mod load_hand_device_mass;
 pub mod maximum_force;
+pub mod min_break_force;
 pub mod rope_count;
 pub mod rope_effort;
 pub mod rope_safety_factor;
