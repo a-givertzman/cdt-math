@@ -1,0 +1,38 @@
+[
+    {
+        "name": "Rope A",
+        "rope_diameter": 10.5,
+        "type": "Metal",
+        "rope_durability": "C1370",
+        "rope_force": 1500.0,
+        "s": 78.5,
+        "m": 0.85
+    },
+    {
+        "name": "Rope B",
+        "rope_diameter": 12.0,
+        "type": "Synthetic",
+        "rope_durability": "C1370",
+        "rope_force": 1200.0,
+        "s": 113.1,
+        "m": 0.75
+    },
+    {
+        "name": "Rope C",
+        "rope_diameter": 8.0,
+        "type": "Metal",
+        "rope_durability": "C1370",
+        "rope_force": 800.0,
+        "s": 50.3,
+        "m": 0.90
+    },
+    {
+        "name": "Rope D",
+        "rope_diameter": 15.0,
+        "type": "Synthetic",
+        "rope_durability": "C1370",
+        "rope_force": 2000.0,
+        "s": 176.7,
+        "m": 0.80
+    }
+]
