@@ -2,7 +2,7 @@ use sal_sync::services::entity::error::str_err::StrErr;
 
 use crate::{
     algorithm::entities::{
-        alt_lift_device::AltLiftDevice, bearing::Bearing, crane_work_area_type::CraneWorkArea, driver_type::DriverType, hook::Hook, lifting_class::LiftClass, loading_combination::LoadingCombination, mechanism_work_type::MechanismWorkType, winding_type::WindingType
+        alt_lift_device::AltLiftDevice, bearing::Bearing, crane_work_area_type::CraneWorkArea, driver_type::DriverType, hoisting_rope::{hoisting_rope::HoistingRope, rope_durability_class::RopeDurabilityClass, rope_type::RopeType}, hook::Hook, lifting_class::LiftClass, loading_combination::LoadingCombination, mechanism_work_type::MechanismWorkType, winding_type::WindingType
     },
     kernel::{dbgid::dbgid::DbgId, storage::storage::Storage, },
 };
@@ -39,7 +39,17 @@ pub struct InitialCtx {
     pub mark_fire_exp_env: bool,
     /// value [crane work area type](design\docs\algorithm\part01\initial_data.md)
     pub crane_work_area: CraneWorkArea,
-}
+    /// vector of data base hoisting ropes
+    pub hoisting_ropes: Vec<HoistingRope>,
+    /// value of [hoisting rope type](docs\$catalogsPurchasedEquipment.xlsx)
+    pub hoist_rope_type: RopeType,
+    /// vector of [hoisting rope diameters](docs\$catalogsPurchasedEquipment.xlsx)
+    pub hoist_rope_diameters: Vec<f64>,
+    /// value of [hoisting rope marked group count](design\docs\algorithm\part02\chapter_04_choose_hoist_rope.md)
+    pub hoist_rope_count: u8,
+    /// value of [hoisting rope durability class](docs\$catalogsPurchasedEquipment.xlsx)
+    pub hoist_rope_durability_class: RopeDurabilityClass,
+} 
 //
 //
 impl InitialCtx {
@@ -105,7 +115,26 @@ impl InitialCtx {
                 storage_initial_data.load("test.user_characteristics.crane_work_area_type")?,
             )
             .map_err(|err| StrErr(format!("{}.new | Error {:?}", dbg, err)))?,
-            // dbgid: dbg,
+            hoisting_ropes: serde_json::from_value::<Vec<HoistingRope>>(
+                storage_initial_data.load("test.constructions.hoisting_ropes")?,
+            )
+            .map_err(|err| StrErr(format!("{}.new | Error {:?}", dbg, err)))?,
+            hoist_rope_type: serde_json::from_value::<RopeType>(
+                storage_initial_data.load("test.user_characteristics.hoisting_rope_type")?,
+            )
+            .map_err(|err| StrErr(format!("{}.new | Error {:?}", dbg, err)))?,
+            hoist_rope_diameters: serde_json::from_value::<Vec<f64>>(
+                storage_initial_data.load("test.user_characteristics.hoisting_rope_diameters")?,
+            )
+            .map_err(|err| StrErr(format!("{}.new | Error {:?}", dbg, err)))?,
+            hoist_rope_count: serde_json::from_value::<u8>(
+                storage_initial_data.load("test.user_characteristics.hoisting_ropes_count")?,
+            )
+            .map_err(|err| StrErr(format!("{}.new | Error {:?}", dbg, err)))?,
+            hoist_rope_durability_class: serde_json::from_value::<RopeDurabilityClass>(
+                storage_initial_data.load("test.user_characteristics.hoisting_rope_durability_class")?,
+            )
+            .map_err(|err| StrErr(format!("{}.new | Error {:?}", dbg, err)))?,
         })
     }
 }

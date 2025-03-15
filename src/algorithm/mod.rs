@@ -3,6 +3,7 @@ pub mod constants;
 pub mod context;
 pub mod dynamic_coefficient;
 pub mod entities;
+pub mod hoist_rope_filter;
 pub mod hoisting_tackle;
 pub mod hoisting_tackle_effiency_coefficient;
 pub mod hoisting_tackle_multiplicity;
