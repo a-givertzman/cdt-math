@@ -5,7 +5,7 @@ use crate::{
     algorithm::{
         bearing_filter::bearing_filter_ctx::BearingFilterCtx, dynamic_coefficient::dynamic_coefficient_ctx::DynamicCoefficientCtx, hoist_rope_filter::hoist_rope_filter_ctx::HoistRopeFilterCtx, hoisting_tackle::hoisting_tackle_ctx::HoistingTackleCtx, hoisting_tackle_effiency_coefficient::hoist_tackle_eff_coeff_ctx::HoistTackleEffCoeffCtx, hoisting_tackle_multiplicity::hoist_tackle_multi_ctx::HoistTackleMultiCtx, hook_filter::hook_filter_ctx::HookFilterCtx, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed_ctx::LiftingSpeedCtx, load_hand_device_mass::load_hand_device_mass_ctx::LoadHandDeviceMassCtx, maximum_force::max_force_ctx::MaxForceCtx, min_break_force::min_break_force_ctx::MinBreakForceCtx, rope_count::rope_count_ctx::RopeCountCtx, rope_effort::rope_effort_ctx::RopeEffortCtx, rope_safety_factor::safety_factor_ctx::SafetyFactorCtx, select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx
     },
-    kernel::user_setup::{user_bearing_ctx::UserBearingCtx, user_hook_ctx::UserHookCtx},
+    kernel::user_setup::{user_bearing_ctx::UserBearingCtx, user_hoist_rope_ctx::UserHoistRopeCtx, user_hook_ctx::UserHookCtx},
 };
 ///
 /// Provides restricted write access to the [Context] members
@@ -249,5 +249,18 @@ impl ContextWrite<HoistRopeFilterCtx> for Context {
 impl ContextRead<HoistRopeFilterCtx> for Context {
     fn read(&self) -> &HoistRopeFilterCtx {
         &self.hoist_rope_filter
+    }
+}
+//
+//
+impl ContextWrite<UserHoistRopeCtx> for Context {
+    fn write(mut self, value: UserHoistRopeCtx) -> CtxResult<Self, StrErr> {
+        self.user_hoist_rope = value;
+        CtxResult::Ok(self)
+    }
+}
+impl ContextRead<UserHoistRopeCtx> for Context {
+    fn read(&self) -> &UserHoistRopeCtx {
+        &self.user_hoist_rope
     }
 }
