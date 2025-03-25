@@ -21,8 +21,6 @@ use kernel::{
 };
 ///
 /// Application entry point
-// #[tokio::main(flavor = "multi_thread", worker_threads = 10)]
-// #[tokio::main]
 #[tokio::main(flavor = "multi_thread")]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     DebugSession::init(LogLevel::Debug, Backtrace::Short);
@@ -98,14 +96,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                                             ),
                                         ),
                                     ),
-                                )
-                            )
-                        )
-                    )
-                )
-            )
-        )
-    )  
+                                ),
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+        ),
+    )
     .eval(())
     .await;
     switch.exit();
