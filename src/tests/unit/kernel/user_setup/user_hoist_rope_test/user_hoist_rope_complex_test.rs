@@ -1,6 +1,6 @@
 #[cfg(test)]
 
-mod user_hoist_rope {
+mod user_hoist_rope_complex {
     use std::{sync::Once, time::Duration};
     use testing::stuff::max_test_duration::TestDuration;
     use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
@@ -33,7 +33,7 @@ mod user_hoist_rope {
         init_once();
         init_each();
         log::debug!("");
-        let dbg = "user_hoist_rope";
+        let dbg = "user_hoist_rope_complex";
         log::debug!("\n{}", dbg);
         let test_duration = TestDuration::new(dbg, Duration::from_secs(1));
         test_duration.run().unwrap();
