@@ -2,10 +2,9 @@
 mod hoist_rope_filter {
     use std::{sync::Once, time::Duration};
     use futures::future::BoxFuture;
-    use sal_sync::services::entity::error::str_err::StrErr;
     use testing::stuff::max_test_duration::TestDuration;
     use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
-    use crate::{algorithm::{context::{context::Context, context_access::ContextRead, ctx_result::CtxResult}, entities::hoisting_rope::{hoisting_rope::HoistingRope, rope_durability_class::RopeDurabilityClass, rope_type::RopeType}, hoist_rope_filter::{hoist_rope_filter::HoistRopeFilter, hoist_rope_filter_ctx::HoistRopeFilterCtx}, initial_ctx::initial_ctx::InitialCtx, rope_effort::{rope_effort::RopeEffort, rope_effort_ctx::RopeEffortCtx}}, kernel::{eval::Eval, storage::storage::Storage, types::eval_result::EvalResult}};
+    use crate::{algorithm::{context::{context::Context, context_access::ContextRead, ctx_result::CtxResult}, entities::hoisting_rope::{hoisting_rope::HoistingRope, rope_durability_class::RopeDurabilityClass, rope_type::RopeType}, hoist_rope_filter::{hoist_rope_filter::HoistRopeFilter, hoist_rope_filter_ctx::HoistRopeFilterCtx}, initial_ctx::initial_ctx::InitialCtx}, kernel::{eval::Eval, storage::storage::Storage, types::eval_result::EvalResult}};
     ///
     ///
     static INIT: Once = Once::new();

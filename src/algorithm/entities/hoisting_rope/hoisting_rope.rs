@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 use super::{rope_durability_class::RopeDurabilityClass, rope_type::RopeType};
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Default)]
 ///
 /// Represents a [hoisting rope](docs\catalogsPurchasedEquipment.xlsx) with its key characteristics.
 pub struct HoistingRope {
