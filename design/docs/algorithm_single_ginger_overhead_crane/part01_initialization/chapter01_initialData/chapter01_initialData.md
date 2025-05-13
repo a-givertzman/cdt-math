@@ -59,7 +59,7 @@
   * частотное регулирование - Variable Frequency Drive (VFD),
   * релейно-контакторная система - Relay-Contactor Control System,
   * тиристорно-дроссельная - Thyristor-Choke Control System;
-* тип токоподвода к грузовой тали (trolley feeder system):
+* тип токоподвода к грузовой тали (trolley power system):
   * фестонный (festoon system),
   * траковый (energy chain),
   * троллейный (conductor bar).
@@ -80,25 +80,24 @@
   * частотное регулирование - Variable Frequency Drive (VFD),
   * релейно-контакторная система - Relay-Contactor Control System,
   * тиристорно-дроссельная - Thyristor-Choke Control System;
-* тип токоподвода к крану:
+* тип токоподвода к крану (crane power system):
   * фестонный (festoon system),
   * кабельный барабан (cable reel),
   * траковый (energy chain),
   * троллейный (conductor bar);
-* тип механизма передвижения:
-  * развёрнутая схема (эл/двигатель, редуктор, тормоз и т.д.),
+* тип механизма передвижения (bridge drive type system):
+  * развёрнутая схема (detailed bridge drive),
   * мотор-редуктор (gearmotor);
-* схема привода передвижения тележки:
-  * центральный (общий) привод,
-  * раздельный привод;
-* наличие системы синхронизации механизма передвижения крана:
-  * да,
-  * нет;
-* тип подкранового пути;
-* длина подкранового пути, м;
-* допускаемое давление на подкрановый путь, кН.
+* схема привода передвижения крана (bridge drive diagram):
+  * центральный (общий) привод (central drive),
+  * раздельный привод (separate drive);
+* система синхронизации механизма передвижения крана (bridge control system of synchronous movement):
+  * присутствует (present),
+  * отсутствует (absent);
+* тип подкранового пути (type crane rail);
+* длина подкранового пути (crane rail length), м.
 
-**Общие параметры крана:**
+**Общие параметры крана (general crane parameters):**
 
 * тип крана:
   * общепромышленный,
