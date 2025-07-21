@@ -2,7 +2,7 @@ pub mod alt_lift_device;
 pub mod bearing;
 pub mod bet_phi;
 pub mod crane_work_area_type;
-pub mod driver_type;
+pub mod lifting_mechanism_drive_type;
 pub mod hoisting_rope;
 pub mod hook;
 pub mod lifting_class;

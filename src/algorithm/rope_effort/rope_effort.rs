@@ -1,6 +1,21 @@
 use futures::future::BoxFuture;
 use sal_sync::services::entity::error::str_err::StrErr;
-use crate::{algorithm::{context::{context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult}, initial_ctx::initial_ctx::InitialCtx}, kernel::{dbgid::dbgid::DbgId, eval::Eval, types::eval_result::EvalResult}};
+use crate::{
+    algorithm::{
+        context::{
+            context_access::{
+                ContextRead, 
+                ContextWrite
+            }, 
+            ctx_result::CtxResult
+        }, 
+        initial_ctx::initial_ctx::InitialCtx
+    }, 
+    kernel::{dbgid::dbgid::DbgId, 
+        eval::Eval, 
+        types::eval_result::EvalResult
+    }
+};
 use super::rope_effort_ctx::RopeEffortCtx;
 ///
 /// Calculation step: [rope effort](design\docs\algorithm\part02\chapter_03_choose_hoisting_tackle.md)
@@ -36,7 +51,7 @@ impl Eval<(), EvalResult> for RopeEffort {
             let result = match result {
                 CtxResult::Ok(ctx) => {
                     let initial = ContextRead::<InitialCtx>::read(&ctx);
-                    let result = match initial.load_capacity {
+                    let result = match initial.load {
                         x if x <= 1.0 => 7.5,
                         x if x <= 2.0 => 10.0,
                         x if x <= 6.0 => 20.0,

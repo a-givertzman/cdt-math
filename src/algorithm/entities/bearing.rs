@@ -10,7 +10,7 @@ pub struct Bearing {
     /// Inner diameter of the bearing
     pub inner_diameter: f64,
     /// Static load capacity of the bearing
-    pub static_load_capacity: f64,
+    pub static_load: f64,
     /// Height of the bearing
     pub height: f64,
 }

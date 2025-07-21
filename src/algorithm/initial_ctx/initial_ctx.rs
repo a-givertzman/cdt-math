@@ -1,32 +1,47 @@
 use sal_sync::services::entity::error::str_err::StrErr;
-
 use crate::{
     algorithm::entities::{
-        alt_lift_device::AltLiftDevice, bearing::Bearing, crane_work_area_type::CraneWorkArea, driver_type::DriverType, hoisting_rope::{hoisting_rope::HoistingRope, rope_durability_class::RopeDurabilityClass, rope_type::RopeType}, hook::Hook, lifting_class::LiftClass, loading_combination::LoadingCombination, mechanism_work_type::MechanismWorkType, winding_type::WindingType
+        alt_lift_device::AltLiftDevice, 
+        bearing::Bearing, 
+        crane_work_area_type::CraneWorkArea, 
+        lifting_mechanism_drive_type::LiftingMechanismDriveType, 
+        hoisting_rope::{
+            hoisting_rope::HoistingRope, 
+            rope_durability_class::RopeDurabilityClass, 
+            rope_type::RopeType
+        }, 
+        hook::HookBlock, 
+        lifting_class::LiftClass,
+        loading_combination::LoadingCombination,
+        mechanism_work_type::HoistGroup, 
+        winding_type::WindingType
     },
-    kernel::{dbgid::dbgid::DbgId, storage::storage::Storage, },
+    kernel::{
+        dbgid::dbgid::DbgId, 
+        storage::storage::Storage, 
+    },
 };
 ///
 /// Storage of [initial data](design\docs\algorithm\part01\initial_data.md)
 #[derive(Debug, Clone)]
 pub struct InitialCtx {
     // dbgid: DbgId,
-    /// where store initial [driver type](design\docs\algorithm\part01\initial_data.md)
-    pub driver_type: DriverType,
+    /// where store initial [lifting mechanism drive type](design\docs\algorithm\part01\initial_data.md)
+    pub driver_type: LiftingMechanismDriveType,
     /// where store initial [loading combination](design\docs\algorithm\part01\initial_data.md)
     pub load_comb: LoadingCombination,
-    /// value of nominal [lifting speed of the mechanism](design\docs\algorithm\part01\initial_data.md)
+    /// value of nominal [rated travelling trolley speed](design/docs/algorithm_single_ginger_overhead_crane/part01_initialization/chapter01_initialData/chapter01_initialData.md)
     pub vhmax: f64,
-    /// value of slow [lifting speed of the mechanism](design\docs\algorithm\part01\initial_data.md)
+    /// value of slow [slow travelling trolley speed](design/docs/algorithm_single_ginger_overhead_crane/part01_initialization/chapter01_initialData/chapter01_initialData.md)
     pub vhcs: f64,
     /// value of [lifting class](design\docs\algorithm\part02\chapter_01_choose_hook.md)
     pub lift_class: LiftClass,
-    /// vector of data base hooks
-    pub hooks: Vec<Hook>,
-    /// value of [loading capacity](design\docs\algorithm\part01\initial_data.md)
-    pub load_capacity: f64,
+    /// vector of data base hook blocks
+    pub hooks: Vec<HookBlock>,
+    /// value of [loading capacity](design/docs/algorithm_single_ginger_overhead_crane/part01_initialization/chapter01_initialData/chapter01_initialData.md)
+    pub load: f64,
     /// value of [mechanism work type](design\docs\algorithm\part01\initial_data.md)
-    pub mechanism_work_type: MechanismWorkType,
+    pub mechanism_work_type: HoistGroup,
     /// vector of data base bearings
     pub bearings: Vec<Bearing>,
     /// user [alternative lifting device](design\docs\algorithm\part02\chapter_02_choose_another_load_handing_device.md)
@@ -35,8 +50,8 @@ pub struct InitialCtx {
     pub deflect_blocks_count: f64,
     /// value [winding type](design\docs\algorithm\part01\initial_data.md)
     pub winding_type: WindingType,
-    /// value [marking of fire/explosion hazardous environment](design\docs\algorithm\part01\initial_data.md)
-    pub mark_fire_exp_env: bool,
+    /// value [marking of fire/explosion hazardous operating environment](design/docs/algorithm_single_ginger_overhead_crane/part01_initialization/chapter01_initialData/chapter01_initialData.md)
+    pub marking_of_fire_explosion_hazardous_operating_environment: bool,
     /// value [crane work area type](design\docs\algorithm\part01\initial_data.md)
     pub crane_work_area: CraneWorkArea,
     /// vector of data base hoisting ropes
@@ -59,7 +74,7 @@ impl InitialCtx {
     pub fn new(storage_initial_data: &mut Storage) -> Result<Self, StrErr> {
         let dbg = DbgId("InitialCtx".to_string());
         Ok(Self {
-            driver_type: serde_json::from_value::<DriverType>(
+            driver_type: serde_json::from_value::<LiftingMechanismDriveType>(
                 storage_initial_data.load("test.user_characteristics.driver_type")?,
             )
             .map_err(|err| StrErr(format!("{}.new | Error {:?}", dbg, err)))?,
@@ -79,15 +94,15 @@ impl InitialCtx {
                 storage_initial_data.load("test.user_characteristics.lifting_class")?,
             )
             .map_err(|err| StrErr(format!("{}.new | Error {:?}", dbg, err)))?,
-            hooks: serde_json::from_value::<Vec<Hook>>(
+            hooks: serde_json::from_value::<Vec<HookBlock>>(
                 storage_initial_data.load("test.constructions.hooks")?,
             )
             .map_err(|err| StrErr(format!("{}.new | Error {:?}", dbg, err)))?,
-            load_capacity: serde_json::from_value::<f64>(
+            load: serde_json::from_value::<f64>(
                 storage_initial_data.load("test.user_characteristics.loading_capacity")?,
             )
             .map_err(|err| StrErr(format!("{}.new | Error {:?}", dbg, err)))?,
-            mechanism_work_type: serde_json::from_value::<MechanismWorkType>(
+            mechanism_work_type: serde_json::from_value::<HoistGroup>(
                 storage_initial_data.load("test.user_characteristics.mechanism_work_type")?,
             )
             .map_err(|err| StrErr(format!("{}.new | Error {:?}", dbg, err)))?,
@@ -107,7 +122,7 @@ impl InitialCtx {
                 storage_initial_data.load("test.user_characteristics.winding_type")?,
             )
             .map_err(|err| StrErr(format!("{}.new | Error {:?}", dbg, err)))?,
-            mark_fire_exp_env: serde_json::from_value::<bool>(
+            marking_of_fire_explosion_hazardous_operating_environment: serde_json::from_value::<bool>(
                 storage_initial_data.load("test.user_characteristics.mark_fire_exp_env")?,
             )
             .map_err(|err| StrErr(format!("{}.new | Error {:?}", dbg, err)))?,

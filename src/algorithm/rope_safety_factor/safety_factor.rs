@@ -1,7 +1,26 @@
 use futures::future::BoxFuture;
 use sal_sync::services::entity::error::str_err::StrErr;
-use crate::{algorithm::{context::{context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult}, initial_ctx::initial_ctx::InitialCtx}, kernel::{dbgid::dbgid::DbgId, eval::Eval, types::eval_result::EvalResult}};
-use super::{safety_factor_ctx::SafetyFactorCtx, select_safety_coeff::SelectSafetyCoeff};
+use crate::{
+    algorithm::{
+        context::{
+            context_access::{
+                ContextRead, 
+                ContextWrite
+            }, 
+            ctx_result::CtxResult
+        }, 
+        initial_ctx::initial_ctx::InitialCtx
+    }, 
+    kernel::{
+        dbgid::dbgid::DbgId, 
+        eval::Eval, 
+        types::eval_result::EvalResult
+    }
+};
+use super::{
+    safety_factor_ctx::SafetyFactorCtx, 
+    select_safety_coeff::SelectSafetyCoeff
+};
 ///
 /// Calculation step: [rope safety factor](design\docs\algorithm\part02\chapter_04_choose_hoist_rope.md)
 pub struct SafetyFactor {
@@ -38,12 +57,12 @@ impl Eval<(), EvalResult> for SafetyFactor {
                     let initial = ContextRead::<InitialCtx>::read(&ctx);
                     let mechanism_work_type = initial.mechanism_work_type.clone();
                     let winding_type = initial.winding_type;
-                    let mark_fire_exp_env = initial.mark_fire_exp_env;
+                    let marking_of_fire_explosion_hazardous_operating_environment = initial.marking_of_fire_explosion_hazardous_operating_environment;
                     let crane_work_area = initial.crane_work_area.clone();
                     let result = SelectSafetyCoeff::new(
                         &self.dbg,
                         winding_type,
-                        mark_fire_exp_env,
+                        marking_of_fire_explosion_hazardous_operating_environment,
                         crane_work_area,
                         mechanism_work_type,
                     ).eval();

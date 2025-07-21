@@ -6,10 +6,41 @@ mod user_bearing {
     use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
     use crate::{
         algorithm::{
-            bearing_filter::bearing_filter_ctx::BearingFilterCtx, context::{context::Context, context_access::ContextRead, ctx_result::CtxResult}, dynamic_coefficient::dynamic_coefficient::DynamicCoefficient, entities::bearing::Bearing, hook_filter::{hook_filter::HookFilter, hook_filter_ctx::HookFilterCtx}, initial::Initial, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed::LiftingSpeed, select_betta_phi::select_betta_phi::SelectBettaPhi
+            bearing_filter::bearing_filter_ctx::BearingFilterCtx, 
+            context::{
+                context::Context, 
+                context_access::ContextRead, 
+                ctx_result::CtxResult
+            }, 
+            dynamic_coefficient::dynamic_coefficient::DynamicCoefficient, 
+            entities::bearing::Bearing, 
+            hook_filter::{
+                hook_filter::HookFilter, 
+                hook_filter_ctx::HookBlockFilterCtx
+            }, 
+            initial::Initial, 
+            initial_ctx::initial_ctx::InitialCtx, 
+            lifting_speed::lifting_speed::LiftingSpeed, 
+            select_betta_phi::select_betta_phi::SelectBettaPhi
         },
-        infrostructure::client::{choose_user_bearing::ChooseUserBearingQuery, choose_user_hook::ChooseUserHookQuery, query::Query},
-        kernel::{eval::Eval, sync::link::Link, mok_user_reply::mok_user_reply::MokUserReply, request::Request, storage::storage::Storage, sync::switch::Switch, user_setup::{user_bearing::UserBearing, user_bearing_ctx::UserBearingCtx, user_hook::UserHook}}
+        infrostructure::client::{
+            choose_user_bearing::ChooseUserBearingQuery, 
+            choose_user_hook::ChooseUserHookQuery, 
+            query::Query
+        },
+        kernel::{
+            eval::Eval, 
+            sync::link::Link, 
+            mok_user_reply::mok_user_reply::MokUserReply, 
+            request::Request, 
+            storage::storage::Storage, 
+            sync::switch::Switch, 
+            user_setup::{
+                user_bearing::UserBearing, 
+                user_bearing_ctx::UserBearingCtx, 
+                user_hook::UserHookBlock
+            }
+        }
     };
     ///
     ///
@@ -45,7 +76,7 @@ mod user_bearing {
                     name: "8100H".to_owned(),
                     outer_diameter: 24.0,
                     inner_diameter: 10.0,
-                    static_load_capacity: 11800.0,
+                    static_load: 11800.0,
                     height: 9.0,
                 },
             )
@@ -63,10 +94,10 @@ mod user_bearing {
                         (link.req(query).await.expect("{}.req | Error to send request"), link)
                     },
                 ),
-                UserHook::new(
+                UserHookBlock::new(
                     Request::new(
                         switch.link().await,
-                        async |variants: HookFilterCtx, link: Link| {
+                        async |variants: HookBlockFilterCtx, link: Link| {
                             let query = Query::ChooseUserHook(ChooseUserHookQuery::test(variants.result.clone()));
                             (link.req(query).await.expect("{}.req | Error to send request"), link)
                         },

@@ -1,9 +1,23 @@
 #[cfg(test)]
 mod select_safety_coeff {
-    use std::{sync::Once, time::Duration};
+    use std::{
+        sync::Once, 
+        time::Duration
+    };
     use testing::stuff::max_test_duration::TestDuration;
-    use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
-    use crate::algorithm::{entities::{crane_work_area_type::CraneWorkArea, mechanism_work_type::MechanismWorkType, winding_type::WindingType}, rope_safety_factor::select_safety_coeff::SelectSafetyCoeff};
+    use debugging::session::debug_session::{
+        DebugSession, 
+        LogLevel, 
+        Backtrace
+    };
+    use crate::algorithm::{
+        entities::{
+            crane_work_area_type::CraneWorkArea, 
+            mechanism_work_type::HoistGroup, 
+            winding_type::WindingType
+        }, 
+        rope_safety_factor::select_safety_coeff::SelectSafetyCoeff
+    };
     ///
     ///
     static INIT: Once = Once::new();
@@ -36,7 +50,7 @@ mod select_safety_coeff {
                 WindingType::MultiLayer,
                 false,
                 CraneWorkArea::Aggressive,
-                MechanismWorkType::M1,
+                HoistGroup::M1,
                 4.5
             ),
             (
@@ -44,7 +58,7 @@ mod select_safety_coeff {
                 WindingType::SingleLayer,
                 false,
                 CraneWorkArea::Default,
-                MechanismWorkType::M3,
+                HoistGroup::M3,
                 3.55
             ),
             (
@@ -52,7 +66,7 @@ mod select_safety_coeff {
                 WindingType::MultiLayer,
                 true,
                 CraneWorkArea::Default,
-                MechanismWorkType::M4,
+                HoistGroup::M4,
                 4.5
             ),
             (
@@ -60,7 +74,7 @@ mod select_safety_coeff {
                 WindingType::MultiLayer,
                 false,
                 CraneWorkArea::StrongAggressive,
-                MechanismWorkType::M2,
+                HoistGroup::M2,
                 4.5
             )
         ];

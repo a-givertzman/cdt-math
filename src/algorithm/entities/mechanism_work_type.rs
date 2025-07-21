@@ -1,10 +1,13 @@
 use sal_sync::services::entity::error::str_err::StrErr;
-use serde::{Deserialize, Serialize};
+use serde::{
+    Deserialize, 
+    Serialize
+};
 use std::str::FromStr;
 ///
 /// Represents [mechanism work types](design\docs\algorithm\part02\initial_data.md)
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
-pub enum MechanismWorkType {
+pub enum HoistGroup {
     M1,
     M2,
     M3,
@@ -16,10 +19,10 @@ pub enum MechanismWorkType {
 }
 //
 //
-impl FromStr for MechanismWorkType {
+impl FromStr for HoistGroup {
     type Err = StrErr;
     ///
-    /// Method translates from string into enuming structure MechanismWorkType
+    /// Method translates from string into enuming structure HoistGroup
     /// - 's' - value to translate
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.to_lowercase().as_str() {
@@ -32,7 +35,7 @@ impl FromStr for MechanismWorkType {
             "m7" => Ok(Self::M7),
             "m8" => Ok(Self::M8),
             _ => Err(format!(
-                "MechanismWorkType.from_str | Invalid MechanismWorkType: {}",
+                "HoistGroup.from_str | Invalid HoistGroup: {}",
                 s
             )
             .into()),
@@ -41,19 +44,19 @@ impl FromStr for MechanismWorkType {
 }
 //
 //
-impl ToString for MechanismWorkType {
+impl ToString for HoistGroup {
     ///
-    /// Method translates from enuming structure MechanismWorkType into string
+    /// Method translates from enuming structure `HoistGroup` into string
     fn to_string(&self) -> String {
         match self {
-            MechanismWorkType::M1 => "M1".to_string(),
-            MechanismWorkType::M2 => "M2".to_string(),
-            MechanismWorkType::M3 => "M3".to_string(),
-            MechanismWorkType::M4 => "M4".to_string(),
-            MechanismWorkType::M5 => "M5".to_string(),
-            MechanismWorkType::M6 => "M6".to_string(),
-            MechanismWorkType::M7 => "M7".to_string(),
-            MechanismWorkType::M8 => "M8".to_string(),
+            HoistGroup::M1 => "M1".to_string(),
+            HoistGroup::M2 => "M2".to_string(),
+            HoistGroup::M3 => "M3".to_string(),
+            HoistGroup::M4 => "M4".to_string(),
+            HoistGroup::M5 => "M5".to_string(),
+            HoistGroup::M6 => "M6".to_string(),
+            HoistGroup::M7 => "M7".to_string(),
+            HoistGroup::M8 => "M8".to_string(),
         }
     }
 }

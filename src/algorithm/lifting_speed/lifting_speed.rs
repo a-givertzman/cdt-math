@@ -3,7 +3,7 @@ use sal_sync::services::entity::error::str_err::StrErr;
 use crate::{
     algorithm::{
         context::{context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult},
-        entities::{driver_type::DriverType, loading_combination::LoadingCombination}, initial_ctx::initial_ctx::InitialCtx,
+        entities::{lifting_mechanism_drive_type::LiftingMechanismDriveType, loading_combination::LoadingCombination}, initial_ctx::initial_ctx::InitialCtx,
     },
     kernel::{dbgid::dbgid::DbgId, eval::Eval, types::eval_result::EvalResult},
 };
@@ -52,14 +52,14 @@ impl Eval<(), EvalResult> for LiftingSpeed {
                     let initial = ContextRead::<InitialCtx>::read(&ctx);
                     let result = match initial.load_comb {
                         LoadingCombination::A1 | LoadingCombination::B1 => match initial.driver_type {
-                            DriverType::Hd1 => initial.vhmax,
-                            DriverType::Hd2 | DriverType::Hd3 => initial.vhcs,
-                            DriverType::Hd4 => Self::vhmax_half(initial.vhmax),
-                            DriverType::Hd5 => 0.0,
+                            LiftingMechanismDriveType::Hd1 => initial.vhmax,
+                            LiftingMechanismDriveType::Hd2 | LiftingMechanismDriveType::Hd3 => initial.vhcs,
+                            LiftingMechanismDriveType::Hd4 => Self::vhmax_half(initial.vhmax),
+                            LiftingMechanismDriveType::Hd5 => 0.0,
                         },
                         LoadingCombination::C1 => match initial.driver_type {
-                            DriverType::Hd1 | DriverType::Hd2 | DriverType::Hd4 => initial.vhmax,
-                            DriverType::Hd3 | DriverType::Hd5 => Self::vhmax_half(initial.vhmax),
+                            LiftingMechanismDriveType::Hd1 | LiftingMechanismDriveType::Hd2 | LiftingMechanismDriveType::Hd4 => initial.vhmax,
+                            LiftingMechanismDriveType::Hd3 | LiftingMechanismDriveType::Hd5 => Self::vhmax_half(initial.vhmax),
                         },
                     };
                     let result = LiftingSpeedCtx {

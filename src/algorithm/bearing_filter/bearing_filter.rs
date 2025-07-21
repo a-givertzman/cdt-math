@@ -1,6 +1,26 @@
 use futures::future::BoxFuture;
 use sal_sync::services::entity::error::str_err::StrErr;
-use crate::{algorithm::{constants::common, context::{context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult}, dynamic_coefficient::dynamic_coefficient_ctx::DynamicCoefficientCtx, entities::bearing::Bearing, initial_ctx::initial_ctx::InitialCtx}, kernel::{dbgid::dbgid::DbgId, eval::Eval, types::eval_result::EvalResult, user_setup::user_hook_ctx::UserHookCtx}};
+use crate::{
+    algorithm::{
+        constants::common, 
+        context::{
+            context_access::{
+                ContextRead, 
+                ContextWrite
+            }, 
+            ctx_result::CtxResult
+        }, 
+        dynamic_coefficient::dynamic_coefficient_ctx::DynamicCoefficientCtx, 
+        entities::bearing::Bearing, 
+        initial_ctx::initial_ctx::InitialCtx
+    }, 
+    kernel::{
+        dbgid::dbgid::DbgId, 
+        eval::Eval, 
+        types::eval_result::EvalResult, 
+        user_setup::user_hook_ctx::UserHookCtx
+    }
+};
 use super::bearing_filter_ctx::BearingFilterCtx;
 ///
 /// Calculation step: [filtering bearings](design\docs\algorithm\part02\chapter_01_choose_hook.md)
@@ -19,7 +39,7 @@ impl  BearingFilter {
     /// - `ctx` - [Context]
     pub fn new(ctx: impl Eval<(), EvalResult> + Send + 'static) -> Self {
         Self {
-            dbgid: DbgId("HookFilter".to_string()),
+            dbgid: DbgId("BearingFilter".to_string()),
             value: None,
             ctx: Box::new(ctx),
         }
@@ -34,7 +54,7 @@ impl  Eval<(), EvalResult> for BearingFilter {
             match result {
                 CtxResult::Ok(ctx) => {
                     let initial = ContextRead::<InitialCtx>::read(&ctx);
-                    let user_loading_capacity = initial.load_capacity.clone(); 
+                    let user_loading_capacity = initial.load.clone(); 
                     let dynamic_coefficient = ContextRead::<DynamicCoefficientCtx>::read(&ctx).result;
                     let user_hook = ContextRead::<UserHookCtx>::read(&ctx).result.clone();
                     let result: Vec<Bearing> = initial
@@ -42,7 +62,7 @@ impl  Eval<(), EvalResult> for BearingFilter {
                     .iter()
                     .cloned()
                     .filter(|bearing| {
-                        (bearing.static_load_capacity >= dynamic_coefficient * user_loading_capacity * common::G) &&
+                        (bearing.static_load >= dynamic_coefficient * user_loading_capacity * common::G) &&
                         (bearing.outer_diameter >= user_hook.shank_diameter)
                     })
                     .collect();
@@ -70,7 +90,7 @@ impl  Eval<(), EvalResult> for BearingFilter {
 //
 impl std::fmt::Debug for BearingFilter {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.debug_struct("HookFilter")
+        f.debug_struct("BearingFilter")
             .field("dbgid", &self.dbgid)
             .field("value", &self.value)
             // .field("ctx", &self.ctx)

@@ -1,19 +1,33 @@
 use futures::future::BoxFuture;
 use sal_sync::services::entity::error::str_err::StrErr;
-use super::hook_filter_ctx::HookFilterCtx;
+use super::hook_filter_ctx::HookBlockFilterCtx;
 use crate::{
     algorithm::{
-        context::{context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult},
-        entities::{hook::Hook, mechanism_work_type::MechanismWorkType}, initial_ctx::initial_ctx::InitialCtx,
+        context::{
+            context_access::{
+            ContextRead, 
+            ContextWrite
+        }, 
+        ctx_result::CtxResult
+        },
+        entities::{
+            hook::HookBlock, 
+            mechanism_work_type::HoistGroup
+        }, 
+        initial_ctx::initial_ctx::InitialCtx,
     },
-    kernel::{dbgid::dbgid::DbgId, eval::Eval, types::eval_result::EvalResult},
+    kernel::{
+        dbgid::dbgid::DbgId, 
+        eval::Eval, 
+        types::eval_result::EvalResult
+    },
 };
 ///
-/// Calculation step: [filtering hooks](design\docs\algorithm\part02\chapter_01_choose_hook.md)
+/// Calculation step: [filtering hook blocks](design\docs\algorithm\part02\chapter_01_choose_hook.md)
 pub struct HookFilter {
     dbgid: DbgId,
-    /// vector of [filtered hooks](design\docs\algorithm\part02\chapter_01_choose_hook.md)
-    value: Option<HookFilterCtx>,
+    /// vector of [filtered hook block](design\docs\algorithm\part02\chapter_01_choose_hook.md)
+    value: Option<HookBlockFilterCtx>,
     /// [Context] instance, where store all info about initial data and each algorithm result's
     ctx: Box<dyn Eval<(), EvalResult> + Send>,
 }
@@ -35,7 +49,7 @@ impl  HookFilter {
 //
 impl Eval<(), EvalResult> for HookFilter {
     ///
-    /// Method of filtering hooks by user loading capacity
+    /// Method of filtering hook blocks by user loading capacity
     /// [reference to filtering documentation](design\docs\algorithm\part02\chapter_01_choose_hook.md)
     fn eval(&mut self, _: ()) -> BoxFuture<'_, EvalResult> {
         Box::pin(async {
@@ -46,25 +60,25 @@ impl Eval<(), EvalResult> for HookFilter {
                         Some(hook_filter) => ctx.write(hook_filter),
                         None => {
                             let initial = ContextRead::<InitialCtx>::read(&ctx);
-                            let user_loading_capacity = initial.load_capacity.clone();
+                            let user_loading_capacity = initial.load.clone();
                             let user_mech_work_type = initial.mechanism_work_type.clone();
-                            let result: Vec<Hook> = initial
+                            let result: Vec<HookBlock> = initial
                                 .hooks
                                 .iter()
                                 .cloned()
                                 .filter(|hook| match user_mech_work_type {
-                                    MechanismWorkType::M1
-                                    | MechanismWorkType::M2
-                                    | MechanismWorkType::M3 => {
-                                        hook.load_capacity_m13 >= user_loading_capacity
+                                    HoistGroup::M1
+                                    | HoistGroup::M2
+                                    | HoistGroup::M3 => {
+                                        hook.load_m13 >= user_loading_capacity
                                     }
-                                    MechanismWorkType::M4
-                                    | MechanismWorkType::M5
-                                    | MechanismWorkType::M6 => {
-                                        hook.load_capacity_m46 >= user_loading_capacity
+                                    HoistGroup::M4
+                                    | HoistGroup::M5
+                                    | HoistGroup::M6 => {
+                                        hook.load_m13 >= user_loading_capacity
                                     }
-                                    MechanismWorkType::M7 | MechanismWorkType::M8 => {
-                                        hook.load_capacity_m78 >= user_loading_capacity
+                                    HoistGroup::M7 | HoistGroup::M8 => {
+                                        hook.load_m13 >= user_loading_capacity
                                     }
                                 })
                                 .collect();
@@ -74,7 +88,7 @@ impl Eval<(), EvalResult> for HookFilter {
                                     self.dbgid,
                                 )))
                             } else {
-                                let result = HookFilterCtx { result };
+                                let result = HookBlockFilterCtx { result };
                                 self.value = Some(result.clone());
                                 ctx.write(result)
                             }
