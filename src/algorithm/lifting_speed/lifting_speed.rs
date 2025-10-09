@@ -52,14 +52,14 @@ impl Eval<(), EvalResult> for LiftingSpeed {
                     let initial = ContextRead::<InitialCtx>::read(&ctx);
                     let result = match initial.load_comb {
                         LoadingCombination::A1 | LoadingCombination::B1 => match initial.driver_type {
-                            LiftingMechanismDriveType::Hd1 => initial.vhmax,
-                            LiftingMechanismDriveType::Hd2 | LiftingMechanismDriveType::Hd3 => initial.vhcs,
-                            LiftingMechanismDriveType::Hd4 => Self::vhmax_half(initial.vhmax),
+                            LiftingMechanismDriveType::Hd1 => initial.vhmax_hoist,
+                            LiftingMechanismDriveType::Hd2 | LiftingMechanismDriveType::Hd3 => initial.vhcs_hoist,
+                            LiftingMechanismDriveType::Hd4 => Self::vhmax_half(initial.vhmax_hoist),
                             LiftingMechanismDriveType::Hd5 => 0.0,
                         },
                         LoadingCombination::C1 => match initial.driver_type {
-                            LiftingMechanismDriveType::Hd1 | LiftingMechanismDriveType::Hd2 | LiftingMechanismDriveType::Hd4 => initial.vhmax,
-                            LiftingMechanismDriveType::Hd3 | LiftingMechanismDriveType::Hd5 => Self::vhmax_half(initial.vhmax),
+                            LiftingMechanismDriveType::Hd1 | LiftingMechanismDriveType::Hd2 | LiftingMechanismDriveType::Hd4 => initial.vhmax_hoist,
+                            LiftingMechanismDriveType::Hd3 | LiftingMechanismDriveType::Hd5 => Self::vhmax_half(initial.vhmax_hoist),
                         },
                     };
                     let result = LiftingSpeedCtx {

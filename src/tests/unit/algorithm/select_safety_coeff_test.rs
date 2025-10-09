@@ -13,7 +13,7 @@ mod select_safety_coeff {
     use crate::algorithm::{
         entities::{
             crane_work_area_type::CraneWorkArea, 
-            mechanism_work_type::HoistGroup, 
+            hoist_group::HoistGroup, 
             winding_type::WindingType
         }, 
         rope_safety_factor::select_safety_coeff::SelectSafetyCoeff

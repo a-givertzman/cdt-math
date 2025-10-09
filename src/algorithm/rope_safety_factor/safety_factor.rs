@@ -55,7 +55,7 @@ impl Eval<(), EvalResult> for SafetyFactor {
             let result = match result {
                 CtxResult::Ok(ctx) => {
                     let initial = ContextRead::<InitialCtx>::read(&ctx);
-                    let mechanism_work_type = initial.mechanism_work_type.clone();
+                    let mechanism_work_type = initial.hoist_group.clone();
                     let winding_type = initial.winding_type;
                     let marking_of_fire_explosion_hazardous_operating_environment = initial.marking_of_fire_explosion_hazardous_operating_environment;
                     let crane_work_area = initial.crane_work_area.clone();

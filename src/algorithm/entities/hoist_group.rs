@@ -5,7 +5,7 @@ use serde::{
 };
 use std::str::FromStr;
 ///
-/// Represents [mechanism work types](design\docs\algorithm\part02\initial_data.md)
+/// Represents [mechanism work types](design/docs/algorithm_single_ginger_overhead_crane/part01_initialization/chapter01_initialData/chapter01_initialData.md)
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub enum HoistGroup {
     M1,

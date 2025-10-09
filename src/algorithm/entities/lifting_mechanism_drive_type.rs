@@ -2,7 +2,7 @@ use sal_sync::services::entity::error::str_err::StrErr;
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 ///
-/// Represents [lifting mechanism driver types](design\docs\algorithm\part01\initial_data.md)
+/// Represents [lifting mechanism driver types](design/docs/algorithm_single_ginger_overhead_crane/part01_initialization/chapter01_initialData/chapter01_initialData.md)
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum LiftingMechanismDriveType {
     Hd1,

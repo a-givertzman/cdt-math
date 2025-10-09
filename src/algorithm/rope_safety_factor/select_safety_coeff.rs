@@ -4,7 +4,7 @@ use sal_sync::services::entity::{
 };
 use crate::algorithm::entities::{
     crane_work_area_type::CraneWorkArea, 
-    mechanism_work_type::HoistGroup, 
+    hoist_group::HoistGroup, 
     winding_type::WindingType
 };
 
