@@ -25,7 +25,7 @@ pub struct InitialCtx {
     pub vhmax_hoist: f64,
     /// value of slow [slow travelling hoist speed](design/docs/algorithm_single_ginger_overhead_crane/part01_initialization/chapter01_initialData/chapter01_initialData.md)
     pub vhcs_hoist: f64,
-    /// type of [hoisting group of lifting mechanism] (design/docs/algorithm_single_ginger_overhead_crane/part01_initialization/chapter01_initialData/chapter01_initialData.md)
+    /// type of [hoisting group of lifting mechanism](design/docs/algorithm_single_ginger_overhead_crane/part01_initialization/chapter01_initialData/chapter01_initialData.md)
     pub hoist_group: HoistGroup,
     /// [work duration of lifting mechanism](design/docs/algorithm_single_ginger_overhead_crane/part01_initialization/chapter01_initialData/chapter01_initialData.md)
     pub lifting_duration: LiftingDuration,

@@ -16,6 +16,7 @@ pub enum CraneDriveGroup {
     M6,
     M7,
     M8,
+    M9,
 }
 //
 //
@@ -34,6 +35,7 @@ impl FromStr for CraneDriveGroup {
             "m6" => Ok(Self::M6),
             "m7" => Ok(Self::M7),
             "m8" => Ok(Self::M8),
+            "m9" => Ok(Self::M9),
             _ => Err(format!(
                 "CraneDriveGroup.from_str | Invalid CraneDriveGroup: {}",
                 s
@@ -57,6 +59,8 @@ impl ToString for CraneDriveGroup {
             CraneDriveGroup::M6 => "M6".to_string(),
             CraneDriveGroup::M7 => "M7".to_string(),
             CraneDriveGroup::M8 => "M8".to_string(),
+            CraneDriveGroup::M9 => "M9".to_string(),
+
         }
     }
 }

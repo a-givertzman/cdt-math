@@ -20,7 +20,7 @@ use crate::{
         rope_count::rope_count_ctx::RopeCountCtx, 
         rope_effort::rope_effort_ctx::RopeEffortCtx, 
         rope_safety_factor::safety_factor_ctx::SafetyFactorCtx, 
-        select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx
+        select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx, choice_usage_class::usage_class_ctx::ChoiceUsageClassCtx,
     },
     kernel::user_setup::{
         user_bearing_ctx::UserBearingCtx, 
@@ -283,5 +283,18 @@ impl ContextWrite<UserHoistRopeCtx> for Context {
 impl ContextRead<UserHoistRopeCtx> for Context {
     fn read(&self) -> &UserHoistRopeCtx {
         &self.user_hoist_rope
+    }
+}
+//
+//
+impl ContextWrite<ChoiceUsageClassCtx> for Context {
+    fn write(mut self, value: ChoiceUsageClassCtx) -> CtxResult<Self, StrErr> {
+        self.usage_class = value;
+        CtxResult::Ok(self)
+    }
+}
+impl ContextRead<ChoiceUsageClassCtx> for Context {
+    fn read(&self) -> &ChoiceUsageClassCtx {
+        &self.usage_class
     }
 }

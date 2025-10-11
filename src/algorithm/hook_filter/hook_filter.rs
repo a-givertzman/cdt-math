@@ -80,6 +80,9 @@ impl Eval<(), EvalResult> for HookFilter {
                                     HoistGroup::M7 | HoistGroup::M8 => {
                                         hook.load_m13 >= user_loading_capacity
                                     }
+                                    HoistGroup::M9 => {
+                                        false
+                                    }
                                 })
                                 .collect();
                             if result.is_empty() {
