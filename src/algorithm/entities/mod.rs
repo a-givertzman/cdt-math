@@ -25,6 +25,7 @@ pub mod lifting_mechanism_drive_type;
 pub mod loading_combination;
 pub mod trolley_control_system;
 pub mod hoist_group;
+pub mod hoist;
 pub mod trolley_group;
 pub mod trolley_power_system;
 pub mod usage_class;
