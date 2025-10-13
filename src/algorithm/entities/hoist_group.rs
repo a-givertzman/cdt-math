@@ -16,6 +16,7 @@ pub enum HoistGroup {
     M6,
     M7,
     M8,
+    M9,
 }
 //
 //
@@ -34,6 +35,7 @@ impl FromStr for HoistGroup {
             "m6" => Ok(Self::M6),
             "m7" => Ok(Self::M7),
             "m8" => Ok(Self::M8),
+            "m9" => Ok(Self::M9),
             _ => Err(format!(
                 "HoistGroup.from_str | Invalid HoistGroup: {}",
                 s
@@ -57,6 +59,7 @@ impl ToString for HoistGroup {
             HoistGroup::M6 => "M6".to_string(),
             HoistGroup::M7 => "M7".to_string(),
             HoistGroup::M8 => "M8".to_string(),
+            HoistGroup::M9 => "M9".to_string(),
         }
     }
 }

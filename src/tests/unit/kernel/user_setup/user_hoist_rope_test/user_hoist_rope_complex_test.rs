@@ -55,13 +55,7 @@ mod user_hoist_rope_complex {
             sync::{
                 link::Link, 
                 switch::Switch
-            }, 
-            user_setup::{
-                user_bearing::UserBearing, 
-                user_hoist_rope::UserHoistRope, 
-                user_hoist_rope_ctx::UserHoistRopeCtx, 
-                user_hook::UserHookBlock
-            }
+            }, user_setup::{user_bearing::user_bearing::UserBearing, user_hoist_rope::{user_hoist_rope::UserHoistRope, user_hoist_rope_ctx::UserHoistRopeCtx}, user_hook::user_hook::UserHookBlock}, 
         }
     };
     ///

@@ -65,6 +65,7 @@ impl SelectSafetyCoeff {
                                 HoistGroup::M6 => 5.6,
                                 HoistGroup::M7 => 7.1,
                                 HoistGroup::M8 => 9.0,
+                                HoistGroup::M9 => return Err(StrErr::from("There are no variable for `M9` mode"))
                             }
                         }
                         WindingType::MultiLayer => {
@@ -85,6 +86,12 @@ impl SelectSafetyCoeff {
                                 HoistGroup::M8 => {
                                     return Err(StrErr(format!(
                                         "{}.eval | For multilayer winding for mode `M8` the rope safety factor is unknown",
+                                        self.dbg
+                                    )))
+                                }
+                                HoistGroup::M9 => {
+                                    return Err(StrErr(format!(
+                                        "{}.eval | For multilayer winding for mode `M9` the rope safety factor is unknown",
                                         self.dbg
                                     )))
                                 }

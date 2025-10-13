@@ -1,0 +1,17 @@
+[
+  {
+    "manufacturer": "Nante", 
+    "name": "HoistTest_1", 
+    "hoist_type": "Rope", 
+    "driver_type": "Electric", 
+    "hoist_mobility": "Stationary", 
+    "hoist_perfomance": "Industrial", 
+    "hoist_headroom": "Deacreased", 
+    "load": 50.0, 
+    "lifting_height": 100.0, 
+    "duty_group": "M1", 
+    "wheel_count": "Eight", 
+    "lifting_speed": 20.0, 
+    "travelling_speed": 10.0
+  }
+]

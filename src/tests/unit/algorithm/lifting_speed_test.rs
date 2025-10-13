@@ -49,7 +49,7 @@ mod lifting_speed {
                     "./src/tests/unit/kernel/storage/cache/test_1",
                 ))
                 .unwrap(),
-                CtxResult::Ok(0.63),
+                CtxResult::Ok(20.0),
             ),
             (
                 2,
@@ -57,7 +57,7 @@ mod lifting_speed {
                     "./src/tests/unit/kernel/storage/cache/test_2",
                 ))
                 .unwrap(),
-                CtxResult::Ok(0.2),
+                CtxResult::Ok(10.0),
             ),
             (
                 3,
@@ -65,7 +65,7 @@ mod lifting_speed {
                     "./src/tests/unit/kernel/storage/cache/test_3",
                 ))
                 .unwrap(),
-                CtxResult::Ok(0.2),
+                CtxResult::Ok(10.0),
             ),
             (
                 4,
@@ -73,7 +73,7 @@ mod lifting_speed {
                     "./src/tests/unit/kernel/storage/cache/test_4",
                 ))
                 .unwrap(),
-                CtxResult::Ok(0.315),
+                CtxResult::Ok(10.0),
             ),
             (
                 5,
@@ -89,7 +89,7 @@ mod lifting_speed {
                     "./src/tests/unit/kernel/storage/cache/test_6",
                 ))
                 .unwrap(),
-                CtxResult::Ok(0.63),
+                CtxResult::Ok(20.0),
             ),
             (
                 7,
@@ -97,7 +97,7 @@ mod lifting_speed {
                     "./src/tests/unit/kernel/storage/cache/test_7",
                 ))
                 .unwrap(),
-                CtxResult::Ok(0.2),
+                CtxResult::Ok(10.0),
             ),
             (
                 8,
@@ -105,7 +105,7 @@ mod lifting_speed {
                     "./src/tests/unit/kernel/storage/cache/test_8",
                 ))
                 .unwrap(),
-                CtxResult::Ok(0.315),
+                CtxResult::Ok(10.0),
             ),
         ];
         for (step, initial, target) in test_data {

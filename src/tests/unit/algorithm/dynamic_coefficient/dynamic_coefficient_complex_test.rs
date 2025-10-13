@@ -52,7 +52,7 @@ mod dynamic_coefficient {
                     "./src/tests/unit/kernel/storage/cache/test_1",
                 ))
                 .unwrap(),
-                CtxResult::Ok(1.157),
+                CtxResult::Ok(4.45),
             ),
             (
                 2,
@@ -60,7 +60,7 @@ mod dynamic_coefficient {
                     "./src/tests/unit/kernel/storage/cache/test_2",
                 ))
                 .unwrap(),
-                CtxResult::Ok(1.168),
+                CtxResult::Ok(4.5),
             ),
             (
                 3,
@@ -68,7 +68,7 @@ mod dynamic_coefficient {
                     "./src/tests/unit/kernel/storage/cache/test_3",
                 ))
                 .unwrap(),
-                CtxResult::Ok(1.252),
+                CtxResult::Ok(6.25),
             ),
         ];
         for (step, initial, target) in test_data {

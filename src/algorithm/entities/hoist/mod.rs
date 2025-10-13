@@ -1,0 +1,9 @@
+pub mod hoist_driver_type;
+pub mod hoist_duty_group;
+pub mod hoist_headroom;
+pub mod hoist_manufacturer_type;
+pub mod hoist_mobility_type;
+pub mod hoist_perfomance_type;
+pub mod hoist_type;
+pub mod hoist_wheel_count;
+pub mod hoist;

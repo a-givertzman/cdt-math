@@ -1,7 +1,7 @@
 use sal_sync::services::entity::error::str_err::StrErr;
 use crate::{
     algorithm::entities::{
-        alt_lift_device::AltLiftDevice, basic_crane_control::BasicCraneControl, bearing::Bearing, bridge_control_system::BridgeControlSystem, bridge_drive_diagram::BridgeDriveDiagram, bridge_drive_system::BridgeDriveSystem, bridge_movement_duration::BridgeMovementDuration, cab_location::CabLocation, crane_climatic_category::CraneClimaticCategory, crane_drive_group::CraneDriveGroup, crane_duty_class::CraneDutyClass, crane_power_system::CranePowerSystem, crane_purpose::CranePurpose, crane_wind_area::CraneWindArea, crane_work_area_type::CraneWorkArea, explosion_fire_save_crane_purpose::ExplosionFireSaveCranePurpose, hoist_control_system::HoistControlSystem, hoist_group::HoistGroup, hoisting_rope::{
+        alt_lift_device::AltLiftDevice, basic_crane_control::BasicCraneControl, bearing::Bearing, bridge_control_system::BridgeControlSystem, bridge_drive_diagram::BridgeDriveDiagram, bridge_drive_system::BridgeDriveSystem, bridge_movement_duration::BridgeMovementDuration, cab_location::CabLocation, crane_climatic_category::CraneClimaticCategory, crane_drive_group::CraneDriveGroup, crane_duty_class::CraneDutyClass, crane_power_system::CranePowerSystem, crane_purpose::CranePurpose, crane_wind_area::CraneWindArea, crane_work_area_type::CraneWorkArea, explosion_fire_save_crane_purpose::ExplosionFireSaveCranePurpose, hoist::hoist::Hoist, hoist_control_system::HoistControlSystem, hoist_group::HoistGroup, hoisting_rope::{
             hoisting_rope::HoistingRope, 
             rope_durability_class::RopeDurabilityClass, 
             rope_type::RopeType
@@ -22,10 +22,14 @@ pub struct InitialCtx {
     /// value of [height of lifting mechanism](design/docs/algorithm_single_ginger_overhead_crane/part01_initialization/chapter01_initialData/chapter01_initialData.md)
     pub lifting_height: f64,
     /// value of nominal [rated travelling hoist speed](design/docs/algorithm_single_ginger_overhead_crane/part01_initialization/chapter01_initialData/chapter01_initialData.md)
-    pub vhmax_hoist: f64,
+    pub vhmax_travel_hoist: f64,
     /// value of slow [slow travelling hoist speed](design/docs/algorithm_single_ginger_overhead_crane/part01_initialization/chapter01_initialData/chapter01_initialData.md)
-    pub vhcs_hoist: f64,
-    /// type of [hoisting group of lifting mechanism] (design/docs/algorithm_single_ginger_overhead_crane/part01_initialization/chapter01_initialData/chapter01_initialData.md)
+    pub vhcs_travel_hoist: f64,
+    /// value of nominal [rated lifting hoist speed](design/docs/algorithm_single_ginger_overhead_crane/part01_initialization/chapter01_initialData/chapter01_initialData.md)
+    pub vhmax_lift_hoist: f64,
+    /// value of slow [slow lifting hoist speed](design/docs/algorithm_single_ginger_overhead_crane/part01_initialization/chapter01_initialData/chapter01_initialData.md)
+    pub vhcs_lift_hoist: f64,
+    /// type of [hoisting group of lifting mechanism](design/docs/algorithm_single_ginger_overhead_crane/part01_initialization/chapter01_initialData/chapter01_initialData.md)
     pub hoist_group: HoistGroup,
     /// [work duration of lifting mechanism](design/docs/algorithm_single_ginger_overhead_crane/part01_initialization/chapter01_initialData/chapter01_initialData.md)
     pub lifting_duration: LiftingDuration,
@@ -113,6 +117,8 @@ pub struct InitialCtx {
     pub lift_class: LiftClass,
     /// vector of data base hook blocks
     pub hooks: Vec<HookBlock>,
+    /// vector of data base hoist's
+    pub hoists: Vec<Hoist>,
     /// vector of data base bearings
     pub bearings: Vec<Bearing>,
     /// user [alternative lifting device](design\docs\algorithm\part02\chapter_02_choose_another_load_handing_device.md)
@@ -152,12 +158,20 @@ impl InitialCtx {
                     storage_initial_data.load("test.user_characteristics.lifting_height")?,
                 )
                 .map_err(|err| StrErr(format!("{}.new | Error {:?}", dbg, err)))?,
-                vhmax_hoist: serde_json::from_value::<f64>(
-                    storage_initial_data.load("test.user_characteristics.vhmax_hoist")?,
+                vhmax_travel_hoist: serde_json::from_value::<f64>(
+                    storage_initial_data.load("test.user_characteristics.vhmax_travel_hoist")?,
                 )
                 .map_err(|err| StrErr(format!("{}.new | Error {:?}", dbg, err)))?,
-                vhcs_hoist: serde_json::from_value::<f64>(
-                    storage_initial_data.load("test.user_characteristics.vhcs_hoist")?,
+                vhcs_travel_hoist: serde_json::from_value::<f64>(
+                    storage_initial_data.load("test.user_characteristics.vhcs_travel_hoist")?,
+                )
+                .map_err(|err| StrErr(format!("{}.new | Error {:?}", dbg, err)))?,
+                vhmax_lift_hoist: serde_json::from_value::<f64>(
+                    storage_initial_data.load("test.user_characteristics.vhmax_lift_hoist")?,
+                )
+                .map_err(|err| StrErr(format!("{}.new | Error {:?}", dbg, err)))?,
+                vhcs_lift_hoist: serde_json::from_value::<f64>(
+                    storage_initial_data.load("test.user_characteristics.vhcs_lift_hoist")?,
                 )
                 .map_err(|err| StrErr(format!("{}.new | Error {:?}", dbg, err)))?,
                 hoist_group: serde_json::from_value::<HoistGroup>(
@@ -334,6 +348,10 @@ impl InitialCtx {
                 .map_err(|err| StrErr(format!("{}.new | Error {:?}", dbg, err)))?,
                 hooks: serde_json::from_value::<Vec<HookBlock>>(
                     storage_initial_data.load("test.constructions.hooks")?,
+                )
+                .map_err(|err| StrErr(format!("{}.new | Error {:?}", dbg, err)))?,
+                hoists: serde_json::from_value::<Vec<Hoist>>(
+                    storage_initial_data.load("test.constructions.hoists")?,
                 )
                 .map_err(|err| StrErr(format!("{}.new | Error {:?}", dbg, err)))?,
                 bearings: serde_json::from_value::<Vec<Bearing>>(

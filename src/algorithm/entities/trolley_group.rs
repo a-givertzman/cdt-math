@@ -16,6 +16,7 @@ pub enum TrolleyGroup {
     M6,
     M7,
     M8,
+    M9,
 }
 //
 //
@@ -34,6 +35,7 @@ impl FromStr for TrolleyGroup {
             "m6" => Ok(Self::M6),
             "m7" => Ok(Self::M7),
             "m8" => Ok(Self::M8),
+            "m9" => Ok(Self::M9),
             _ => Err(format!(
                 "TrolleyGroup.from_str | Invalid TrolleyGroup: {}",
                 s
@@ -57,6 +59,7 @@ impl ToString for TrolleyGroup {
             TrolleyGroup::M6 => "M6".to_string(),
             TrolleyGroup::M7 => "M7".to_string(),
             TrolleyGroup::M8 => "M8".to_string(),
+            TrolleyGroup::M9 => "M9".to_string(),
         }
     }
 }

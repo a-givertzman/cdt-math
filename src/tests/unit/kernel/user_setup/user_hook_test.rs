@@ -34,16 +34,7 @@ mod user_hook {
             query::Query
         },
         kernel::{
-            eval::Eval, 
-            sync::link::Link, 
-            mok_user_reply::mok_user_reply::MokUserReply, 
-            request::Request, 
-            storage::storage::Storage, 
-            sync::switch::Switch, 
-            user_setup::{
-                user_hook::UserHookBlock, 
-                user_hook_ctx::UserHookCtx
-            }
+            eval::Eval, mok_user_reply::mok_user_reply::MokUserReply, request::Request, storage::storage::Storage, sync::{link::Link, switch::Switch}, user_setup::user_hook::{user_hook::UserHookBlock, user_hook_ctx::UserHookCtx} 
         }
     };
     ///
@@ -81,7 +72,7 @@ mod user_hook {
                     r#type: "Forged".to_string(),
                     load_m13: 25.0,
                     load_m46: 23.0,
-                    load_m78: 21.0,
+                    load_m79: 21.0,
                     shank_diameter: 85.0,
                     weight: 50.0,
                 },

@@ -21,31 +21,26 @@ use serde::Serialize;
 use tokio::task::JoinHandle;
 use crate::{
     algorithm::entities::{
-        bearing::Bearing, hoisting_rope::{
+        bearing::Bearing, hoist::{hoist::Hoist, hoist_driver_type::HoistDriverType, hoist_duty_group::HoistDutyGroup, hoist_headroom::HoistHeadroomType, hoist_manufacturer_type::HoistManufacturerType, hoist_mobility_type::HoistMobilityType, hoist_perfomance_type::HoistPerfomanceType, hoist_type::HoistType, hoist_wheel_count::HoistWheelCount}, hoisting_rope::{
             hoisting_rope::HoistingRope, 
             rope_durability_class::RopeDurabilityClass, 
             rope_type::RopeType
-        },
-        hook::HookBlock,
+        }, hook::HookBlock
     }, 
     infrostructure::client::{
         change_hoisting_tackle::{
             ChangeHoistingTackleQuery, 
             ChangeHoistingTackleReply
-        },
-        choose_hoisting_rope::{
+        }, choose_hoisting_rope::{
             ChooseHoistingRopeQuery, 
             ChooseHoistingRopeReply
-        },
-        choose_user_bearing::{
+        }, choose_user_bearing::{
             ChooseUserBearingQuery, 
             ChooseUserBearingReply
-        },
-        choose_user_hook::{
+        }, choose_user_hoist::{ChooseUserHoistQuery, ChooseUserHoistReply}, choose_user_hoist_characteristics::{ChooseHoistCharactetisticsQuery, ChooseHoistCharactetisticsReply}, choose_user_hook::{
             ChooseUserHookQuery, 
             ChooseUserHookReply
-        },
-        query::Query
+        }, query::Query
     },
     kernel::sync::link::Link,
 };
@@ -114,7 +109,7 @@ impl MokUserReply {
                                 r#type: "Forged".to_string(),
                                 load_m13: 25.0,
                                 load_m46: 23.0,
-                                load_m78: 21.0,
+                                load_m79: 21.0,
                                 shank_diameter: 85.0,
                                 weight: 50.0,
                             }),
@@ -123,7 +118,7 @@ impl MokUserReply {
                                 r#type: "Forged".to_string(),
                                 load_m13: 25.0,
                                 load_m46: 23.0,
-                                load_m78: 21.0,
+                                load_m79: 21.0,
                                 shank_diameter: 85.0,
                                 weight: 50.0,
                             }),
@@ -157,6 +152,37 @@ impl MokUserReply {
                     Query::ChangeHoistingTackle(query) => {
                         let _query: ChangeHoistingTackleQuery = query;
                         let reply = ChangeHoistingTackleReply::new(1);
+                        build_reply(&dbg, txid, &name, reply)
+                    }
+                    Query::ChooseHoistCharactetistics(query) => {
+                        let _query: ChooseHoistCharactetisticsQuery = query;
+                        let reply = ChooseHoistCharactetisticsReply::new(
+                            HoistType::Rope.to_string(), 
+                            HoistWheelCount::Eight, 
+                            HoistHeadroomType::Deacreased, 
+                            HoistManufacturerType::Nante
+                        );
+                        build_reply(&dbg, txid, &name, reply)
+                    },
+                    Query::ChooseUserHoist(query) => {
+                        let _query: ChooseUserHoistQuery = query;
+                        let reply = ChooseUserHoistReply::new(
+                            Hoist { 
+                                manufacturer: HoistManufacturerType::Nante, 
+                                name: "HoistTest_1".to_string(), 
+                                hoist_type: HoistType::Rope, 
+                                driver_type: HoistDriverType::Electric, 
+                                hoist_mobility: HoistMobilityType::Stationary, 
+                                hoist_perfomance: HoistPerfomanceType::Industrial, 
+                                hoist_headroom: HoistHeadroomType::Deacreased, 
+                                load: 50.0, 
+                                lifting_height: 100.0, 
+                                duty_group: HoistDutyGroup::M1, 
+                                wheel_count: HoistWheelCount::Eight, 
+                                lifting_speed: 20.0, 
+                                travelling_speed: 10.0, 
+                            },
+                        );
                         build_reply(&dbg, txid, &name, reply)
                     }
                 }
