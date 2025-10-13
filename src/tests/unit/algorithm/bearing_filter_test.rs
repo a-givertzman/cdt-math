@@ -41,13 +41,7 @@ mod bearing_filter {
             query::Query
         },
         kernel::{
-            eval::Eval, 
-            sync::link::Link, 
-            mok_user_reply::mok_user_reply::MokUserReply, 
-            request::Request, 
-            storage::storage::Storage, 
-            sync::switch::Switch, 
-            user_setup::user_hook::UserHookBlock
+            eval::Eval, mok_user_reply::mok_user_reply::MokUserReply, request::Request, storage::storage::Storage, sync::{link::Link, switch::Switch}, user_setup::user_hook::user_hook::UserHookBlock 
         }
     };
     ///

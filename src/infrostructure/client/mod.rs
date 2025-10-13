@@ -145,5 +145,7 @@
 pub mod change_hoisting_tackle;
 pub mod choose_hoisting_rope;
 pub mod choose_user_bearing;
+pub mod choose_user_hoist_characteristics;
 pub mod choose_user_hook;
+pub mod choose_user_hoist;
 pub mod query;

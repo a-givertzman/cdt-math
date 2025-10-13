@@ -5,9 +5,10 @@ use serde::{
     Serialize
 };
 ///
-/// [hoist type](https://github.com/a-givertzman/cdt-math/blob/Docs-hoist-mechanism-Hoist/design/docs/algorithm_single_ginger_overhead_crane/part02_hoistMechanism/chapter02_typesHoists.md)
-#[derive(Debug, Clone, Serialize, Deserialize)]
+/// [hoist mobility type](https://github.com/a-givertzman/cdt-math/blob/Docs-hoist-mechanism-Hoist/design/docs/algorithm_single_ginger_overhead_crane/part02_hoistMechanism/chapter02_typesHoists.md)
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub enum HoistMobilityType {
+    #[default]
     Stationary,
     MobileSuspended,
     MobileSupport,
@@ -23,11 +24,11 @@ impl FromStr for HoistMobilityType {
     /// - 's' - value to translate
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.to_lowercase().as_str() {
-            "Stationary" => Ok(Self::Stationary),
-            "MobileSuspended" => Ok(Self::MobileSuspended),
-            "MobileSupport" => Ok(Self::MobileSupport),
-            "NormalHeadroom" => Ok(Self::NormalHeadroom),
-            "ReducedHeadroom" => Ok(Self::ReducedHeadroom),
+            "stationary" => Ok(Self::Stationary),
+            "mobilesuspended" => Ok(Self::MobileSuspended),
+            "mobilesupport" => Ok(Self::MobileSupport),
+            "normalheadroom" => Ok(Self::NormalHeadroom),
+            "reducedheadroom" => Ok(Self::ReducedHeadroom),
             _ => Err(format!(
                 "HoistMobilityType.from_str | Invalid HoistMobilityType: {}",
                 s

@@ -5,9 +5,10 @@ use serde::{
     Serialize
 };
 ///
-/// [hoist type](https://github.com/a-givertzman/cdt-math/blob/Docs-hoist-mechanism-Hoist/design/docs/algorithm_single_ginger_overhead_crane/part02_hoistMechanism/chapter02_typesHoists.md)
-#[derive(Debug, Clone, Serialize, Deserialize)]
+/// [hoist driver type](https://github.com/a-givertzman/cdt-math/blob/Docs-hoist-mechanism-Hoist/design/docs/algorithm_single_ginger_overhead_crane/part02_hoistMechanism/chapter02_typesHoists.md)
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Default)]
 pub enum HoistDriverType {
+    #[default]
     Electric,
     Handed,
 }

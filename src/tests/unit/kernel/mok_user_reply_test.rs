@@ -60,7 +60,7 @@ mod mok_user_reply {
                         r#type: "".into(),
                         load_m13: 0.1,
                         load_m46: 0.2,
-                        load_m78: 0.3,
+                        load_m79: 0.3,
                         shank_diameter: 0.4,
                         weight: 50.0,
                     }
@@ -70,7 +70,7 @@ mod mok_user_reply {
                     r#type: "Forged".into(),
                     load_m13: 25.0,
                     load_m46: 23.0,
-                    load_m78: 21.0,
+                    load_m79: 21.0,
                     shank_diameter: 85.0,
                     weight: 50.0,
                 }

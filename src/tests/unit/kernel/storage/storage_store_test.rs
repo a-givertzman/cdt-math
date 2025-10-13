@@ -142,6 +142,9 @@ mod storage {
                         target
                     );
                 }
+                Value::Bytes(target) => {
+                    
+                }
             }
         }
         test_duration.exit();

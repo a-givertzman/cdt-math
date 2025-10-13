@@ -22,9 +22,13 @@ pub struct InitialCtx {
     /// value of [height of lifting mechanism](design/docs/algorithm_single_ginger_overhead_crane/part01_initialization/chapter01_initialData/chapter01_initialData.md)
     pub lifting_height: f64,
     /// value of nominal [rated travelling hoist speed](design/docs/algorithm_single_ginger_overhead_crane/part01_initialization/chapter01_initialData/chapter01_initialData.md)
-    pub vhmax_hoist: f64,
+    pub vhmax_travel_hoist: f64,
     /// value of slow [slow travelling hoist speed](design/docs/algorithm_single_ginger_overhead_crane/part01_initialization/chapter01_initialData/chapter01_initialData.md)
-    pub vhcs_hoist: f64,
+    pub vhcs_travel_hoist: f64,
+    /// value of nominal [rated lifting hoist speed](design/docs/algorithm_single_ginger_overhead_crane/part01_initialization/chapter01_initialData/chapter01_initialData.md)
+    pub vhmax_lift_hoist: f64,
+    /// value of slow [slow lifting hoist speed](design/docs/algorithm_single_ginger_overhead_crane/part01_initialization/chapter01_initialData/chapter01_initialData.md)
+    pub vhcs_lift_hoist: f64,
     /// type of [hoisting group of lifting mechanism](design/docs/algorithm_single_ginger_overhead_crane/part01_initialization/chapter01_initialData/chapter01_initialData.md)
     pub hoist_group: HoistGroup,
     /// [work duration of lifting mechanism](design/docs/algorithm_single_ginger_overhead_crane/part01_initialization/chapter01_initialData/chapter01_initialData.md)
@@ -154,12 +158,20 @@ impl InitialCtx {
                     storage_initial_data.load("test.user_characteristics.lifting_height")?,
                 )
                 .map_err(|err| StrErr(format!("{}.new | Error {:?}", dbg, err)))?,
-                vhmax_hoist: serde_json::from_value::<f64>(
-                    storage_initial_data.load("test.user_characteristics.vhmax_hoist")?,
+                vhmax_travel_hoist: serde_json::from_value::<f64>(
+                    storage_initial_data.load("test.user_characteristics.vhmax_travel_hoist")?,
                 )
                 .map_err(|err| StrErr(format!("{}.new | Error {:?}", dbg, err)))?,
-                vhcs_hoist: serde_json::from_value::<f64>(
-                    storage_initial_data.load("test.user_characteristics.vhcs_hoist")?,
+                vhcs_travel_hoist: serde_json::from_value::<f64>(
+                    storage_initial_data.load("test.user_characteristics.vhcs_travel_hoist")?,
+                )
+                .map_err(|err| StrErr(format!("{}.new | Error {:?}", dbg, err)))?,
+                vhmax_lift_hoist: serde_json::from_value::<f64>(
+                    storage_initial_data.load("test.user_characteristics.vhmax_lift_hoist")?,
+                )
+                .map_err(|err| StrErr(format!("{}.new | Error {:?}", dbg, err)))?,
+                vhcs_lift_hoist: serde_json::from_value::<f64>(
+                    storage_initial_data.load("test.user_characteristics.vhcs_lift_hoist")?,
                 )
                 .map_err(|err| StrErr(format!("{}.new | Error {:?}", dbg, err)))?,
                 hoist_group: serde_json::from_value::<HoistGroup>(

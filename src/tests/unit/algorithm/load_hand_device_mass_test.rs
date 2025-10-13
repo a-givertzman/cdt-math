@@ -46,11 +46,7 @@ mod load_hand_device_mass {
             sync::{
                 link::Link, 
                 switch::Switch
-            }, 
-            user_setup::{
-                user_bearing::UserBearing, 
-                user_hook::UserHookBlock
-            }
+            }, user_setup::{user_bearing::user_bearing::UserBearing, user_hook::user_hook::UserHookBlock}, 
         }
     };
     ///

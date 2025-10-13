@@ -1,28 +1,7 @@
 use crate::{
     algorithm::{
-        bearing_filter::bearing_filter_ctx::BearingFilterCtx, 
-        dynamic_coefficient::dynamic_coefficient_ctx::DynamicCoefficientCtx, 
-        hoist_rope_filter::hoist_rope_filter_ctx::HoistRopeFilterCtx, 
-        hoisting_tackle::hoisting_tackle_ctx::HoistingTackleCtx, 
-        hoisting_tackle_effiency_coefficient::hoist_tackle_eff_coeff_ctx::HoistTackleEffCoeffCtx, 
-        hoisting_tackle_multiplicity::hoist_tackle_multi_ctx::HoistTackleMultiCtx, 
-        hook_filter::hook_filter_ctx::HookBlockFilterCtx, 
-        initial_ctx::initial_ctx::InitialCtx, 
-        lifting_speed::lifting_speed_ctx::LiftingSpeedCtx, 
-        load_hand_device_mass::load_hand_device_mass_ctx::LoadHandDeviceMassCtx, 
-        maximum_force::max_force_ctx::MaxForceCtx, 
-        min_break_force::min_break_force_ctx::MinBreakForceCtx, 
-        rope_count::rope_count_ctx::RopeCountCtx, 
-        rope_effort::rope_effort_ctx::RopeEffortCtx, 
-        rope_safety_factor::safety_factor_ctx::SafetyFactorCtx, 
-        select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx, 
-        choice_usage_class::usage_class_ctx::ChoiceUsageClassCtx,
-    },
-    kernel::user_setup::{
-        user_bearing_ctx::UserBearingCtx, 
-        user_hoist_rope_ctx::UserHoistRopeCtx, 
-        user_hook_ctx::UserHookCtx
-    },
+        bearing_filter::bearing_filter_ctx::BearingFilterCtx, choice_usage_class::usage_class_ctx::ChoiceUsageClassCtx, dynamic_coefficient::dynamic_coefficient_ctx::DynamicCoefficientCtx, hoist_filter::hoist_filter_ctx::HoistFilterCtx, hoist_rope_filter::hoist_rope_filter_ctx::HoistRopeFilterCtx, hoisting_tackle::hoisting_tackle_ctx::HoistingTackleCtx, hoisting_tackle_effiency_coefficient::hoist_tackle_eff_coeff_ctx::HoistTackleEffCoeffCtx, hoisting_tackle_multiplicity::hoist_tackle_multi_ctx::HoistTackleMultiCtx, hook_filter::hook_filter_ctx::HookBlockFilterCtx, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed_ctx::LiftingSpeedCtx, load_hand_device_mass::load_hand_device_mass_ctx::LoadHandDeviceMassCtx, maximum_force::max_force_ctx::MaxForceCtx, min_break_force::min_break_force_ctx::MinBreakForceCtx, rope_count::rope_count_ctx::RopeCountCtx, rope_effort::rope_effort_ctx::RopeEffortCtx, rope_safety_factor::safety_factor_ctx::SafetyFactorCtx, select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx
+    }, kernel::user_setup::{user_bearing::user_bearing_ctx::UserBearingCtx, user_hoist::user_hoist_ctx::UserHoistCtx, user_hoist_rope::user_hoist_rope_ctx::UserHoistRopeCtx, user_hook::user_hook_ctx::UserHookCtx},
 };
 use super::testing_ctx::TestingCtx;
 ///
@@ -71,6 +50,10 @@ pub struct Context {
     pub(super) user_hoist_rope: UserHoistRopeCtx,
     /// result of calculation [usage class](design/docs/algorithm_single_ginger_overhead_crane/part01_initialization/chapter01_initialData/chapter01_initialData.md)
     pub(super) usage_class: ChoiceUsageClassCtx,
+    /// result of calculation [hoist filter](https://github.com/a-givertzman/cdt-math/blob/Docs-hoist-mechanism-Hoist/design/docs/algorithm_single_ginger_overhead_crane/part02_hoistMechanism/chapter03_chooseHoist.md)
+    pub(super) hoist_filter: HoistFilterCtx,
+    /// user [hoist](https://github.com/a-givertzman/cdt-math/blob/Docs-hoist-mechanism-Hoist/design/docs/algorithm_single_ginger_overhead_crane/part02_hoistMechanism/chapter03_chooseHoist.md)
+    pub(super) user_hoist: UserHoistCtx,
     ///
     /// Uset for testing only
     #[allow(dead_code)]
@@ -105,6 +88,8 @@ impl Context {
             user_hoist_rope: UserHoistRopeCtx::default(),
             testing: None,
             usage_class: ChoiceUsageClassCtx::default(),
+            user_hoist: UserHoistCtx::default(),
+            hoist_filter: HoistFilterCtx::default(),
         }
     }
 }

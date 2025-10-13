@@ -59,9 +59,7 @@
 //! - `UserHook`: Implements the logic for requesting a hook from the user.
 //!
 //! This module ensures that the user can participate in the selection process while maintaining the structured evaluation pipeline.
-pub mod user_bearing_ctx;
 pub mod user_bearing;
-pub mod user_hoist_rope_ctx;
+pub mod user_hoist;
 pub mod user_hoist_rope;
-pub mod user_hook_ctx;
 pub mod user_hook;

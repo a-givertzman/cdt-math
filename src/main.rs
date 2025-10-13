@@ -50,12 +50,9 @@ use kernel::{
     request::Request, 
     run::Run,
     storage::storage::Storage, sync::{link::Link, switch::Switch},
-    user_setup::{
-        user_bearing::UserBearing, 
-        user_hoist_rope::UserHoistRope, 
-        user_hook::UserHookBlock
-    },
 };
+
+use crate::kernel::user_setup::{user_bearing::user_bearing::UserBearing, user_hoist_rope::user_hoist_rope::UserHoistRope, user_hook::user_hook::UserHookBlock};
 ///
 /// Application entry point
 #[tokio::main(flavor = "multi_thread")]

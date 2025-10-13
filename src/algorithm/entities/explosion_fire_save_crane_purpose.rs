@@ -9,6 +9,7 @@ pub enum ExplosionFireSaveCranePurpose {
     Industrial,
     FireSafe,
     ExplosionSafe,
+    Marine,
 }
 //
 //
@@ -22,6 +23,7 @@ impl FromStr for ExplosionFireSaveCranePurpose {
             "industrial" => Ok(Self::Industrial),
             "firesafe" => Ok(Self::FireSafe),
             "explosionsafe" => Ok(Self::ExplosionSafe),
+            "marine" => Ok(Self::Marine),
             _ => Err(format!(
                 "ExplosionFireSaveCranePurpose.from_str | Invalid ExplosionFireSaveCranePurpose: {}",
                 s
@@ -40,6 +42,7 @@ impl ToString for ExplosionFireSaveCranePurpose {
             ExplosionFireSaveCranePurpose::Industrial => "Industrial".to_string(),
             ExplosionFireSaveCranePurpose::FireSafe => "FireSafe".to_string(),
             ExplosionFireSaveCranePurpose::ExplosionSafe => "ExplosionSafe".to_string(),
+            ExplosionFireSaveCranePurpose::Marine => "Marine".to_string(),
         }
     }
 }

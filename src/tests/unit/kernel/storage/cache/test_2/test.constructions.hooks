@@ -4,7 +4,7 @@
     "type": "Single",
     "load_m13": 7.5,
     "load_m46": 7.0,
-    "load_m78": 6.5,
+    "load_m79": 6.5,
     "shank_diameter": 35.0,
     "weight": 50.0
   },
@@ -13,7 +13,7 @@
     "type": "Double",
     "load_m13": 12.0,
     "load_m46": 11.0,
-    "load_m78": 10.0,
+    "load_m79": 10.0,
     "shank_diameter": 55.0,
     "weight": 60.0
   },
@@ -22,7 +22,7 @@
     "type": "Forged",
     "load_m13": 22.0,
     "load_m46": 20.0,
-    "load_m78": 18.5,
+    "load_m79": 18.5,
     "shank_diameter": 80.0,
     "weight": 70.0
   },
@@ -31,7 +31,7 @@
     "type": "Laminated",
     "load_m13": 17.0,
     "load_m46": 16.0,
-    "load_m78": 14.0,
+    "load_m79": 14.0,
     "shank_diameter": 65.0,
     "weight": 80.0
   }

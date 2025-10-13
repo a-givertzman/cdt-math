@@ -1,3 +1,5 @@
+use crate::infrostructure::client::{choose_user_hoist::ChooseUserHoistQuery, choose_user_hoist_characteristics::ChooseHoistCharactetisticsQuery};
+
 use super::{
     change_hoisting_tackle::ChangeHoistingTackleQuery,
     choose_hoisting_rope::ChooseHoistingRopeQuery, choose_user_bearing::ChooseUserBearingQuery,
@@ -20,4 +22,9 @@ pub enum Query {
     ///
     /// Request for changing hoisting tackle
     ChangeHoistingTackle(ChangeHoistingTackleQuery),
+    ///
+    /// Request for choosing hoist characteristics
+    ChooseHoistCharactetistics(ChooseHoistCharactetisticsQuery),
+    /// Request for choosing hoist from filtered
+    ChooseUserHoist(ChooseUserHoistQuery),
 }
