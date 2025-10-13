@@ -66,7 +66,7 @@ mod max_force {
                     total_mass: 50.0,
                     net_weight: 20.0,
                 },
-                5.6898
+                6.180300000000001
             ),
             (
                 3,

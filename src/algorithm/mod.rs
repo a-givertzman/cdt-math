@@ -18,3 +18,4 @@ pub mod rope_count;
 pub mod rope_effort;
 pub mod rope_safety_factor;
 pub mod select_betta_phi;
+pub mod choice_usage_class;

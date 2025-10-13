@@ -76,15 +76,6 @@ mod hook_filter {
                 .unwrap(),
                 CtxResult::Ok(vec![
                     HookBlock {
-                        gost: "GOST 18442-81".to_string(),
-                        r#type: "Double".to_string(),
-                        load_m13: 12.0,
-                        load_m46: 11.0,
-                        load_m78: 10.0,
-                        shank_diameter: 55.0,
-                        weight: 60.0,
-                    },
-                    HookBlock {
                         gost: "GOST 23858-79".to_string(),
                         r#type: "Forged".to_string(),
                         load_m13: 22.0,

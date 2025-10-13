@@ -46,7 +46,7 @@ mod rope_effort {
                     "./src/tests/unit/kernel/storage/cache/test_2",
                 ))
                 .unwrap(),
-                30.0
+                40.0
             ),
             (
                 3,

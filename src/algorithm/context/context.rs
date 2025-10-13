@@ -15,7 +15,8 @@ use crate::{
         rope_count::rope_count_ctx::RopeCountCtx, 
         rope_effort::rope_effort_ctx::RopeEffortCtx, 
         rope_safety_factor::safety_factor_ctx::SafetyFactorCtx, 
-        select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx
+        select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx, 
+        choice_usage_class::usage_class_ctx::ChoiceUsageClassCtx,
     },
     kernel::user_setup::{
         user_bearing_ctx::UserBearingCtx, 
@@ -68,6 +69,8 @@ pub struct Context {
     pub(super) hoist_rope_filter: HoistRopeFilterCtx,
     /// user [hoisting rope](design\docs\algorithm\part02\chapter_04_choose_hoist_rope.md)
     pub(super) user_hoist_rope: UserHoistRopeCtx,
+    /// result of calculation [usage class](design/docs/algorithm_single_ginger_overhead_crane/part01_initialization/chapter01_initialData/chapter01_initialData.md)
+    pub(super) usage_class: ChoiceUsageClassCtx,
     ///
     /// Uset for testing only
     #[allow(dead_code)]
@@ -101,6 +104,7 @@ impl Context {
             hoist_rope_filter: HoistRopeFilterCtx::default(),
             user_hoist_rope: UserHoistRopeCtx::default(),
             testing: None,
+            usage_class: ChoiceUsageClassCtx::default(),
         }
     }
 }
