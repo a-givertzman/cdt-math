@@ -48,13 +48,13 @@ impl Eval<(), EvalResult> for LoadHandDeviceMass {
                         Some(lift_device) => {
                             LoadHandDeviceMassCtx {
                                 total_mass: user_hook.weight + lift_device.weight,
-                                net_weight: initial.load_capacity - lift_device.weight,
+                                net_weight: initial.load - lift_device.weight,
                             }
                         },
                         None => {
                             LoadHandDeviceMassCtx {
                                 total_mass: user_hook.weight,
-                                net_weight: initial.load_capacity,
+                                net_weight: initial.load,
                             }
                         },
                     };

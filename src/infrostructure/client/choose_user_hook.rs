@@ -1,11 +1,14 @@
-use serde::{Serialize, Deserialize};
-use crate::algorithm::entities::hook::Hook;
+use serde::{
+    Serialize, 
+    Deserialize
+};
+use crate::algorithm::entities::hook::HookBlock;
 ///
 /// User request | Asks user for choose [Hook] from filtered
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct ChooseUserHookQuery {
     /// vector of hooks filtered by user characteristics
-    pub variants: Vec<Hook>,
+    pub variants: Vec<HookBlock>,
     #[serde(skip_serializing_if = "testing")]
     pub testing: bool,
 }
@@ -14,7 +17,7 @@ pub struct ChooseUserHookQuery {
 impl ChooseUserHookQuery {
     ///
     /// New instance [ChooseUserHookQuery]
-    pub fn new(variants: Vec<Hook>) -> Self {
+    pub fn new(variants: Vec<HookBlock>) -> Self {
         Self {
             variants,
             testing: false,
@@ -22,7 +25,7 @@ impl ChooseUserHookQuery {
     }
     ///
     /// New instance [ChooseUserHookQuery] for testing
-    pub fn test(variants: Vec<Hook>) -> Self {
+    pub fn test(variants: Vec<HookBlock>) -> Self {
         Self {
             variants,
             testing: true,
@@ -38,14 +41,14 @@ fn testing(v: &bool) -> bool {
 /// Reply to [ChooseUserHookQuery]
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct ChooseUserHookReply {
-    pub choosen: Hook
+    pub choosen: HookBlock
 }
 //
 //
 impl ChooseUserHookReply {
     ///
     /// New instance [ChooseUserHookReply]
-    pub fn new(choosen: Hook) -> Self {
+    pub fn new(choosen: HookBlock) -> Self {
         Self {
             choosen,
         }

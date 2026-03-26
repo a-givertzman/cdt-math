@@ -1,0 +1,45 @@
+use std::str::FromStr;
+
+use api_tools::error::str_err::StrErr;
+use serde::{
+    Deserialize, 
+    Serialize
+};
+///
+/// type of [lifted load](design/docs/algorithm_single_ginger_overhead_crane/part01_initialization/chapter01_initialData/chapter01_initialData.md)
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum LiftedLoad {
+    Safe,
+    Dangerous,
+}
+//
+//
+impl FromStr for LiftedLoad {
+    type Err = StrErr;
+    ///
+    /// Method translates from string into enuming structure LiftedLoad
+    /// - 's' - value to translate
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "safe" => Ok(Self::Safe),
+            "dangerous" => Ok(Self::Dangerous),
+            _ => Err(format!(
+                "LiftedLoad.from_str | Invalid LiftedLoad: {}",
+                s
+            )
+            .into()),
+        }
+    }
+}
+//
+//
+impl ToString for LiftedLoad {
+    ///
+    /// Method translates from enuming structure `LiftedLoad` into string
+    fn to_string(&self) -> String {
+        match self {
+            LiftedLoad::Safe => "Safe".to_string(),
+            LiftedLoad::Dangerous => "Dangerous".to_string(),
+        }
+    }
+}
