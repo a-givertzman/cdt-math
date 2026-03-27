@@ -1,6 +1,24 @@
 use futures::future::BoxFuture;
 use sal_sync::services::entity::error::str_err::StrErr;
-use crate::{algorithm::{context::{context_access::{ContextRead, ContextWrite}, ctx_result::CtxResult}, initial_ctx::initial_ctx::InitialCtx, load_hand_device_mass::load_hand_device_mass_ctx::LoadHandDeviceMassCtx, rope_effort::rope_effort_ctx::RopeEffortCtx}, kernel::{dbgid::dbgid::DbgId, eval::Eval, types::eval_result::EvalResult}};
+use crate::{
+    algorithm::{
+        context::{
+            context_access::{
+                ContextRead, 
+                ContextWrite
+            }, 
+            ctx_result::CtxResult
+        }, 
+        initial_ctx::initial_ctx::InitialCtx, 
+        load_hand_device_mass::load_hand_device_mass_ctx::LoadHandDeviceMassCtx, 
+        rope_effort::rope_effort_ctx::RopeEffortCtx
+    }, 
+    kernel::{
+        dbgid::dbgid::DbgId, 
+        eval::Eval, 
+        types::eval_result::EvalResult
+    }
+};
 use super::rope_count_ctx::RopeCountCtx;
 ///
 /// Calculation step: [rope count](design\docs\algorithm\part02\chapter_03_choose_hoisting_tackle.md)
@@ -47,7 +65,7 @@ impl Eval<(), EvalResult> for RopeCount {
                     let initial = ContextRead::<InitialCtx>::read(&ctx);
                     let hook_weight = ContextRead::<LoadHandDeviceMassCtx>::read(&ctx).total_mass.clone();
                     let rope_effort = ContextRead::<RopeEffortCtx>::read(&ctx).result.clone();
-                    let result = Self::round_up((initial.load_capacity+hook_weight)/rope_effort);
+                    let result = Self::round_up((initial.load+hook_weight)/rope_effort);
                     let result = RopeCountCtx {
                         result,
                     };
