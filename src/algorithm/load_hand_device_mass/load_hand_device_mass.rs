@@ -44,17 +44,17 @@ impl Eval<(), EvalResult> for LoadHandDeviceMass {
                 CtxResult::Ok(ctx) => {
                     let initial = ContextRead::<InitialCtx>::read(&ctx);
                     let user_hook = ContextRead::<UserHookCtx>::read(&ctx).result.clone();
-                    let result = match &initial.user_alt_lift_device {
+                    let result = match &initial.hoist_initial.lifting_device {
                         Some(lift_device) => {
                             LoadHandDeviceMassCtx {
                                 total_mass: user_hook.weight + lift_device.weight,
-                                net_weight: initial.load - lift_device.weight,
+                                net_weight: initial.hoist_initial.load - lift_device.weight,
                             }
                         },
                         None => {
                             LoadHandDeviceMassCtx {
                                 total_mass: user_hook.weight,
-                                net_weight: initial.load,
+                                net_weight: initial.hoist_initial.load,
                             }
                         },
                     };

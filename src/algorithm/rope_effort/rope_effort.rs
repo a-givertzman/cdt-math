@@ -51,7 +51,7 @@ impl Eval<(), EvalResult> for RopeEffort {
             let result = match result {
                 CtxResult::Ok(ctx) => {
                     let initial = ContextRead::<InitialCtx>::read(&ctx);
-                    let result = match initial.load {
+                    let result = match initial.hoist_initial.load {
                         x if x <= 1.0 => 7.5,
                         x if x <= 2.0 => 10.0,
                         x if x <= 6.0 => 20.0,

@@ -54,7 +54,7 @@ impl Eval<(), EvalResult> for MaxForce {
             match result {
                 CtxResult::Ok(ctx) => {
                     let initial = ContextRead::<InitialCtx>::read(&ctx);
-                    let loading_capacity = initial.load;
+                    let loading_capacity = initial.hoist_initial.load;
                     let hoist_tackle_eff_coeff = ContextRead::<HoistTackleEffCoeffCtx>::read(&ctx).result.clone();
                     let rope_count = ContextRead::<RopeCountCtx>::read(&ctx).result.clone();
                     let total_mass = ContextRead::<LoadHandDeviceMassCtx>::read(&ctx).total_mass.clone();

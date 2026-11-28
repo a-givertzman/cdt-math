@@ -12,7 +12,7 @@ use crate::{
         },
         entities::{
             hook::HookBlock, 
-            hoist_group::HoistGroup
+            hoist::hoist_group::HoistGroup,
         }, 
         initial_ctx::initial_ctx::InitialCtx,
     },
@@ -60,8 +60,8 @@ impl Eval<(), EvalResult> for HookFilter {
                         Some(hook_filter) => ctx.write(hook_filter),
                         None => {
                             let initial = ContextRead::<InitialCtx>::read(&ctx);
-                            let user_loading_capacity = initial.load.clone();
-                            let user_mech_work_type = initial.hoist_group.clone();
+                            let user_loading_capacity = initial.hoist_initial.load.clone();
+                            let user_mech_work_type = initial.hoist_initial.group.clone();
                             let result: Vec<HookBlock> = initial
                                 .hooks
                                 .iter()

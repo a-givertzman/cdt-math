@@ -2,7 +2,7 @@ use sal_sync::services::entity::error::str_err::StrErr;
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 ///
-/// Represents [loading combination types](design\docs\algorithm\part02\initial_data.md)
+/// Represents [loading combination types](design/docs/algorithm/part02/chapter_01_choose_hook.md)
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum LoadingCombination {
     A1,

@@ -38,12 +38,12 @@ impl Eval<(), EvalResult> for HoistRopeFilter {
                     let initial = ContextRead::<InitialCtx>::read(&ctx).clone();
                     let min_break_force = ContextRead::<MinBreakForceCtx>::read(&ctx).result.clone();
                     let mut result: Vec<HoistingRope> = Vec::new();
-                    for hoisting_rope in initial.hoisting_ropes.iter() {
-                        if hoisting_rope.r#type == initial.hoist_rope_type &&
-                            initial.hoist_rope_diameters.iter().any(|d| *d == hoisting_rope.rope_diameter) &&
-                            hoisting_rope.rope_durability == initial.hoist_rope_durability_class &&
+                    for hoisting_rope in initial.hoist_rope_initial.hoisting_ropes.iter() {
+                        if hoisting_rope.r#type == initial.hoist_rope_initial.rope_type &&
+                            initial.hoist_rope_initial.rope_diameters.iter().any(|d| *d == hoisting_rope.rope_diameter) &&
+                            hoisting_rope.rope_durability == initial.hoist_rope_initial.rope_durability_class &&
                             hoisting_rope.rope_force >= min_break_force {
-                            if result.len() < initial.hoist_rope_count.into() {
+                            if result.len() < initial.hoist_rope_initial.rope_count.into() {
                                 result.push(hoisting_rope.clone()); 
                             } else { 
                                 break; 

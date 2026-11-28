@@ -65,7 +65,7 @@ impl Eval<(), EvalResult> for RopeCount {
                     let initial = ContextRead::<InitialCtx>::read(&ctx);
                     let hook_weight = ContextRead::<LoadHandDeviceMassCtx>::read(&ctx).total_mass.clone();
                     let rope_effort = ContextRead::<RopeEffortCtx>::read(&ctx).result.clone();
-                    let result = Self::round_up((initial.load+hook_weight)/rope_effort);
+                    let result = Self::round_up((initial.hoist_initial.load+hook_weight)/rope_effort);
                     let result = RopeCountCtx {
                         result,
                     };

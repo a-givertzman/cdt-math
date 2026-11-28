@@ -3,9 +3,9 @@ use sal_sync::services::entity::{
     name::Name
 };
 use crate::algorithm::entities::{
-    crane_work_area_type::CraneWorkArea, 
-    hoist_group::HoistGroup, 
-    winding_type::WindingType
+    general_crane::crane_work_area_type::CraneWorkArea, 
+    hoist::hoist_group::HoistGroup, 
+    hoisting_rope::winding_type::WindingType
 };
 
 use super::safety_factor_ctx::SafetyFactorCtx;

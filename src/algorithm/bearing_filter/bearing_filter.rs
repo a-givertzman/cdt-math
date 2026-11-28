@@ -54,7 +54,7 @@ impl  Eval<(), EvalResult> for BearingFilter {
             match result {
                 CtxResult::Ok(ctx) => {
                     let initial = ContextRead::<InitialCtx>::read(&ctx);
-                    let user_loading_capacity = initial.load.clone(); 
+                    let user_loading_capacity = initial.hoist_initial.load.clone(); 
                     let dynamic_coefficient = ContextRead::<DynamicCoefficientCtx>::read(&ctx).result;
                     let user_hook = ContextRead::<UserHookCtx>::read(&ctx).result.clone();
                     let result: Vec<Bearing> = initial
