@@ -1,11 +1,32 @@
 use sal_sync::services::entity::error::str_err::StrErr;
-
-use super::{context::Context, ctx_result::CtxResult};
+use super::{
+    context::Context, 
+    ctx_result::CtxResult
+};
 use crate::{
     algorithm::{
-        bearing_filter::bearing_filter_ctx::BearingFilterCtx, dynamic_coefficient::dynamic_coefficient_ctx::DynamicCoefficientCtx, hoist_rope_filter::hoist_rope_filter_ctx::HoistRopeFilterCtx, hoisting_tackle::hoisting_tackle_ctx::HoistingTackleCtx, hoisting_tackle_effiency_coefficient::hoist_tackle_eff_coeff_ctx::HoistTackleEffCoeffCtx, hoisting_tackle_multiplicity::hoist_tackle_multi_ctx::HoistTackleMultiCtx, hook_filter::hook_filter_ctx::HookFilterCtx, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed_ctx::LiftingSpeedCtx, load_hand_device_mass::load_hand_device_mass_ctx::LoadHandDeviceMassCtx, maximum_force::max_force_ctx::MaxForceCtx, min_break_force::min_break_force_ctx::MinBreakForceCtx, rope_count::rope_count_ctx::RopeCountCtx, rope_effort::rope_effort_ctx::RopeEffortCtx, rope_safety_factor::safety_factor_ctx::SafetyFactorCtx, select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx
+        bearing_filter::bearing_filter_ctx::BearingFilterCtx,
+        dynamic_coefficient::dynamic_coefficient_ctx::DynamicCoefficientCtx, 
+        hoist_rope_filter::hoist_rope_filter_ctx::HoistRopeFilterCtx, 
+        hoisting_tackle::hoisting_tackle_ctx::HoistingTackleCtx, 
+        hoisting_tackle_effiency_coefficient::hoist_tackle_eff_coeff_ctx::HoistTackleEffCoeffCtx, 
+        hoisting_tackle_multiplicity::hoist_tackle_multi_ctx::HoistTackleMultiCtx, 
+        hook_filter::hook_filter_ctx::HookBlockFilterCtx, 
+        initial_ctx::initial_ctx::InitialCtx, 
+        lifting_speed::lifting_speed_ctx::LiftingSpeedCtx, 
+        load_hand_device_mass::load_hand_device_mass_ctx::LoadHandDeviceMassCtx, 
+        maximum_force::max_force_ctx::MaxForceCtx, 
+        min_break_force::min_break_force_ctx::MinBreakForceCtx, 
+        rope_count::rope_count_ctx::RopeCountCtx, 
+        rope_effort::rope_effort_ctx::RopeEffortCtx, 
+        rope_safety_factor::safety_factor_ctx::SafetyFactorCtx, 
+        select_betta_phi::select_betta_phi_ctx::SelectBetPhiCtx
     },
-    kernel::user_setup::{user_bearing_ctx::UserBearingCtx, user_hoist_rope_ctx::UserHoistRopeCtx, user_hook_ctx::UserHookCtx},
+    kernel::user_setup::{
+        user_bearing_ctx::UserBearingCtx, 
+        user_hoist_rope_ctx::UserHoistRopeCtx, 
+        user_hook_ctx::UserHookCtx
+    },
 };
 ///
 /// Provides restricted write access to the [Context] members
@@ -71,15 +92,15 @@ impl ContextRead<SelectBetPhiCtx> for Context {
 }
 //
 //
-impl ContextWrite<HookFilterCtx> for Context {
-    fn write(mut self, value: HookFilterCtx) -> CtxResult<Self, StrErr> {
-        self.hook_filter = value;
+impl ContextWrite<HookBlockFilterCtx> for Context {
+    fn write(mut self, value: HookBlockFilterCtx) -> CtxResult<Self, StrErr> {
+        self.hook_block_filter = value;
         CtxResult::Ok(self)
     }
 }
-impl ContextRead<HookFilterCtx> for Context {
-    fn read(&self) -> &HookFilterCtx {
-        &self.hook_filter
+impl ContextRead<HookBlockFilterCtx> for Context {
+    fn read(&self) -> &HookBlockFilterCtx {
+        &self.hook_block_filter
     }
 }
 //

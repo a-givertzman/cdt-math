@@ -113,6 +113,7 @@ mod storage {
                         target
                     );
                 }
+                Value::Bytes(items) => { }, // VORZHEV Z.A. 28.11.2026
             }
         }
         test_duration.exit();

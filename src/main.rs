@@ -5,19 +5,56 @@ mod kernel;
 #[cfg(test)]
 mod tests;
 use algorithm::{
-    bearing_filter::bearing_filter_ctx::BearingFilterCtx, context::context::Context, dynamic_coefficient::dynamic_coefficient::DynamicCoefficient, hoist_rope_filter::{hoist_rope_filter::HoistRopeFilter, hoist_rope_filter_ctx::HoistRopeFilterCtx}, hoisting_tackle::hoisting_tackle::HoistingTackle, hoisting_tackle_effiency_coefficient::hoist_tackle_eff_coeff::HoistTackleEffCoeff, hoisting_tackle_multiplicity::hoist_tackle_multi::HoistTackleMulti, hook_filter::{hook_filter::HookFilter,hook_filter_ctx::HookFilterCtx}, initial::Initial, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed::LiftingSpeed, load_hand_device_mass::load_hand_device_mass::LoadHandDeviceMass, maximum_force::max_force::MaxForce, min_break_force::min_break_force::MinBreakForce, rope_count::rope_count::RopeCount, rope_effort::rope_effort::RopeEffort, rope_safety_factor::safety_factor::SafetyFactor, select_betta_phi::select_betta_phi::SelectBettaPhi
+    bearing_filter::bearing_filter_ctx::BearingFilterCtx, 
+    context::context::Context, 
+    dynamic_coefficient::dynamic_coefficient::DynamicCoefficient, 
+    hoist_rope_filter::{
+        hoist_rope_filter::HoistRopeFilter, 
+        hoist_rope_filter_ctx::HoistRopeFilterCtx
+    }, 
+    hoisting_tackle::hoisting_tackle::HoistingTackle, 
+    hoisting_tackle_effiency_coefficient::hoist_tackle_eff_coeff::HoistTackleEffCoeff, 
+    hoisting_tackle_multiplicity::hoist_tackle_multi::HoistTackleMulti, 
+    hook_filter::{
+        hook_filter::HookFilter,
+        hook_filter_ctx::HookBlockFilterCtx
+    }, 
+    initial::Initial, 
+    initial_ctx::initial_ctx::InitialCtx, 
+    lifting_speed::lifting_speed::LiftingSpeed, 
+    load_hand_device_mass::load_hand_device_mass::LoadHandDeviceMass, 
+    maximum_force::max_force::MaxForce, 
+    min_break_force::min_break_force::MinBreakForce, 
+    rope_count::rope_count::RopeCount, 
+    rope_effort::rope_effort::RopeEffort, 
+    rope_safety_factor::safety_factor::SafetyFactor, 
+    select_betta_phi::select_betta_phi::SelectBettaPhi
 };
-//
 use api_tools::debug::dbg_id::DbgId;
 use app::app::App;
-use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
+use debugging::session::debug_session::{
+    Backtrace, 
+    DebugSession, 
+    LogLevel
+};
 use infrostructure::client::{
-    change_hoisting_tackle::ChangeHoistingTackleQuery, choose_hoisting_rope::ChooseHoistingRopeQuery, choose_user_bearing::ChooseUserBearingQuery, choose_user_hook::ChooseUserHookQuery, query::Query
+    change_hoisting_tackle::ChangeHoistingTackleQuery, 
+    choose_hoisting_rope::ChooseHoistingRopeQuery, 
+    choose_user_bearing::ChooseUserBearingQuery, 
+    choose_user_hook::ChooseUserHookQuery, 
+    query::Query
 };
 use kernel::{
-    eval::Eval, mok_user_reply::mok_user_reply::MokUserReply, request::Request, run::Run,
+    eval::Eval, 
+    mok_user_reply::mok_user_reply::MokUserReply, 
+    request::Request, 
+    run::Run,
     storage::storage::Storage, sync::{link::Link, switch::Switch},
-    user_setup::{user_bearing::UserBearing, user_hoist_rope::UserHoistRope, user_hook::UserHook},
+    user_setup::{
+        user_bearing::UserBearing, 
+        user_hoist_rope::UserHoistRope, 
+        user_hook::UserHookBlock
+    },
 };
 ///
 /// Application entry point
@@ -68,10 +105,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                                                             (link.req(query).await.expect("{}.req | Error to send request"), link)
                                                         },
                                                     ),
-                                                    UserHook::new(
+                                                    UserHookBlock::new(
                                                         Request::new(
                                                             switch.link().await,
-                                                            async |variants: HookFilterCtx, link: Link| {
+                                                            async |variants: HookBlockFilterCtx, link: Link| {
                                                                 let query = Query::ChooseUserHook(ChooseUserHookQuery::test(variants.result.clone()));
                                                                 (link.req(query).await.expect("{}.req | Error to send request"), link)
                                                             },

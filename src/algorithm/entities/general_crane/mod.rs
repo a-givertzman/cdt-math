@@ -1,0 +1,9 @@
+pub mod basic_crane_control;
+pub mod cab_location;
+pub mod crane_climatic_category;
+pub mod crane_duty_class;
+pub mod crane_purpose;
+pub mod crane_type;
+pub mod crane_work_area_type;
+pub mod crane_wind_area;
+pub mod explosion_fire_save_crane_purpose;

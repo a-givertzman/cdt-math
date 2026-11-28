@@ -1,15 +1,54 @@
 #[cfg(test)]
 
 mod bearing_filter {
-    use std::{sync::Once, time::Duration};
+    use std::{
+        sync::Once, 
+        time::Duration
+    };
     use testing::stuff::max_test_duration::TestDuration;
-    use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
+    use debugging::session::debug_session::{
+        DebugSession, 
+        LogLevel, 
+        Backtrace
+    };
     use crate::{
         algorithm::{
-            bearing_filter::{bearing_filter::BearingFilter, bearing_filter_ctx::BearingFilterCtx}, context::{context::Context, context_access::ContextRead, ctx_result::CtxResult}, dynamic_coefficient::dynamic_coefficient::DynamicCoefficient, entities::bearing::Bearing, hook_filter::{hook_filter::HookFilter, hook_filter_ctx::HookFilterCtx}, initial::Initial, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed::LiftingSpeed, select_betta_phi::select_betta_phi::SelectBettaPhi
+            bearing_filter::{
+                bearing_filter::BearingFilter, 
+                bearing_filter_ctx::BearingFilterCtx
+            }, 
+            context::{
+                context::Context, 
+                context_access::ContextRead, 
+                ctx_result::CtxResult
+            }, 
+            dynamic_coefficient::dynamic_coefficient::DynamicCoefficient, 
+            entities::bearing::Bearing, 
+            hook_filter::{
+                hook_filter::HookFilter, 
+                hook_filter_ctx::HookBlockFilterCtx
+            }, 
+            initial::Initial, 
+            initial_ctx::initial_ctx::InitialCtx, 
+            lifting_speed::lifting_speed::LiftingSpeed, 
+            select_betta_phi::select_betta_phi::SelectBettaPhi
         },
-        infrostructure::client::{choose_user_hook::{ChooseUserHookQuery, ChooseUserHookReply}, query::Query},
-        kernel::{eval::Eval, sync::link::Link, mok_user_reply::mok_user_reply::MokUserReply, request::Request, storage::storage::Storage, sync::switch::Switch, user_setup::user_hook::UserHook}
+        infrostructure::client::{
+            choose_user_hook::{
+                ChooseUserHookQuery, 
+                ChooseUserHookReply
+            }, 
+            query::Query
+        },
+        kernel::{
+            eval::Eval, 
+            sync::link::Link, 
+            mok_user_reply::mok_user_reply::MokUserReply, 
+            request::Request, 
+            storage::storage::Storage, 
+            sync::switch::Switch, 
+            user_setup::user_hook::UserHookBlock
+        }
     };
     ///
     ///
@@ -47,7 +86,7 @@ mod bearing_filter {
                         name: "Bearing A".to_string(),
                         outer_diameter: 120.5,
                         inner_diameter: 60.2,
-                        static_load_capacity: 1500.0,
+                        static_load: 1500.0,
                         height: 35.0 
                     }
                 ],
@@ -60,21 +99,21 @@ mod bearing_filter {
                         name: "Bearing A".to_string(),
                         outer_diameter: 120.5,
                         inner_diameter: 60.2,
-                        static_load_capacity: 1500.0,
+                        static_load: 1500.0,
                         height: 35.0 
                     },
                     Bearing { 
                         name: "Bearing B".to_string(),
                         outer_diameter: 100.0,
                         inner_diameter: 50.0,
-                        static_load_capacity: 1200.0,
+                        static_load: 1200.0,
                         height: 30.0 
                     },
                     Bearing { 
                         name: "Bearing C".to_string(),
                         outer_diameter: 140.0,
                         inner_diameter: 70.0,
-                        static_load_capacity: 1800.0,
+                        static_load: 1800.0,
                         height: 40.0 
                     }
                 ],
@@ -86,10 +125,10 @@ mod bearing_filter {
         let mok_user_reply_handle = mok_user_reply.run().await.unwrap();
         for (step, cache_path, target) in test_data {
             let result = BearingFilter::new(
-                UserHook::new(
+                UserHookBlock::new(
                     Request::new(
                         switch.link().await,
-                        async |variants: HookFilterCtx, link: Link| {
+                        async |variants: HookBlockFilterCtx, link: Link| {
                             let variants = variants.result.clone();
                             let query = Query::ChooseUserHook(ChooseUserHookQuery::test(variants));
                             (link.req::<ChooseUserHookReply>(query).await.expect("{}.req | Error to send request"), link)

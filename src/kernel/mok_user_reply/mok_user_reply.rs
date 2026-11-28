@@ -1,17 +1,50 @@
-use std::sync::{atomic::{AtomicBool, Ordering}, Arc};
-use sal_sync::services::entity::{cot::Cot, error::str_err::StrErr, name::Name, object::Object, point::{point::Point, point_hlr::PointHlr, point_tx_id::PointTxId}, status::status::Status};
+use std::sync::{
+    atomic::{
+        AtomicBool, 
+        Ordering
+    }, 
+    Arc
+    };
+use sal_sync::services::entity::{
+    cot::Cot, 
+    error::str_err::StrErr, 
+    name::Name, 
+    object::Object, 
+    point::{
+        point::Point, 
+        point_hlr::PointHlr, 
+        point_tx_id::PointTxId
+    }, 
+    status::status::Status
+};
 use serde::Serialize;
 use tokio::task::JoinHandle;
 use crate::{
     algorithm::entities::{
-        bearing::Bearing, hoisting_rope::{hoisting_rope::HoistingRope, rope_durability_class::RopeDurabilityClass, rope_type::RopeType},
-        hook::Hook,
+        bearing::Bearing, hoisting_rope::{
+            hoisting_rope::HoistingRope, 
+            rope_durability_class::RopeDurabilityClass, 
+            rope_type::RopeType
+        },
+        hook::HookBlock,
     }, 
     infrostructure::client::{
-        change_hoisting_tackle::{ChangeHoistingTackleQuery, ChangeHoistingTackleReply},
-        choose_hoisting_rope::{ChooseHoistingRopeQuery, ChooseHoistingRopeReply},
-        choose_user_bearing::{ChooseUserBearingQuery, ChooseUserBearingReply},
-        choose_user_hook::{ChooseUserHookQuery, ChooseUserHookReply},
+        change_hoisting_tackle::{
+            ChangeHoistingTackleQuery, 
+            ChangeHoistingTackleReply
+        },
+        choose_hoisting_rope::{
+            ChooseHoistingRopeQuery, 
+            ChooseHoistingRopeReply
+        },
+        choose_user_bearing::{
+            ChooseUserBearingQuery, 
+            ChooseUserBearingReply
+        },
+        choose_user_hook::{
+            ChooseUserHookQuery, 
+            ChooseUserHookReply
+        },
         query::Query
     },
     kernel::sync::link::Link,
@@ -76,21 +109,21 @@ impl MokUserReply {
                     Query::ChooseUserHook(query) => {
                         let query: ChooseUserHookQuery = query;
                         let reply = match query.testing {
-                            true => ChooseUserHookReply::new(Hook {
+                            true => ChooseUserHookReply::new(HookBlock {
                                 gost: "GOST 34567-85".to_string(),
                                 r#type: "Forged".to_string(),
-                                load_capacity_m13: 25.0,
-                                load_capacity_m46: 23.0,
-                                load_capacity_m78: 21.0,
+                                load_m13: 25.0,
+                                load_m46: 23.0,
+                                load_m78: 21.0,
                                 shank_diameter: 85.0,
                                 weight: 50.0,
                             }),
-                            false => ChooseUserHookReply::new(Hook {
+                            false => ChooseUserHookReply::new(HookBlock {
                                 gost: "GOST 34567-85".to_string(),
                                 r#type: "Forged".to_string(),
-                                load_capacity_m13: 25.0,
-                                load_capacity_m46: 23.0,
-                                load_capacity_m78: 21.0,
+                                load_m13: 25.0,
+                                load_m46: 23.0,
+                                load_m78: 21.0,
                                 shank_diameter: 85.0,
                                 weight: 50.0,
                             }),
@@ -103,7 +136,7 @@ impl MokUserReply {
                             name: "8100H".to_owned(),
                             outer_diameter: 24.0,
                             inner_diameter: 10.0,
-                            static_load_capacity: 11800.0,
+                            static_load: 11800.0,
                             height: 9.0,
                         });
                         build_reply(&dbg, txid, &name, reply)

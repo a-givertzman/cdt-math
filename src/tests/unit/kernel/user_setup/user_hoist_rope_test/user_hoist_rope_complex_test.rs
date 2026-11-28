@@ -6,10 +6,63 @@ mod user_hoist_rope_complex {
     use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
     use crate::{
         algorithm::{
-            bearing_filter::bearing_filter_ctx::BearingFilterCtx, context::{context::Context, context_access::ContextRead, ctx_result::CtxResult}, dynamic_coefficient::dynamic_coefficient::DynamicCoefficient, entities::hoisting_rope::{hoisting_rope::HoistingRope, rope_durability_class::RopeDurabilityClass, rope_type::RopeType}, hoist_rope_filter::{hoist_rope_filter::HoistRopeFilter, hoist_rope_filter_ctx::HoistRopeFilterCtx}, hoisting_tackle::hoisting_tackle::HoistingTackle, hoisting_tackle_effiency_coefficient::hoist_tackle_eff_coeff::HoistTackleEffCoeff, hoisting_tackle_multiplicity::hoist_tackle_multi::HoistTackleMulti, hook_filter::{hook_filter::HookFilter, hook_filter_ctx::HookFilterCtx}, initial::Initial, initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed::LiftingSpeed, load_hand_device_mass::load_hand_device_mass::LoadHandDeviceMass, maximum_force::max_force::MaxForce, min_break_force::min_break_force::MinBreakForce, rope_count::rope_count::RopeCount, rope_effort::rope_effort::RopeEffort, rope_safety_factor::safety_factor::SafetyFactor, select_betta_phi::select_betta_phi::SelectBettaPhi
+            bearing_filter::bearing_filter_ctx::BearingFilterCtx,
+             context::{
+                context::Context, 
+                context_access::ContextRead, 
+                ctx_result::CtxResult
+            }, 
+            dynamic_coefficient::dynamic_coefficient::DynamicCoefficient, 
+            entities::hoisting_rope::{
+                hoisting_rope::HoistingRope, 
+                rope_durability_class::RopeDurabilityClass, 
+                rope_type::RopeType
+            }, 
+            hoist_rope_filter::{
+                hoist_rope_filter::HoistRopeFilter, 
+                hoist_rope_filter_ctx::HoistRopeFilterCtx
+            }, 
+            hoisting_tackle::hoisting_tackle::HoistingTackle, 
+            hoisting_tackle_effiency_coefficient::hoist_tackle_eff_coeff::HoistTackleEffCoeff, 
+            hoisting_tackle_multiplicity::hoist_tackle_multi::HoistTackleMulti, 
+            hook_filter::{
+                hook_filter::HookFilter, 
+                hook_filter_ctx::HookBlockFilterCtx
+            }, 
+            initial::Initial, 
+            initial_ctx::initial_ctx::InitialCtx, 
+            lifting_speed::lifting_speed::LiftingSpeed, 
+            load_hand_device_mass::load_hand_device_mass::LoadHandDeviceMass, 
+            maximum_force::max_force::MaxForce, 
+            min_break_force::min_break_force::MinBreakForce, 
+            rope_count::rope_count::RopeCount, 
+            rope_effort::rope_effort::RopeEffort, 
+            rope_safety_factor::safety_factor::SafetyFactor, 
+            select_betta_phi::select_betta_phi::SelectBettaPhi
         },
-        infrostructure::client::{change_hoisting_tackle::ChangeHoistingTackleQuery, choose_hoisting_rope::ChooseHoistingRopeQuery, choose_user_bearing::ChooseUserBearingQuery, choose_user_hook::ChooseUserHookQuery, query::Query},
-        kernel::{eval::Eval, mok_user_reply::mok_user_reply::MokUserReply, request::Request, storage::storage::Storage, sync::{link::Link, switch::Switch}, user_setup::{user_bearing::UserBearing, user_hoist_rope::UserHoistRope, user_hoist_rope_ctx::UserHoistRopeCtx, user_hook::UserHook}}
+        infrostructure::client::{
+            change_hoisting_tackle::ChangeHoistingTackleQuery, 
+            choose_hoisting_rope::ChooseHoistingRopeQuery, 
+            choose_user_bearing::ChooseUserBearingQuery, 
+            choose_user_hook::ChooseUserHookQuery, 
+            query::Query
+        },
+        kernel::{
+            eval::Eval, 
+            mok_user_reply::mok_user_reply::MokUserReply, 
+            request::Request, 
+            storage::storage::Storage, 
+            sync::{
+                link::Link, 
+                switch::Switch
+            }, 
+            user_setup::{
+                user_bearing::UserBearing, 
+                user_hoist_rope::UserHoistRope, 
+                user_hoist_rope_ctx::UserHoistRopeCtx, 
+                user_hook::UserHookBlock
+            }
+        }
     };
     ///
     ///
@@ -90,10 +143,10 @@ mod user_hoist_rope_complex {
                                                                     (link.req(query).await.expect("{}.req | Error to send request"), link)
                                                                 },
                                                             ),
-                                                            UserHook::new(
+                                                            UserHookBlock::new(
                                                                 Request::new(
                                                                     switch.link().await,
-                                                                    async |variants: HookFilterCtx, link: Link| {
+                                                                    async |variants: HookBlockFilterCtx, link: Link| {
                                                                         let query = Query::ChooseUserHook(ChooseUserHookQuery::test(variants.result.clone()));
                                                                         (link.req(query).await.expect("{}.req | Error to send request"), link)
                                                                     },

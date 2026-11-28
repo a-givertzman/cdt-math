@@ -1,7 +1,10 @@
 #[cfg(test)]
-
 mod hook_filter {
-    use debugging::session::debug_session::{Backtrace, DebugSession, LogLevel};
+    use debugging::session::debug_session::{
+        Backtrace, 
+        DebugSession, 
+        LogLevel
+    };
     use futures::future::BoxFuture;
     use sal_sync::services::entity::error::str_err::StrErr;
     use std::{
@@ -9,15 +12,26 @@ mod hook_filter {
         time::Duration,
     };
     use testing::stuff::max_test_duration::TestDuration;
-
     use crate::{
         algorithm::{
-            context::{context::Context, context_access::ContextRead, ctx_result::CtxResult},
-            entities::hook::Hook,
-            hook_filter::{hook_filter::HookFilter, hook_filter_ctx::HookFilterCtx},
+            context::{
+                context::Context, 
+                context_access::ContextRead, 
+                ctx_result::CtxResult
+            },
+            entities::hook::HookBlock,
+            hook_filter::{
+                hook_filter::HookFilter, 
+                hook_filter_ctx::HookBlockFilterCtx
+            },
             initial_ctx::initial_ctx::InitialCtx,
         },
-        kernel::{dbgid::dbgid::DbgId, eval::Eval, storage::storage::Storage, types::eval_result::EvalResult},
+        kernel::{
+            dbgid::dbgid::DbgId, 
+            eval::Eval, 
+            storage::storage::Storage, 
+            types::eval_result::EvalResult
+        },
     };
 
     ///
@@ -61,30 +75,30 @@ mod hook_filter {
                 ))
                 .unwrap(),
                 CtxResult::Ok(vec![
-                    Hook {
+                    HookBlock {
                         gost: "GOST 18442-81".to_string(),
                         r#type: "Double".to_string(),
-                        load_capacity_m13: 12.0,
-                        load_capacity_m46: 11.0,
-                        load_capacity_m78: 10.0,
+                        load_m13: 12.0,
+                        load_m46: 11.0,
+                        load_m78: 10.0,
                         shank_diameter: 55.0,
                         weight: 60.0,
                     },
-                    Hook {
+                    HookBlock {
                         gost: "GOST 23858-79".to_string(),
                         r#type: "Forged".to_string(),
-                        load_capacity_m13: 22.0,
-                        load_capacity_m46: 20.0,
-                        load_capacity_m78: 18.5,
+                        load_m13: 22.0,
+                        load_m46: 20.0,
+                        load_m78: 18.5,
                         shank_diameter: 80.0,
                         weight: 70.0,
                     },
-                    Hook {
+                    HookBlock {
                         gost: "GOST 31272-92".to_string(),
                         r#type: "Laminated".to_string(),
-                        load_capacity_m13: 17.0,
-                        load_capacity_m46: 16.0,
-                        load_capacity_m78: 14.0,
+                        load_m13: 17.0,
+                        load_m46: 16.0,
+                        load_m78: 14.0,
                         shank_diameter: 65.0,
                         weight: 80.0,
                     },
@@ -96,12 +110,12 @@ mod hook_filter {
                     "./src/tests/unit/kernel/storage/cache/test_3",
                 ))
                 .unwrap(),
-                CtxResult::Ok(vec![Hook {
+                CtxResult::Ok(vec![HookBlock {
                     gost: "GOST 34567-85".to_string(),
                     r#type: "Forged".to_string(),
-                    load_capacity_m13: 25.0,
-                    load_capacity_m46: 23.0,
-                    load_capacity_m78: 21.0,
+                    load_m13: 25.0,
+                    load_m46: 23.0,
+                    load_m78: 21.0,
                     shank_diameter: 85.0,
                     weight: 70.0,
                 }]),
@@ -114,7 +128,7 @@ mod hook_filter {
             let result = HookFilter::new(ctx).eval(()).await;
             match (&result, &target) {
                 (CtxResult::Ok(result), CtxResult::Ok(target)) => {
-                    let result = ContextRead::<HookFilterCtx>::read(result)
+                    let result = ContextRead::<HookBlockFilterCtx>::read(result)
                         .result
                         .clone();
                     assert!(

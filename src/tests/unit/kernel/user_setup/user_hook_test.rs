@@ -1,19 +1,50 @@
 #[cfg(test)]
 
 mod user_hook {
-    use std::{sync::Once, time::Duration};
+    use std::{
+        sync::Once, 
+        time::Duration
+    };
     use testing::stuff::max_test_duration::TestDuration;
-    use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
+    use debugging::session::debug_session::{
+        DebugSession, 
+        LogLevel, 
+        Backtrace
+    };
     use crate::{
         algorithm::{
-            context::{context::Context, context_access::ContextRead, ctx_result::CtxResult},
-            dynamic_coefficient::dynamic_coefficient::DynamicCoefficient, entities::hook::Hook,
-            hook_filter::{hook_filter::HookFilter, hook_filter_ctx::HookFilterCtx}, initial::Initial,
-            initial_ctx::initial_ctx::InitialCtx, lifting_speed::lifting_speed::LiftingSpeed,
+            context::{
+                context::Context, 
+                context_access::ContextRead, 
+                ctx_result::CtxResult
+            },
+            dynamic_coefficient::dynamic_coefficient::DynamicCoefficient, 
+            entities::hook::HookBlock,
+            hook_filter::{
+                hook_filter::HookFilter, 
+                hook_filter_ctx::HookBlockFilterCtx
+            }, 
+            initial::Initial,
+            initial_ctx::initial_ctx::InitialCtx, 
+            lifting_speed::lifting_speed::LiftingSpeed,
             select_betta_phi::select_betta_phi::SelectBettaPhi,
         },
-        infrostructure::client::{choose_user_hook::ChooseUserHookQuery, query::Query},
-        kernel::{eval::Eval, sync::link::Link, mok_user_reply::mok_user_reply::MokUserReply, request::Request, storage::storage::Storage, sync::switch::Switch, user_setup::{user_hook::UserHook, user_hook_ctx::UserHookCtx}}
+        infrostructure::client::{
+            choose_user_hook::ChooseUserHookQuery, 
+            query::Query
+        },
+        kernel::{
+            eval::Eval, 
+            sync::link::Link, 
+            mok_user_reply::mok_user_reply::MokUserReply, 
+            request::Request, 
+            storage::storage::Storage, 
+            sync::switch::Switch, 
+            user_setup::{
+                user_hook::UserHookBlock, 
+                user_hook_ctx::UserHookCtx
+            }
+        }
     };
     ///
     ///
@@ -45,12 +76,12 @@ mod user_hook {
             (
                 1,
                 r#"./src/tests/unit/kernel/storage/cache/test_2"#,
-                Hook {
+                HookBlock {
                     gost: "GOST 34567-85".to_string(),
                     r#type: "Forged".to_string(),
-                    load_capacity_m13: 25.0,
-                    load_capacity_m46: 23.0,
-                    load_capacity_m78: 21.0,
+                    load_m13: 25.0,
+                    load_m46: 23.0,
+                    load_m78: 21.0,
                     shank_diameter: 85.0,
                     weight: 50.0,
                 },
@@ -61,10 +92,10 @@ mod user_hook {
         let mut mok_user_reply = MokUserReply::new(dbg, remote);
         let mok_user_reply_handle = mok_user_reply.run().await.unwrap();
         for (step, cache_path, target) in test_data {
-            let result = UserHook::new(
+            let result = UserHookBlock::new(
                 Request::new(
                     switch.link().await,
-                    async |variants: HookFilterCtx, link: Link| {
+                    async |variants: HookBlockFilterCtx, link: Link| {
                         let query = Query::ChooseUserHook(ChooseUserHookQuery::test(variants.result.clone()));
                         (link.req(query).await.expect("{}.req | Error to send request"), link)
                     },

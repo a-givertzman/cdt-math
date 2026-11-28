@@ -2,9 +2,9 @@ use sal_sync::services::entity::error::str_err::StrErr;
 use serde::{Deserialize, Serialize};
 use std::str::FromStr;
 ///
-/// Represents [lifting mechanism driver types](design\docs\algorithm\part01\initial_data.md)
+/// Represents [lifting mechanism driver types](design/docs/algorithm_single_ginger_overhead_crane/part01_initialization/chapter01_initialData/chapter01_initialData.md)
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub enum DriverType {
+pub enum LiftingMechanismDriveType {
     Hd1,
     Hd2,
     Hd3,
@@ -13,10 +13,10 @@ pub enum DriverType {
 }
 //
 //
-impl FromStr for DriverType {
+impl FromStr for LiftingMechanismDriveType {
     type Err = StrErr;
     ///
-    /// Method translates from string into enuming structure DriverType
+    /// Method translates from string into enuming structure LiftingMechanismDriveType
     /// - 's' - value to translate
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.to_lowercase().as_str() {
@@ -25,7 +25,7 @@ impl FromStr for DriverType {
             "hd3" => Ok(Self::Hd3),
             "hd4" => Ok(Self::Hd4),
             "hd5" => Ok(Self::Hd5),
-            _ => Err(format!("DriverType.from_str | Invalid DriverType: {}", s).into()),
+            _ => Err(format!("LiftingMechanismDriveType.from_str | Invalid LiftingMechanismDriveType: {}", s).into()),
         }
     }
 }

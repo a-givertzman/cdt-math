@@ -1,10 +1,30 @@
 #[cfg(test)]
 
 mod mok_user_reply {
-    use std::{sync::Once, time::Duration};
+    use std::{
+        sync::Once, 
+        time::Duration
+    };
     use testing::stuff::max_test_duration::TestDuration;
-    use debugging::session::debug_session::{DebugSession, LogLevel, Backtrace};
-    use crate::{algorithm::entities::hook::Hook, infrostructure::client::{choose_user_hook::{ChooseUserHookQuery, ChooseUserHookReply}, query::Query}, kernel::{sync::link::Link, mok_user_reply::mok_user_reply::MokUserReply}};
+    use debugging::session::debug_session::{
+        DebugSession, 
+        LogLevel, 
+        Backtrace
+    };
+    use crate::{
+        algorithm::entities::hook::HookBlock, 
+        infrostructure::client::{
+            choose_user_hook::{
+                ChooseUserHookQuery, 
+                ChooseUserHookReply
+            }, 
+            query::Query
+        }, 
+        kernel::{
+            sync::link::Link, 
+            mok_user_reply::mok_user_reply::MokUserReply
+        }
+    };
     ///
     ///
     static INIT: Once = Once::new();
@@ -35,22 +55,22 @@ mod mok_user_reply {
             (
                 1,
                 ChooseUserHookQuery::test(vec![
-                    Hook { 
+                    HookBlock { 
                         gost: "".into(),
                         r#type: "".into(),
-                        load_capacity_m13: 0.1,
-                        load_capacity_m46: 0.2,
-                        load_capacity_m78: 0.3,
+                        load_m13: 0.1,
+                        load_m46: 0.2,
+                        load_m78: 0.3,
                         shank_diameter: 0.4,
                         weight: 50.0,
                     }
                 ]),
-                Hook {
+                HookBlock {
                     gost: "GOST 34567-85".into(),
                     r#type: "Forged".into(),
-                    load_capacity_m13: 25.0,
-                    load_capacity_m46: 23.0,
-                    load_capacity_m78: 21.0,
+                    load_m13: 25.0,
+                    load_m46: 23.0,
+                    load_m78: 21.0,
                     shank_diameter: 85.0,
                     weight: 50.0,
                 }
